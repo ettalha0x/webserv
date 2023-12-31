@@ -4,8 +4,7 @@ This project is a part of the 42 core curriculum, The goal of the project is to 
 
 ## Project Roadmap
 ### Tasks
-- [X] task 1.
-- [ ] task 2
+- [X] implementing the class Socket.
 
 ## Authors
 
