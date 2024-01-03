@@ -10,7 +10,6 @@ class Socket
 	private:
 		struct sockaddr_in address;
 		int sock;
-		int connection;
 
 	public:
 
@@ -26,12 +25,7 @@ class Socket
 		// getter functions
 		struct	sockaddr_in get_address();
 		int		get_socket();
-		int		get_connection();
-
-		// setter functions
-
-		void	set_connection(int connection);
-
+		
 		// distructor
 		~Socket();
  

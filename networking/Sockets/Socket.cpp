@@ -30,16 +30,6 @@ int		Socket::get_socket() {
 	return sock;
 };
 
-int		Socket::get_connection() {
-	return connection;
-};
-
-//setter functions
-
-void	Socket::set_connection(int connection) {
-	this->connection = connection;
-};
-
 // distructor
 Socket::~Socket() {
 }

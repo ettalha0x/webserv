@@ -6,6 +6,7 @@
 
 class BindingSocket: public Socket {
 	private:
+		int	binding;
 
 	public:
 
