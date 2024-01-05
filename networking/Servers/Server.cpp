@@ -4,7 +4,7 @@ Server::Server(int domain, int service, int protocol, int port, u_long interface
 	socket = new ListeningSocket(domain, service, protocol, port, interface, backlog);
 }
 
-ListeningSocket 	*Server::get_socket() {
+ListeningSocket 	*Server::get_sock() {
 	return socket;
 }
 

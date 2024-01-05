@@ -15,6 +15,6 @@ class Server
 		virtual void handler() = 0;
 		virtual void responder() = 0;
 		virtual void launch() = 0;
-		ListeningSocket *get_socket();
+		ListeningSocket *get_sock();
 		~Server();
 };

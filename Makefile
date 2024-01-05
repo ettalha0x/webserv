@@ -4,7 +4,7 @@ SRCS = main.cpp Networking/Sockets/Socket.cpp \
         Networking/Sockets/ConnectingSocket.cpp \
         Networking/Sockets/ListeningSocket.cpp \
 		Networking/Servers/Server.cpp \
-		Networking/Servers/TestServer.cpp
+		Networking/Servers/WebServer.cpp
 OBJS = $(SRCS:.cpp=.o)
 FLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -rf
