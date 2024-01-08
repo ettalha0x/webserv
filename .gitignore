@@ -1,0 +1,49 @@
+# C++ compiled files
+*.out
+*.app
+*.exe
+
+# Object files
+*.o
+*.lo
+*.a
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.dll
+*.so
+*.dylib
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Dependency directories
+.vscode/
+.vscode-test/
+CMakeFiles/
+CMakeScripts/
+build/
+Debug/
+Release/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+
+# Visual Studio Code files
+.vscode/
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
