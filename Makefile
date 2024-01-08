@@ -1,15 +1,17 @@
 NAME = webserv
-SRCS = main.cpp Networking/Sockets/Socket.cpp \
-        Networking/Sockets/BindingSocket.cpp \
-        Networking/Sockets/ConnectingSocket.cpp \
-        Networking/Sockets/ListeningSocket.cpp \
-		Networking/Servers/Server.cpp \
-		Networking/Servers/WebServer.cpp
+SRCS = main.cpp Servers/Utils/Utils.cpp \
+		Sockets/Socket.cpp \
+        Sockets/BindingSocket.cpp \
+        Sockets/ConnectingSocket.cpp \
+        Sockets/ListeningSocket.cpp \
+		Servers/Server.cpp \
+		Servers/HttpResponse.cpp \
+		Servers/WebServer.cpp
 OBJS = $(SRCS:.cpp=.o)
 FLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -rf
 
-%.o:%.cpp Networking/Networking.hpp
+%.o:%.cpp Webserv.hpp
 		c++ $(FLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)

@@ -1,7 +1,7 @@
-#include "Networking/Servers/WebServer.hpp"
+#include "Servers/WebServer.hpp"
 
 int main(){
     
-    WebServer  ts;
+    WebServer  webserv;
     return 0;
 }
