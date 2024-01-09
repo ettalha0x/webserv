@@ -2,7 +2,6 @@ NAME = webserv
 SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Sockets/Socket.cpp \
         Sockets/BindingSocket.cpp \
-        Sockets/ConnectingSocket.cpp \
         Sockets/ListeningSocket.cpp \
 		Servers/Server.cpp \
 		Servers/HttpResponse.cpp \
