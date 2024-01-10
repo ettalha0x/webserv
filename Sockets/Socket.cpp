@@ -8,7 +8,17 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
 	address.sin_addr.s_addr = htonl(interface);
 	// establish socket
 	sock = socket(domain, service, protocol);
+	// setNonBlocking(sock);
+	int reuseaddr = 1;
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr)))
+        throw std::runtime_error("Error of binding by reusing address");
 	test_connection(sock);
+}
+
+void	Socket::setNonBlocking(int sock) {
+	// use fcntl to set non-blocking mode
+	int flags = fcntl(sock, F_GETFL, 0);
+	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 }
 
 // test connection virtual function
