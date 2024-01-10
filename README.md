@@ -6,9 +6,14 @@ This project is a part of the 42 core curriculum, The goal of the project is to 
 ### Tasks
 - [X] implementing the class Socket and it's childs.
 - [X] implementing the class Server and it's childs.
+- [X] implementing the class httpResponse.
+- [x] set connection to non-blocking mode.
+- [ ] implementing non-blocking mode logic (in progress)
 
 ## Authors
 
 - Amine Ouchaadid [@amindid](https://github.com/amindid)
+
+- Elmehdi Sekouni [@esekouni](https://github.com/esekouni)
 
 - Noureddine Ettalhaouy [@ettalha0x](https://github.com/ettalha0x)

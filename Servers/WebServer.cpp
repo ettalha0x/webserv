@@ -23,7 +23,7 @@ void WebServer::responder() {
 	response.setStatusCode(200);
 	response.setStatusMessage("OK");
 	response.addHeader("Content-Type", "text/html");
-	response.addHeader("Content-Length", "1337");
+	// response.addHeader("Content-Length", "1337");
     response.addHeader("Server", "Webserv");
     response.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = response.getHeaderString();
