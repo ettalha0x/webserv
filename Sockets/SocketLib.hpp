@@ -4,6 +4,4 @@
 
 # include "BindingSocket.hpp"
 
-# include "ConnectingSocket.hpp"
-
 # include "ListeningSocket.hpp"

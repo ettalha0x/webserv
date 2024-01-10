@@ -13,9 +13,16 @@ class HttpResponse {
 		// Setters functions
 		void	setStatusCode(int statusCode);
 		void	setStatusMessage(std::string statusMessage);
+
 		// Function to add a header to the response
 		void addHeader(const std::string& key, const std::string& value);
 
+		// Function to get the status code
+		int	getStatusCode();
+
+		// Function to get the status message
+		std::string	getStatusMessage();
+		
 		// Function to get the constructed response header
 		std::string getHeaderString() const;
 

@@ -2,8 +2,9 @@
 
 # include <iostream>
 # include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
+# include <fcntl.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 
 class Socket
 {
@@ -18,6 +19,9 @@ class Socket
 	
 		// virtual function to connect to a network
 		virtual int  connect_to_network(int sock, struct sockaddr_in address) = 0;
+
+		// function to set non-blocking mode
+		void	setNonBlocking(int sock);
 
 		// function to test socket and connection
 		void	test_connection(int item_to_test);

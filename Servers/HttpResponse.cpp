@@ -15,6 +15,14 @@ void HttpResponse::addHeader(const std::string& key, const std::string& value) {
 			headers[key] = value;
 }
 
+int	HttpResponse::getStatusCode() {
+	return statusCode;
+}
+
+std::string	HttpResponse::getStatusMessage() {
+	return statusMessage;
+}
+
 std::string HttpResponse::getHeaderString() const {
 
 	std::string headerString = "HTTP/1.1 " + std::to_string(statusCode) + " " + statusMessage + "\r\n";
@@ -25,5 +33,7 @@ std::string HttpResponse::getHeaderString() const {
 	headerString += "\r\nHello form server ";
 	return headerString + "\r\n";
 }
+
+
 HttpResponse::~HttpResponse() {
 }
