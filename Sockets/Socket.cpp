@@ -8,7 +8,7 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
 	address.sin_addr.s_addr = htonl(interface);
 	// establish socket
 	sock = socket(domain, service, protocol);
-	// setNonBlocking(sock);
+	setNonBlocking(sock);
 	int reuseaddr = 1;
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr)))
         throw std::runtime_error("Error of binding by reusing address");

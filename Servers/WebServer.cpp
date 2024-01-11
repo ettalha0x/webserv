@@ -9,11 +9,11 @@ void WebServer::accepter() {
 	struct sockaddr_in address = get_sock()->get_address();
 	int		addrlen = sizeof(address);
 	new_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
-	request = new char[1024];
-	read(new_socket, request, 1024);
 }
 
 void WebServer::handler() {
+    request = new char[BUFSIZ];
+	read(new_socket, request, BUFSIZ);
 	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
 	std::cout << request << std::endl;
 }
@@ -28,17 +28,46 @@ void WebServer::responder() {
     response.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = response.getHeaderString();
 	write(new_socket, res.c_str(), res.length());
-	std::string str = std::to_string(count++);
+	std::string str = std::to_string(count++) + "\n";
 	write(new_socket, str.c_str(), str.length());
 	close(new_socket);
 }
+
 void WebServer::launch() {
+    fd_set  curr_socket, ready_socket;
+    int max_sockfd = get_sock()->get_socket();
+
+    // init current socket
+    FD_ZERO(&curr_socket);
+    FD_SET(get_sock()->get_socket(), &curr_socket);
+    int j = 0;
 	while (true) {
-		std::cout << "------- WAITING FOR INCOMMING REQUSTES -------" << std::endl;
-		accepter();
-		handler();
-		responder();
-		std::cout << "-------------- DONE --------------"<< std::endl;
+        //save the current socket because select() is destructive
+        ready_socket = curr_socket;
+
+        if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
+            std::cout << "------- WAITING FOR INCOMMING REQUSTES -------" << std::endl;
+        if (select(max_sockfd + 1, &ready_socket, NULL, NULL, NULL) < 0) {
+            perror("select()");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int fd=0; fd < (max_sockfd + 1); fd++) {
+            if (FD_ISSET(fd, &ready_socket)) {
+                if (fd == get_sock()->get_socket()) {
+                    accepter();
+                    FD_SET(new_socket, &curr_socket);
+                    if (new_socket > max_sockfd) {
+                        max_sockfd = new_socket;
+                    }
+                } else {
+                    handler();
+                    responder();
+                    FD_CLR(fd, &curr_socket);
+		            std::cout << "-------------- DONE --------------"<< std::endl;
+                }
+            }
+        }
 	}
 }
 
