@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/09 23:51:31 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/12 12:11:47 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 typedef std::map<std::string, std::string> HeaderContainer;
 typedef std::vector<std::pair<std::string, std::string> > bodyContainer;
+typedef std::vector<std::pair<std::string, int > > fileContainer;
 
 class HttpRequest {
 	private:
@@ -29,6 +30,7 @@ class HttpRequest {
 
 		HeaderContainer Headers;
 		bodyContainer 	body;
+		fileContainer   filesUpload;
 		
 		bool 			HeaderCompleted;            /* header completed or not */
 		bool 			bodyExist;					/*there is a body or not */
