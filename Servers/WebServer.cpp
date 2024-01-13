@@ -14,19 +14,22 @@ void WebServer::accepter() {
 void WebServer::handler() {
     request = new char[BUFSIZ];
 	read(new_socket, request, BUFSIZ);
+    HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
+    // newRequest.parse(request);
 	std::cout << request << std::endl;
 }
 
 void WebServer::responder() {
 	static int count = 0;
-	response.setStatusCode(200);
-	response.setStatusMessage("OK");
-	response.addHeader("Content-Type", "text/html");
-	// response.addHeader("Content-Length", "1337");
-    response.addHeader("Server", "Webserv");
-    response.addHeader("Date", getCurrentTimeInGMT());
-	std::string res = response.getHeaderString();
+    HttpResponse newResponse;
+	newResponse.setStatusCode(200);
+	newResponse.setStatusMessage("OK");
+	newResponse.addHeader("Content-Type", "text/html");
+	// newResponse.addHeader("Content-Length", "1337");
+    newResponse.addHeader("Server", "Webserv");
+    newResponse.addHeader("Date", getCurrentTimeInGMT());
+	std::string res = newResponse.getHeaderString();
 	write(new_socket, res.c_str(), res.length());
 	std::string str = std::to_string(count++) + "\n";
 	write(new_socket, str.c_str(), str.length());
@@ -72,6 +75,7 @@ void WebServer::launch() {
 }
 
 WebServer::~WebServer() {
+    delete request;
 }
 
 std::string getContentType(const std::string& filePath) {

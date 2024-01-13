@@ -4,6 +4,7 @@
 # include <fstream>
 # include <unistd.h>
 # include "../Sockets/SocketLib.hpp"
+#include <map>
 
 class Server
 {
