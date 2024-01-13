@@ -13,7 +13,7 @@ class WebServer:  public Server {
 	private:
 		char	*request;
 		int 	new_socket;
-		RequestContainer Requests;
+		// RequestContainer Requests;
 		ResponseContainer responses;
 		void	accepter();
 		void	handler();

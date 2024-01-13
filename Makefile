@@ -5,6 +5,7 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
         Sockets/ListeningSocket.cpp \
 		Servers/Server.cpp \
 		Servers/HttpResponse.cpp \
+		Servers/HttpRequest.cpp \
 		Servers/WebServer.cpp
 OBJS = $(SRCS:.cpp=.o)
 FLAGS = -Wall -Wextra -Werror -std=c++98

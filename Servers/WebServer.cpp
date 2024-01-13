@@ -16,7 +16,8 @@ void WebServer::handler() {
 	read(new_socket, request, BUFSIZ);
     HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
-    // newRequest.parse(request);
+    newRequest.parser(request);
+    std::cout << newRequest;
 	std::cout << request << std::endl;
 }
 
