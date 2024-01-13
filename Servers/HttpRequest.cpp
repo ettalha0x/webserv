@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/09 23:52:48 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/13 13:12:13 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : _method("GET"), HeaderCompleted(false), bodyCompleted(false), bodyExist(false) {}
-HttpRequest::HttpRequest(std::string method) : _method(method), HeaderCompleted(false), bodyCompleted(false), bodyExist(false){}
+HttpRequest::HttpRequest() : _method("GET"), HeaderCompleted(false), bodyExist(false), bodyCompleted(false) {}
+HttpRequest::HttpRequest(std::string method) : _method(method), HeaderCompleted(false), bodyExist(false), bodyCompleted(false) {}
 
 HttpRequest::~HttpRequest() {}
 
