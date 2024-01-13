@@ -1,13 +1,20 @@
 # pragma once
 
 # include "HttpResponse.hpp"
+# include "HttpRequest.hpp"
+
 # include "Server.hpp"
+
+
+typedef std::map<int , HttpRequest> RequestContainer;
+typedef std::map<int , HttpResponse> ResponseContainer;
 
 class WebServer:  public Server {
 	private:
 		char	*request;
 		int 	new_socket;
-		HttpResponse response;
+		RequestContainer Requests;
+		ResponseContainer responses;
 		void	accepter();
 		void	handler();
 		void	responder();
