@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/13 18:29:55 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/14 16:25:10 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,7 @@ class HttpRequest {
 		int 			Status;
 		
 	public:
-		HttpRequest();								/*default constructor that initialize method with GET*/
-		HttpRequest(std::string method);			/*constructor that initialize with the geven method*/
+		HttpRequest();
 		~HttpRequest();
 
 		void SetRequestLine(std::string RequestLine);
@@ -64,11 +63,14 @@ class HttpRequest {
 		std::string GetMethod(void) const;
 		std::string GetHttpVersion(void) const;
 		std::string GetHost(void) const;
+		std::string GetBoundary(void) const;
 		HeaderContainer GetHeaders(void) const;
 		bodyContainer GetBody(void) const;
+		QueryContainer GetQuerty(void) const;
 		int GetStatus(void) const;
 		
 		void header_parser(std::string request);
+		void ckeckForQuery(void);
 		void parser(std::string request);
 };
 
