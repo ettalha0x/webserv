@@ -9,21 +9,30 @@ WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
 void WebServer::accepter() {
 	struct sockaddr_in address = get_sock()->get_address();
 	int		addrlen = sizeof(address);
-	new_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	server_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
-void WebServer::handler() {
-    request = new char[BUFSIZ];
+void WebServer::handler(int fdIndex) {
+    buffer = new char[BUFSIZ];
 	// read(new_socket, request, BUFSIZ);
     // int bytesReceived = 
-    recv(new_socket, request, BUFSIZ, 0);
+
+    recv(client_sockets[fdIndex], buffer, BUFSIZ, 0);
+    if (stringRequests.find(client_sockets[fdIndex]) == stringRequests.end()) {
+        // not found
+        stringRequests.insert(std::make_pair(client_sockets[fdIndex], buffer));    
+    } else {
+        // found
+        stringRequests[client_sockets[fdIndex]].append(buffer);
+    }
     HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
     // newRequest.parse(request);
-	std::cout << request << std::endl;
+	std::cout << stringRequests[client_sockets[fdIndex]] << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
 }
 
-void WebServer::responder() {
+void WebServer::responder(int fdIndex) {
 	static int count = 0;
     HttpResponse newResponse;
 	newResponse.setStatusCode(200);
@@ -35,12 +44,12 @@ void WebServer::responder() {
 	std::string res = newResponse.getHeaderString();
 	// write(new_socket, res.c_str(), res.length());
     // int bytesSent = 
-    send(new_socket, res.c_str(), res.length(), 0);
+    send(client_sockets[fdIndex], res.c_str(), res.length(), 0);
 	std::string str = std::to_string(count++) + "\n";
 	// write(new_socket, str.c_str(), str.length());
     // int resCounter = 
-    send(new_socket, str.c_str(), str.length(), 0);
-	close(new_socket);
+    send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
+	close(client_sockets[fdIndex]);
 }
 
 void WebServer::launch() {
@@ -75,16 +84,17 @@ void WebServer::launch() {
         for (int i = 0; i < num_events; ++i) {
             if (static_cast<uintptr_t>(events[i].ident) == static_cast<uintptr_t>(server_socket)) {
                 accepter();
-                int new_socket = this->new_socket;
+                int server_socket = this->server_socket;
 
-                EV_SET(&event, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                EV_SET(&event, server_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
                 if (kevent(kq, &event, 1, NULL, 0, NULL) == -1) {
                     perror("kevent");
                     exit(EXIT_FAILURE);
                 }
             } else {
-                handler();
-                responder();
+                client_sockets.push_back(events[i].ident);
+                handler(i);
+                responder(i);
                 // Check if the client has closed the connection
                 if (events[i].flags & EV_EOF) {
                     close(events[i].ident);
@@ -99,5 +109,5 @@ void WebServer::launch() {
 }
 
 WebServer::~WebServer() {
-    delete request;
+    delete buffer;
 }
