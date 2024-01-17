@@ -12,27 +12,27 @@ void WebServer::accepter() {
 	server_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
-void WebServer::handler(int fdIndex) {
+void WebServer::handler(int &fdIndex) {
     buffer = new char[BUFSIZ];
-	// read(new_socket, request, BUFSIZ);
-    // int bytesReceived = 
-
-    recv(client_sockets[fdIndex], buffer, BUFSIZ, 0);
+    int bytesReceived = 0;
+    bytesReceived =  recv(client_sockets[fdIndex], buffer, BUFSIZ, 0);
     if (stringRequests.find(client_sockets[fdIndex]) == stringRequests.end()) {
-        // not found
+        // socket not exist yet insert it as a new sokcet
+        std:: cout << "socket not exist yet insert it as a new sokcet" << std::endl;
         stringRequests.insert(std::make_pair(client_sockets[fdIndex], buffer));    
     } else {
-        // found
+        // socket already exist append it if it's not comleted yet
+        std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
         stringRequests[client_sockets[fdIndex]].append(buffer);
     }
     HttpRequest newRequest;
-	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
+	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
 	std::cout << stringRequests[client_sockets[fdIndex]] << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
+    free(buffer);
 }
 
-void WebServer::responder(int fdIndex) {
+void WebServer::responder(int &fdIndex) {
 	static int count = 0;
     HttpResponse newResponse;
 	newResponse.setStatusCode(200);
@@ -42,11 +42,9 @@ void WebServer::responder(int fdIndex) {
     newResponse.addHeader("Server", "Webserv");
     newResponse.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = newResponse.getHeaderString();
-	// write(new_socket, res.c_str(), res.length());
     // int bytesSent = 
     send(client_sockets[fdIndex], res.c_str(), res.length(), 0);
 	std::string str = std::to_string(count++) + "\n";
-	// write(new_socket, str.c_str(), str.length());
     // int resCounter = 
     send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
 	close(client_sockets[fdIndex]);
@@ -80,7 +78,6 @@ void WebServer::launch() {
             perror("kevent");
             exit(EXIT_FAILURE);
         }
-
         for (int i = 0; i < num_events; ++i) {
             if (static_cast<uintptr_t>(events[i].ident) == static_cast<uintptr_t>(server_socket)) {
                 accepter();
