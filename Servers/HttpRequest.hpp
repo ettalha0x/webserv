@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/17 17:42:19 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/17 17:47:14 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 typedef std::map<std::string, std::string> HeaderContainer;
 typedef std::vector<std::pair<std::string, std::string> > bodyContainer;
 typedef std::vector<std::pair<std::string, int > > fileContainer;
+typedef std::vector<std::pair<std::string, std::string> > QueryContainer;
 
 class HttpRequest {
 	private:
@@ -27,20 +28,21 @@ class HttpRequest {
 		std::string 	_method;					/* POST || GET || DELETE */
 		std::string 	_HttpVersion;				/*the version of the http protocol being used*/
 		std::string 	_Host;
+		std::string 	_boundary;
 
 		HeaderContainer Headers;
 		bodyContainer 	body;
 		fileContainer   filesUpload;
+		QueryContainer  Query;
 		
-		bool 			HeaderCompleted;            /* header completed or not */
+		// bool 			HeaderCompleted;            /* header completed or not */
 		bool 			bodyExist;					/*there is a body or not */
-		bool 			bodyCompleted;				/* body completed or not */
+		// bool 			bodyCompleted;				/* body completed or not */
 		
 		int 			Status;
 		
 	public:
-		HttpRequest();								/*default constructor that initialize method with GET*/
-		HttpRequest(std::string method);			/*constructor that initialize with the geven method*/
+		HttpRequest();
 		~HttpRequest();
 
 		void SetRequestLine(std::string RequestLine);
@@ -50,21 +52,26 @@ class HttpRequest {
 
 		void UpDateStatus(int status);
 
-		void HeaderIsCompleted(void);
+		// void HeaderIsCompleted(void);
 		void BodyDoExist(void);
-		void BodyIsCompleted(void);
+		// void BodyIsCompleted(void);
 
 		/*geters*/
 		
-		std::string GetRequestLine(void);
-		std::string GetPath(void);
-		std::string GetMethod(void);
-		std::string GetHttpVersion(void);
-		std::string GetHost(void);
-		HeaderContainer GetHeaders(void);
-		bodyContainer GetBody(void);
-		int GetStatus(void);
+		std::string GetRequestLine(void) const;
+		std::string GetPath(void) const;
+		std::string GetMethod(void) const;
+		std::string GetHttpVersion(void) const;
+		std::string GetHost(void) const;
+		std::string GetBoundary(void) const;
+		HeaderContainer GetHeaders(void) const;
+		bodyContainer GetBody(void) const;
+		QueryContainer GetQuerty(void) const;
+		int GetStatus(void) const;
+		
+		void header_parser(std::string request);
+		void ckeckForQuery(void);
+		void parser(std::string request);
 };
 
-std::string		extructBoundary(std::string requestData, size_t pos);
-bool			requestChecker(std::string requestData);
+std::ostream& operator<<(std::ostream& os, const HttpRequest& obj);
