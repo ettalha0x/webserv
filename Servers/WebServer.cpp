@@ -25,7 +25,7 @@ void WebServer::handler(int &fdIndex) {
         std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
         stringRequests[client_sockets[fdIndex]].append(buffer);
     }
-    HttpRequest newRequest;
+    // HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
 	std::cout << stringRequests[client_sockets[fdIndex]] << std::endl;
@@ -47,6 +47,7 @@ void WebServer::responder(int &fdIndex) {
 	std::string str = std::to_string(count++) + "\n";
     // int resCounter = 
     send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
+    stringRequests.erase(client_sockets[fdIndex]);
 	close(client_sockets[fdIndex]);
 }
 
