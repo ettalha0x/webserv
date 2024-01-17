@@ -13,9 +13,9 @@ void WebServer::accepter() {
 }
 
 void WebServer::handler(int &fdIndex) {
-    buffer = new char[BUFSIZ];
+    buffer = new char[16];
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex], buffer, BUFSIZ, 0);
+    bytesReceived =  recv(client_sockets[fdIndex], buffer, 16, 0);
     if (stringRequests.find(client_sockets[fdIndex]) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
         std:: cout << "socket not exist yet insert it as a new sokcet" << std::endl;
@@ -49,6 +49,7 @@ void WebServer::responder(int &fdIndex) {
     send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
     stringRequests.erase(client_sockets[fdIndex]);
 	close(client_sockets[fdIndex]);
+    std::cout << "-------------- DONE --------------" << std::endl;
 }
 
 void WebServer::launch() {
@@ -92,13 +93,15 @@ void WebServer::launch() {
             } else {
                 client_sockets.push_back(events[i].ident);
                 handler(i);
-                responder(i);
+                if (requestChecker(stringRequests[client_sockets[i]]))
+                    responder(i);
                 // Check if the client has closed the connection
                 if (events[i].flags & EV_EOF) {
                     close(events[i].ident);
                     std::cout << "Client has closed the connection" << std::endl;
-                } else
-                    std::cout << "-------------- DONE --------------" << std::endl;
+                } 
+                // else
+                    // std::cout << "-------------- DONE --------------" << std::endl;
             }
         }
     }
