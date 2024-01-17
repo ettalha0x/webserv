@@ -30,7 +30,7 @@ std::string HttpResponse::getHeaderString() const {
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		headerString += it->first + ": " + it->second + "\r\n";
 	}
-	headerString += "\r\nHello form server ";
+	headerString += "\r\n<br><br><br><center><h1>Hello from Wind City Warrior's Web Server</h1></center>";
 	return headerString + "\r\n";
 }
 

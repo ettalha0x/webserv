@@ -39,12 +39,12 @@ void WebServer::responder(int &fdIndex) {
 	newResponse.setStatusMessage("OK");
 	newResponse.addHeader("Content-Type", "text/html");
 	// newResponse.addHeader("Content-Length", "1337");
-    newResponse.addHeader("Server", "Webserv");
+    newResponse.addHeader("Server", "Wind City Warrior's Web Server");
     newResponse.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = newResponse.getHeaderString();
     // int bytesSent = 
     send(client_sockets[fdIndex], res.c_str(), res.length(), 0);
-	std::string str = std::to_string(count++) + "\n";
+	std::string str = "<center><h1>" + std::to_string(count++) + "</h1></center>\n";
     // int resCounter = 
     send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
     stringRequests.erase(client_sockets[fdIndex]);
