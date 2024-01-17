@@ -1,5 +1,6 @@
 # include "WebServer.hpp"
 # include "Utils/Utils.hpp"
+# include <sys/event.h>
 
 WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
 	launch();
@@ -8,116 +9,106 @@ WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
 void WebServer::accepter() {
 	struct sockaddr_in address = get_sock()->get_address();
 	int		addrlen = sizeof(address);
-	new_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	server_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
-void WebServer::handler() {
-    request = new char[BUFSIZ];
-	read(new_socket, request, BUFSIZ);
-    HttpRequest newRequest;
-	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
+void WebServer::handler(int &fdIndex) {
+    buffer = new char[16];
+    int bytesReceived = 0;
+    bytesReceived =  recv(client_sockets[fdIndex], buffer, 16, 0);
+    if (stringRequests.find(client_sockets[fdIndex]) == stringRequests.end()) {
+        // socket not exist yet insert it as a new sokcet
+        std:: cout << "socket not exist yet insert it as a new sokcet" << std::endl;
+        stringRequests.insert(std::make_pair(client_sockets[fdIndex], buffer));    
+    } else {
+        // socket already exist append it if it's not comleted yet
+        std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
+        stringRequests[client_sockets[fdIndex]].append(buffer);
+    }
+    // HttpRequest newRequest;
+	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
-	std::cout << request << std::endl;
+	std::cout << stringRequests[client_sockets[fdIndex]] << std::endl;
+    free(buffer);
 }
 
-void WebServer::responder() {
+void WebServer::responder(int &fdIndex) {
 	static int count = 0;
     HttpResponse newResponse;
 	newResponse.setStatusCode(200);
 	newResponse.setStatusMessage("OK");
 	newResponse.addHeader("Content-Type", "text/html");
 	// newResponse.addHeader("Content-Length", "1337");
-    newResponse.addHeader("Server", "Webserv");
+    newResponse.addHeader("Server", "Wind City Warrior's Web Server");
     newResponse.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = newResponse.getHeaderString();
-	write(new_socket, res.c_str(), res.length());
-	std::string str = std::to_string(count++) + "\n";
-	write(new_socket, str.c_str(), str.length());
-	close(new_socket);
+    // int bytesSent = 
+    send(client_sockets[fdIndex], res.c_str(), res.length(), 0);
+	std::string str = "<center><h1>" + std::to_string(count++) + "</h1></center>\n";
+    // int resCounter = 
+    send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
+    stringRequests.erase(client_sockets[fdIndex]);
+	close(client_sockets[fdIndex]);
+    std::cout << "-------------- DONE --------------" << std::endl;
 }
 
 void WebServer::launch() {
-    fd_set  curr_socket, ready_socket;
-    int max_sockfd = get_sock()->get_socket();
+    int kq = kqueue();
+    if (kq == -1) {
+        perror("kqueue");
+        exit(EXIT_FAILURE);
+    }
 
-    // init current socket
-    FD_ZERO(&curr_socket);
-    FD_SET(get_sock()->get_socket(), &curr_socket);
-    int j = 0;
-	while (true) {
-        //save the current socket because select() is destructive
-        ready_socket = curr_socket;
+    int server_socket = get_sock()->get_socket();
+    struct kevent event;
+    EV_SET(&event, server_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
 
+    if (kevent(kq, &event, 1, NULL, 0, NULL) == -1) {
+        perror("kevent");
+        exit(EXIT_FAILURE);
+    }
+
+    std::vector<struct kevent> events(64); // Adjust the size as needed
+
+    int j= 0;
+    while (true) {
         if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
             std::cout << "------- WAITING FOR INCOMMING REQUSTES -------" << std::endl;
-        if (select(max_sockfd + 1, &ready_socket, NULL, NULL, NULL) < 0) {
-            perror("select()");
+
+        int num_events = kevent(kq, NULL, 0, events.data(), events.size(), NULL);
+        if (num_events == -1) {
+            perror("kevent");
             exit(EXIT_FAILURE);
         }
+        for (int i = 0; i < num_events; ++i) {
+            if (static_cast<uintptr_t>(events[i].ident) == static_cast<uintptr_t>(server_socket)) {
+                accepter();
+                int server_socket = this->server_socket;
 
-        for (int fd=0; fd < (max_sockfd + 1); fd++) {
-            if (FD_ISSET(fd, &ready_socket)) {
-                if (fd == get_sock()->get_socket()) {
-                    accepter();
-                    FD_SET(new_socket, &curr_socket);
-                    if (new_socket > max_sockfd) {
-                        max_sockfd = new_socket;
-                    }
-                } else {
-                    handler();
-                    responder();
-                    FD_CLR(fd, &curr_socket);
-		            std::cout << "-------------- DONE --------------"<< std::endl;
+                EV_SET(&event, server_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                if (kevent(kq, &event, 1, NULL, 0, NULL) == -1) {
+                    perror("kevent");
+                    exit(EXIT_FAILURE);
                 }
+            } else {
+                client_sockets.push_back(events[i].ident);
+                handler(i);
+                if (requestChecker(stringRequests[client_sockets[i]]))
+                    responder(i);
+                // Check if the client has closed the connection
+                if (events[i].flags & EV_EOF) {
+                    close(events[i].ident);
+                    std::cout << "Client has closed the connection" << std::endl;
+                } 
+                // else
+                    // std::cout << "-------------- DONE --------------" << std::endl;
             }
         }
-	}
+    }
+
+    close(kq);
 }
 
 WebServer::~WebServer() {
-    delete request;
-}
-
-std::string getContentType(const std::string& filePath) {
-    // Mapping file extensions to MIME types
-    std::map<std::string, std::string> mimeTypes;
-    mimeTypes[".html"] = "text/html";
-    mimeTypes[".htm"] = "text/html";
-    mimeTypes[".txt"] = "text/plain";
-    mimeTypes[".css"] = "text/css";
-    mimeTypes[".js"] = "application/javascript";
-    // Add more mappings as needed
-
-    // Find the file extension
-    size_t dotPosition = filePath.find_last_of(".");
-    if (dotPosition != std::string::npos) {
-        std::string extension = filePath.substr(dotPosition);
-
-        // Check if the extension is in the map
-        std::map<std::string, std::string>::iterator it = mimeTypes.find(extension);
-        if (it != mimeTypes.end()) {
-            return it->second; // Return the corresponding MIME type
-        }
-    }
-
-    // Default to application/octet-stream if the extension is not recognized
-    return "application/octet-stream";
-}
-
-std::streamsize getContentLength(const std::string& filePath) {
-    // Open the file in binary mode
-    std::ifstream file(filePath.c_str(), std::ios::binary);
-
-    // Check if the file is open
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return -1; // Return -1 to indicate an error
-    }
-
-    // Get the file size
-    file.seekg(0, std::ios::end);
-    std::streamsize fileSize = file.tellg();
-    file.close();
-
-    return fileSize;
+    delete buffer;
 }
