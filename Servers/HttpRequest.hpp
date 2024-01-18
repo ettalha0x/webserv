@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/14 16:25:10 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/18 00:35:48 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,15 @@ class HttpRequest {
 		std::string 	_boundary;
 
 		HeaderContainer Headers;
-		bodyContainer 	body;
+		// bodyContainer 	body;
+		std::string			body;
+		std::string			rest;     // to be checked later
 		fileContainer   filesUpload;
 		QueryContainer  Query;
 		
 		// bool 			HeaderCompleted;            /* header completed or not */
 		bool 			bodyExist;					/*there is a body or not */
+		bool			isChinked;
 		// bool 			bodyCompleted;				/* body completed or not */
 		
 		int 			Status;
