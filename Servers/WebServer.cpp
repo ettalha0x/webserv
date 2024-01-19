@@ -13,23 +13,24 @@ void WebServer::accepter() {
 }
 
 void WebServer::handler(int &fdIndex) {
-    buffer = new char[16];
+    char buffer[16] = {0};
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex], buffer, 16, 0);
-    if (stringRequests.find(client_sockets[fdIndex]) == stringRequests.end()) {
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 15, 0);
+    cout << "bytesReceived : " << bytesReceived << endl;
+    if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
-        std:: cout << "socket not exist yet insert it as a new sokcet" << std::endl;
-        stringRequests.insert(std::make_pair(client_sockets[fdIndex], buffer));    
+        std:: cout << "socket not exist yet insert it as a new sokcet  " << fdIndex << std::endl;
+        stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
     } else {
         // socket already exist append it if it's not comleted yet
         std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
-        stringRequests[client_sockets[fdIndex]].append(buffer);
+        stringRequests[client_sockets[fdIndex].fd].append(buffer);
     }
     // HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
-	std::cout << stringRequests[client_sockets[fdIndex]] << std::endl;
-    free(buffer);
+    // Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
+	// std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
 }
 
 void WebServer::responder(int &fdIndex) {
@@ -43,72 +44,63 @@ void WebServer::responder(int &fdIndex) {
     newResponse.addHeader("Date", getCurrentTimeInGMT());
 	std::string res = newResponse.getHeaderString();
     // int bytesSent = 
-    send(client_sockets[fdIndex], res.c_str(), res.length(), 0);
+    send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
 	std::string str = "<center><h1>" + std::to_string(count++) + "</h1></center>\n";
     // int resCounter = 
-    send(client_sockets[fdIndex], str.c_str(), str.length(), 0);
-    stringRequests.erase(client_sockets[fdIndex]);
-	close(client_sockets[fdIndex]);
-    std::cout << "-------------- DONE --------------" << std::endl;
+    send(client_sockets[fdIndex].fd, str.c_str(), str.length(), 0);
+    stringRequests.erase(client_sockets[fdIndex].fd);
+    // Requests.erase(client_sockets[fdIndex].fd);
 }
 
 void WebServer::launch() {
-    int kq = kqueue();
-    if (kq == -1) {
-        perror("kqueue");
-        exit(EXIT_FAILURE);
-    }
-
     int server_socket = get_sock()->get_socket();
-    struct kevent event;
-    EV_SET(&event, server_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
 
-    if (kevent(kq, &event, 1, NULL, 0, NULL) == -1) {
-        perror("kevent");
-        exit(EXIT_FAILURE);
-    }
-
-    std::vector<struct kevent> events(64); // Adjust the size as needed
+    pollfd server_pollfd;
+    server_pollfd.fd = server_socket;
+    server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
+    server_pollfd.revents = 0;
+    client_sockets.push_back(server_pollfd);  // Add server socket to the list
 
     int j= 0;
     while (true) {
         if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
-            std::cout << "------- WAITING FOR INCOMMING REQUSTES -------" << std::endl;
+            std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
 
-        int num_events = kevent(kq, NULL, 0, events.data(), events.size(), NULL);
+
+        std::vector<pollfd> tmp = client_sockets;
+        int num_events = poll(&tmp[0], tmp.size(), -1);  // Wait indefinitely
+        if (num_events == 0) {
+            std::cout << "No events occurred" << std::endl;
+            continue;  // No events occurred, continue to the next iteration of the loop
+        }
         if (num_events == -1) {
-            perror("kevent");
+            perror("poll");
             exit(EXIT_FAILURE);
         }
-        for (int i = 0; i < num_events; ++i) {
-            if (static_cast<uintptr_t>(events[i].ident) == static_cast<uintptr_t>(server_socket)) {
-                accepter();
-                int server_socket = this->server_socket;
-
-                EV_SET(&event, server_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-                if (kevent(kq, &event, 1, NULL, 0, NULL) == -1) {
-                    perror("kevent");
-                    exit(EXIT_FAILURE);
+        for (int i = 0; i < (int)tmp.size(); ++i) {
+            if (tmp[i].revents & POLLIN) {
+                if (tmp[i].fd == server_socket) {
+                    accepter();
+                    pollfd client_pollfd;
+                    client_pollfd.fd = this->server_socket;
+                    client_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
+                    client_pollfd.revents = 0;
+                    client_sockets.push_back(client_pollfd);  // Add client socket to the list
+                } else {
+                    handler(i);
                 }
-            } else {
-                client_sockets.push_back(events[i].ident);
-                handler(i);
-                if (requestChecker(stringRequests[client_sockets[i]]))
+            }
+            if (tmp[i].revents & POLLOUT) {
+                if (requestChecker(stringRequests[tmp[i].fd])){
                     responder(i);
-                // Check if the client has closed the connection
-                if (events[i].flags & EV_EOF) {
-                    close(events[i].ident);
-                    std::cout << "Client has closed the connection" << std::endl;
-                } 
-                // else
-                    // std::cout << "-------------- DONE --------------" << std::endl;
+                    close(tmp[i].fd);
+                     std::cout << "-------------- DONE --------------" << std::endl;
+                    client_sockets.erase(client_sockets.begin() + i);
+                }
             }
         }
     }
-
-    close(kq);
 }
 
 WebServer::~WebServer() {
-    delete buffer;
 }
