@@ -8,14 +8,14 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Servers/HttpResponse.cpp \
 		Servers/WebServer.cpp
 OBJS = $(SRCS:.cpp=.o)
-FLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM = rm -rf
 
 %.o:%.cpp Webserv.hpp
-		c++ $(FLAGS) -c $< -o $@
+		c++ $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-		c++ $^ -o $@
+		c++ ${CPPFLAGS} $^ -o $@
 
 all : $(NAME)
 
