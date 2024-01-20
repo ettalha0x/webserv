@@ -13,9 +13,9 @@ void WebServer::accepter() {
 }
 
 void WebServer::handler(int &fdIndex) {
-    char buffer[16] = {0};
+    char buffer[BUFSIZ] = {0};
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 15, 0);
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ, 0);
     cout << "bytesReceived : " << bytesReceived << endl;
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
@@ -26,28 +26,18 @@ void WebServer::handler(int &fdIndex) {
         std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
         stringRequests[client_sockets[fdIndex].fd].append(buffer);
     }
-    // HttpRequest newRequest;
+    HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
-    // Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
+    Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
 	// std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
 }
 
 void WebServer::responder(int &fdIndex) {
-	static int count = 0;
-    HttpResponse newResponse;
-	newResponse.setStatusCode(200);
-	newResponse.setStatusMessage("OK");
-	newResponse.addHeader("Content-Type", "text/html");
-	// newResponse.addHeader("Content-Length", "1337");
-    newResponse.addHeader("Server", "Wind City Warrior's Web Server");
-    newResponse.addHeader("Date", getCurrentTimeInGMT());
-	std::string res = newResponse.getHeaderString();
+    HttpResponse newResponse(Requests[client_sockets[fdIndex].fd]);
+    std::string res =  newResponse.getHeader() + newResponse.getBody();
     // int bytesSent = 
     send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
-	std::string str = "<center><h1>" + std::to_string(count++) + "</h1></center>\n";
-    // int resCounter = 
-    send(client_sockets[fdIndex].fd, str.c_str(), str.length(), 0);
     stringRequests.erase(client_sockets[fdIndex].fd);
     // Requests.erase(client_sockets[fdIndex].fd);
 }
@@ -61,7 +51,7 @@ void WebServer::launch() {
     server_pollfd.revents = 0;
     client_sockets.push_back(server_pollfd);  // Add server socket to the list
 
-    int j= 0;
+    int j = 0;
     while (true) {
         if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
             std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;

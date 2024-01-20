@@ -1,10 +1,8 @@
 # pragma once
 
-# include "HttpRequest.hpp"
-# include "HttpResponse.hpp"
-
+# include <sys/poll.h>
 # include "Server.hpp"
-#include <sys/poll.h>
+# include "HttpResponse.hpp"
 
 typedef std::map<int , HttpRequest> RequestContainer;
 typedef std::map<int , HttpResponse> ResponseContainer;
