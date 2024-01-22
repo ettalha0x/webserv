@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/19 18:52:51 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/22 15:51:02 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,4 +153,28 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "chunked ? : " << obj.ChunkedOrNot() << std::endl;
 	os << "####################################################" << std::endl;
 	return os;
+}
+
+std::string extructBoundary(std::string requestData, size_t pos) {
+	size_t startPos = pos + 9; // 9 is the length of "boundary="
+	size_t endPos = requestData.find("\n", startPos);
+	size_t boundaryLength = endPos - startPos;
+	std::string boundary = requestData.substr(startPos, boundaryLength);
+	boundary = (boundary + "--");
+	return boundary;
+}
+
+bool requestChecker(std::string requestData) {
+	size_t pos = 0;
+	if ((pos = requestData.find("\r\n\r\n")) != requestData.npos) {
+		if ((pos = requestData.find("boundary")) != requestData.npos) {
+			std::string ENDboundary = extructBoundary(requestData, pos);
+			if ((pos = requestData.find(ENDboundary)) != requestData.npos)
+				return true;
+			return false;
+		}
+		return true;
+	}
+	
+	return false;
 }

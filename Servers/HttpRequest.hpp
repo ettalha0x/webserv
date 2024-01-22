@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/19 18:55:18 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/22 15:51:33 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,6 @@ class HttpRequest {
 		void 			parser(std::string request);
 };
 
-std::ostream& operator<<(std::ostream& os, const HttpRequest& obj);
+std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);
+std::string 	extructBoundary(std::string requestData, size_t pos);
+bool 			requestChecker(std::string requestData);
