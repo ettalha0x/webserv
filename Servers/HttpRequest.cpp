@@ -6,89 +6,45 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/17 17:51:41 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/19 18:52:51 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
-HttpRequest::HttpRequest() : bodyExist(false) {}
+HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(false){}
 
 HttpRequest::~HttpRequest() {}
 
-void HttpRequest::SetRequestLine(std::string requestLine) {
-	this->_RequestLine = requestLine;
-}
-void HttpRequest::SetPath(std::string Path) {
-	this->_path = Path;
-}
-void HttpRequest::SetHttpVersion(std::string HttpVersion) {
-	this->_HttpVersion = HttpVersion;
-}
-void HttpRequest::SetHost(std::string Host) {
-	this->_Host = Host;
-}
-
-void HttpRequest::UpDateStatus(int status) {
-	this->Status = status;
-}
-
-// void HttpRequest::HeaderIsCompleted(void) {
-// 	this->HeaderCompleted = true;
-// }
-void HttpRequest::BodyDoExist(void) {
-	this->bodyExist = true;
-}
-// void HttpRequest::BodyIsCompleted(void) {
-// 	this->bodyCompleted = true;
-// }
 
 std::string HttpRequest::GetRequestLine(void) const {
-	return this->_RequestLine;
-}
+	return this->_RequestLine;}
 std::string HttpRequest::GetPath(void) const {
-	return this->_path;
-}
+	return this->_path;}
 std::string HttpRequest::GetMethod(void) const {
-	return this->_method;
-}
+	return this->_method;}
 std::string HttpRequest::GetHttpVersion(void) const {
-	return this->_HttpVersion;
-}
+	return this->_HttpVersion;}
 std::string HttpRequest::GetHost(void) const {
-	return this->_Host;
-}
-
+	return this->_Host;}
 HeaderContainer HttpRequest::GetHeaders(void) const {
-	return this->Headers;
-}
-
+	return this->Headers;}
 std::string HttpRequest::GetBoundary(void) const {
-	return this->_boundary;
-}
-
-bodyContainer HttpRequest::GetBody(void) const {
-	return this->body;
-}
-
+	return this->_boundary;}
+std::string HttpRequest::GetBody(void) const {
+	return this->body;}
 QueryContainer HttpRequest::GetQuerty(void) const {
-	return this->Query;
-}
+	return this->Query;}
+std::string HttpRequest::GetContentType(void) const {
+	return this->_contentType;}
+int HttpRequest::GetContentLength(void) const {
+	return this->_contentLength;}
 
-int HttpRequest::GetStatus(void) const {
-	return this->Status;
-}
+bool HttpRequest::bodyExistOrNot(void) const{
+	return this->bodyExist;}
+bool HttpRequest::ChunkedOrNot(void) const{
+	return this->isChunked;}
 
-// void findAndReplace(std::string &str) {
-// 	size_t pos = 0;
-// 	std::string newWord = "HELLO";
-// 	std::string oldWord = "\r\n\r\n";
-// 	while ((pos = str.find(oldWord, pos)) != str.npos) {
-// 		std::cout << "KKEKEKE" << std::endl;
-// 		str.replace(pos, oldWord.length(), newWord);
-// 		pos += newWord.length();
-// 	}
-// }
 
 void HttpRequest::ckeckForQuery(void) {
 	size_t pos;
@@ -112,10 +68,40 @@ void HttpRequest::ckeckForQuery(void) {
 	}
 }
 
-void HttpRequest::header_parser(std::string request) {
-	size_t pos = request.find("\n");
-	this->_RequestLine = request.substr(0, pos);
-	pos = this->_RequestLine.find(" ");
+void HttpRequest::read_and_parse(std::istringstream& requestStream) {
+	std::string line;
+	char seperator = ':';
+	while (std::getline(requestStream, line, '\n')) {
+		std::string key;
+		std::string value;
+		size_t pos = line.find(seperator);
+		if (pos == line.npos)
+			break;
+		key = line.substr(0, pos);
+		value = line.substr(pos + 2, line.length() - (pos + 3));
+		this->Headers.insert(std::make_pair(key, value));
+	}
+}
+
+void HttpRequest::fill_vars_from_headerContainer(void) {
+	HeaderContainer::iterator it = this->Headers.find("Host");
+	if (it != this->Headers.end())
+		this->_Host = it->second;
+	it = this->Headers.find("Content-Type");
+	if (it != this->Headers.end())
+		this->_contentType = it->second;
+	it = this->Headers.find("Content-Length");
+	if (it != this->Headers.end())
+		this->_contentLength = std::atoi((it->second.c_str()));
+	it = this->Headers.find("Transfer-Encoding");
+	if (it != this->Headers.end() && it->second == "chunked")
+		this->isChunked = true;
+}
+
+void HttpRequest::parser(std::string request) {
+	std::istringstream requestStream(request);
+	std::getline(requestStream, this->_RequestLine, '\n');
+	size_t pos = this->_RequestLine.find(" ");
 	this->_method = this->_RequestLine.substr(0, pos);
 	pos++;
 	size_t endPos = this->_RequestLine.find(" ", pos);
@@ -123,10 +109,8 @@ void HttpRequest::header_parser(std::string request) {
 	ckeckForQuery();
 	endPos++;
 	this->_HttpVersion = this->_RequestLine.substr(endPos, _RequestLine.length() - endPos);
-	pos = request.find("Host");
-	pos += 6;
-	endPos = request.find("\n", pos);
-	this->_Host = request.substr(pos, endPos - pos);
+	read_and_parse(requestStream);
+	fill_vars_from_headerContainer();
 	pos = request.find("boundary");
 	if (pos != request.npos) {
 		this->bodyExist = true;
@@ -134,10 +118,11 @@ void HttpRequest::header_parser(std::string request) {
 		endPos = request.find("\n", pos);
 		this->_boundary = request.substr(pos + 1, (endPos - pos) - 1);
 	}
-}
-
-void HttpRequest::parser(std::string request) {
-	header_parser(request);
+	pos = request.find("\r\n\r\n");
+	if (pos != request.npos) {
+		this->bodyExist = true;
+		this->body = request.substr(pos + 4, request.length() - (pos + 4));
+	}
 }
 
 std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
@@ -147,36 +132,25 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "path : " << obj.GetPath() << std::endl;
 	os << "http version : " << obj.GetHttpVersion() << std::endl;
 	os << "HOST : " << obj.GetHost() << std::endl;
+	os << "contentType : " << obj.GetContentType() << std::endl;
+	os << "contentLength : " << obj.GetContentLength() << std::endl;
 	os << "boundary : " << obj.GetBoundary() << std::endl;
 	QueryContainer::iterator it = obj.GetQuerty().begin();
 	while(it != obj.GetQuerty().end()) {
 		os << "Query key : " << it->first << " | value : " << it->second << std::endl;
 		it++;
 	}
+  
+	HeaderContainer tmp = obj.GetHeaders();
+	HeaderContainer::iterator iter = tmp.begin();
+	HeaderContainer::iterator EndIter = tmp.end();
+	while (iter != EndIter) {
+		os << "Headers key : " << iter->first << " , value : " << iter->second << std::endl;
+		iter++;
+	}
+	os << "body : ---- " << obj.GetBody() << "---- body" << std::endl;
+	os << "bodyExist ? : " << obj.bodyExistOrNot() << std::endl;
+	os << "chunked ? : " << obj.ChunkedOrNot() << std::endl;
 	os << "####################################################" << std::endl;
 	return os;
-}
-
-std::string extructBoundary(std::string requestData, size_t pos) {
-	size_t startPos = pos + 9; // 9 is the length of "boundary="
-	size_t endPos = requestData.find("\n", startPos);
-	size_t boundaryLength = endPos - startPos;
-	std::string boundary = requestData.substr(startPos, boundaryLength);
-	boundary = (boundary + "--");
-	return boundary;
-}
-
-bool requestChecker(std::string requestData) {
-	size_t pos = 0;
-	if ((pos = requestData.find("\r\n\r\n")) != requestData.npos) {
-		if ((pos = requestData.find("boundary")) != requestData.npos) {
-			std::string ENDboundary = extructBoundary(requestData, pos);
-			if ((pos = requestData.find(ENDboundary)) != requestData.npos)
-				return true;
-			return false;
-		}
-		return true;
-	}
-	
-	return false;
 }
