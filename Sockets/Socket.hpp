@@ -3,8 +3,12 @@
 # include <iostream>
 # include <string>
 # include <fcntl.h>
+# include <cstdlib>
+# include <cstdio>
 # include <sys/socket.h>
 # include <netinet/in.h>
+
+using namespace std;
 
 class Socket
 {

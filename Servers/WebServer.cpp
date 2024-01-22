@@ -1,5 +1,6 @@
 # include "WebServer.hpp"
 # include "Utils/Utils.hpp"
+# include <sys/event.h>
 
 WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
 	launch();
@@ -8,117 +9,88 @@ WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
 void WebServer::accepter() {
 	struct sockaddr_in address = get_sock()->get_address();
 	int		addrlen = sizeof(address);
-	new_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	server_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
-void WebServer::handler() {
-    request = new char[BUFSIZ];
-	read(new_socket, request, BUFSIZ);
+void WebServer::handler(int &fdIndex) {
+    char buffer[BUFSIZ] = {0};
+    int bytesReceived = 0;
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ, 0);
+    cout << "bytesReceived : " << bytesReceived << endl;
+    if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
+        // socket not exist yet insert it as a new sokcet
+        std:: cout << "socket not exist yet insert it as a new sokcet  " << fdIndex << std::endl;
+        stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
+    } else {
+        // socket already exist append it if it's not comleted yet
+        std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
+        stringRequests[client_sockets[fdIndex].fd].append(buffer);
+    }
     HttpRequest newRequest;
-	std::cout << "-------------- REQUSTE RECEVIED --------------" << std::endl;
-    newRequest.parser(request);
-    std::cout << newRequest;
-	std::cout << request << std::endl;
+	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
+    // newRequest.parse(request);
+    Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
+	// std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
 }
 
-void WebServer::responder() {
-	static int count = 0;
-    HttpResponse newResponse;
-	newResponse.setStatusCode(200);
-	newResponse.setStatusMessage("OK");
-	newResponse.addHeader("Content-Type", "text/html");
-	// newResponse.addHeader("Content-Length", "1337");
-    newResponse.addHeader("Server", "Webserv");
-    newResponse.addHeader("Date", getCurrentTimeInGMT());
-	std::string res = newResponse.getHeaderString();
-	write(new_socket, res.c_str(), res.length());
-	std::string str = std::to_string(count++) + "\n";
-	write(new_socket, str.c_str(), str.length());
-	close(new_socket);
+void WebServer::responder(int &fdIndex) {
+    HttpResponse newResponse(Requests[client_sockets[fdIndex].fd]);
+    std::string res =  newResponse.getHeader() + newResponse.getBody();
+    // int bytesSent = 
+    send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
+    stringRequests.erase(client_sockets[fdIndex].fd);
+    // Requests.erase(client_sockets[fdIndex].fd);
 }
 
 void WebServer::launch() {
-    fd_set  curr_socket, ready_socket;
-    int max_sockfd = get_sock()->get_socket();
+    int server_socket = get_sock()->get_socket();
 
-    // init current socket
-    FD_ZERO(&curr_socket);
-    FD_SET(get_sock()->get_socket(), &curr_socket);
+    pollfd server_pollfd;
+    server_pollfd.fd = server_socket;
+    server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
+    server_pollfd.revents = 0;
+    client_sockets.push_back(server_pollfd);  // Add server socket to the list
+
     int j = 0;
-	while (true) {
-        //save the current socket because select() is destructive
-        ready_socket = curr_socket;
-
+    while (true) {
         if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
-            std::cout << "------- WAITING FOR INCOMMING REQUSTES -------" << std::endl;
-        if (select(max_sockfd + 1, &ready_socket, NULL, NULL, NULL) < 0) {
-            perror("select()");
+            std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
+
+
+        std::vector<pollfd> tmp = client_sockets;
+        int num_events = poll(&tmp[0], tmp.size(), -1);  // Wait indefinitely
+        if (num_events == 0) {
+            std::cout << "No events occurred" << std::endl;
+            continue;  // No events occurred, continue to the next iteration of the loop
+        }
+        if (num_events == -1) {
+            perror("poll");
             exit(EXIT_FAILURE);
         }
-
-        for (int fd=0; fd < (max_sockfd + 1); fd++) {
-            if (FD_ISSET(fd, &ready_socket)) {
-                if (fd == get_sock()->get_socket()) {
+        for (int i = 0; i < (int)tmp.size(); ++i) {
+            if (tmp[i].revents & POLLIN) {
+                if (tmp[i].fd == server_socket) {
                     accepter();
-                    FD_SET(new_socket, &curr_socket);
-                    if (new_socket > max_sockfd) {
-                        max_sockfd = new_socket;
-                    }
+                    pollfd client_pollfd;
+                    client_pollfd.fd = this->server_socket;
+                    client_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
+                    client_pollfd.revents = 0;
+                    client_sockets.push_back(client_pollfd);  // Add client socket to the list
                 } else {
-                    handler();
-                    responder();
-                    FD_CLR(fd, &curr_socket);
-		            std::cout << "-------------- DONE --------------"<< std::endl;
+                    handler(i);
+                }
+            }
+            if (tmp[i].revents & POLLOUT) {
+                if (requestChecker(stringRequests[tmp[i].fd])){
+                    responder(i);
+                    close(tmp[i].fd);
+                     std::cout << "-------------- DONE --------------" << std::endl;
+                    client_sockets.erase(client_sockets.begin() + i);
                 }
             }
         }
-	}
+    }
 }
 
 WebServer::~WebServer() {
-    delete request;
-}
-
-std::string getContentType(const std::string& filePath) {
-    // Mapping file extensions to MIME types
-    std::map<std::string, std::string> mimeTypes;
-    mimeTypes[".html"] = "text/html";
-    mimeTypes[".htm"] = "text/html";
-    mimeTypes[".txt"] = "text/plain";
-    mimeTypes[".css"] = "text/css";
-    mimeTypes[".js"] = "application/javascript";
-    // Add more mappings as needed
-
-    // Find the file extension
-    size_t dotPosition = filePath.find_last_of(".");
-    if (dotPosition != std::string::npos) {
-        std::string extension = filePath.substr(dotPosition);
-
-        // Check if the extension is in the map
-        std::map<std::string, std::string>::iterator it = mimeTypes.find(extension);
-        if (it != mimeTypes.end()) {
-            return it->second; // Return the corresponding MIME type
-        }
-    }
-
-    // Default to application/octet-stream if the extension is not recognized
-    return "application/octet-stream";
-}
-
-std::streamsize getContentLength(const std::string& filePath) {
-    // Open the file in binary mode
-    std::ifstream file(filePath.c_str(), std::ios::binary);
-
-    // Check if the file is open
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return -1; // Return -1 to indicate an error
-    }
-
-    // Get the file size
-    file.seekg(0, std::ios::end);
-    std::streamsize fileSize = file.tellg();
-    file.close();
-
-    return fileSize;
 }

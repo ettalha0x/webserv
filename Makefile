@@ -4,18 +4,19 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
         Sockets/BindingSocket.cpp \
         Sockets/ListeningSocket.cpp \
 		Servers/Server.cpp \
+		Servers/HttpRequest.cpp \
 		Servers/HttpResponse.cpp \
 		Servers/HttpRequest.cpp \
 		Servers/WebServer.cpp
 OBJS = $(SRCS:.cpp=.o)
-FLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM = rm -rf
 
 %.o:%.cpp Webserv.hpp
-		c++ $(FLAGS) -c $< -o $@
+		c++ $(CPPFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-		c++ $^ -o $@
+		c++ ${CPPFLAGS} $^ -o $@
 
 all : $(NAME)
 

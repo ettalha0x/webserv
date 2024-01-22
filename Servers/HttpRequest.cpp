@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
 /*   Updated: 2024/01/19 18:52:51 by aouchaad         ###   ########.fr       */
@@ -140,6 +140,7 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 		os << "Query key : " << it->first << " | value : " << it->second << std::endl;
 		it++;
 	}
+  
 	HeaderContainer tmp = obj.GetHeaders();
 	HeaderContainer::iterator iter = tmp.begin();
 	HeaderContainer::iterator EndIter = tmp.end();

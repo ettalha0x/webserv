@@ -1,6 +1,7 @@
 # pragma once
 
-#include <iostream>
+# include "Utils/Utils.hpp"
+# include "HttpRequest.hpp"
 #include <map>
 
 class HttpResponse {
@@ -8,9 +9,10 @@ class HttpResponse {
 		int statusCode; // Default status code
 		std::string statusMessage; // Default status message
 		std::map<std::string, std::string> headers;
-	public:
-		HttpResponse();
-		// Setters functions
+		std::string headerString; // Constructed header string
+		std::string body; // Body of the response
+
+		// Setters function
 		void	setStatusCode(int statusCode);
 		void	setStatusMessage(std::string statusMessage);
 
@@ -19,12 +21,20 @@ class HttpResponse {
 
 		// Function to get the status code
 		int	getStatusCode();
-
 		// Function to get the status message
 		std::string	getStatusMessage();
-		
 		// Function to get the constructed response header
 		std::string getHeaderString() const;
+		// Function to get the body
+		void	constructHeader(void);
+		void	constructBody(void);
+
+		
+	public:
+
+		HttpResponse(HttpRequest request);
+		std::string	getHeader();
+		std::string	getBody();
 
 		~HttpResponse();
 };

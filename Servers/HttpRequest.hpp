@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
 /*   Updated: 2024/01/19 18:55:18 by aouchaad         ###   ########.fr       */
@@ -18,6 +18,7 @@
 #include <sstream>
 
 typedef std::map<std::string, std::string> HeaderContainer;
+
 // typedef std::vector<std::pair<std::string, std::string> > bodyContainer;
 // typedef std::vector<std::pair<std::string, int > > fileContainer;
 typedef std::vector<std::pair<std::string, std::string> > QueryContainer;
