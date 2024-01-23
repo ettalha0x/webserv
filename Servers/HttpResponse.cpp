@@ -50,11 +50,7 @@ void	HttpResponse::constructHeader(void) {
 }
 
 void	HttpResponse::constructBody(void) {
-	std::string users[3];
-	users[0] = "aouchaad";
-	users[1] = "nettalha";
-	users[2] = "esekouni";
-	std::string indexPath = "/Users/" + users[0] + "/Desktop/webserv/Sites-available/Default/index.html";
+	std::string indexPath = "Sites-available/Default/index.html";
 	body = getFileContent(indexPath);
 }
 
