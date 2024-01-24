@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/22 15:51:02 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/23 21:10:22 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
+#include <unistd.h>
 
 HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(false){}
 
@@ -157,10 +158,10 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 
 std::string extructBoundary(std::string requestData, size_t pos) {
 	size_t startPos = pos + 9; // 9 is the length of "boundary="
-	size_t endPos = requestData.find("\n", startPos);
-	size_t boundaryLength = endPos - startPos;
+	size_t endPos = requestData.find("\r\n", startPos);
+	size_t boundaryLength = (endPos - startPos);
 	std::string boundary = requestData.substr(startPos, boundaryLength);
-	boundary = (boundary + "--");
+	boundary.append("--");
 	return boundary;
 }
 
@@ -175,6 +176,5 @@ bool requestChecker(std::string requestData) {
 		}
 		return true;
 	}
-	
 	return false;
 }

@@ -16,19 +16,19 @@ void WebServer::handler(int &fdIndex) {
     char buffer[BUFSIZ] = {0};
     int bytesReceived = 0;
     bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ, 0);
-    cout << "bytesReceived : " << bytesReceived << endl;
+    std::cout << "bytesReceived : " << bytesReceived << std::endl;
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
-        std:: cout << "socket not exist yet insert it as a new sokcet  " << fdIndex << std::endl;
+        std::cout << "socket not exist yet insert it as a new sokcet  " << fdIndex << std::endl;
         stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
     } else {
         // socket already exist append it if it's not comleted yet
-        std:: cout << "socket already exist append it if it's not comleted yet" << std::endl;
+        std::cout << "socket already exist append it if it's not comleted yet" << std::endl;
         stringRequests[client_sockets[fdIndex].fd].append(buffer);
     }
     HttpRequest newRequest;
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
-    // newRequest.parse(request);
+    newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
     Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
 	// std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
 }
@@ -84,7 +84,7 @@ void WebServer::launch() {
                 if (requestChecker(stringRequests[tmp[i].fd])){
                     responder(i);
                     close(tmp[i].fd);
-                     std::cout << "-------------- DONE --------------" << std::endl;
+                    std::cout << "-------------- DONE --------------" << std::endl;
                     client_sockets.erase(client_sockets.begin() + i);
                 }
             }
