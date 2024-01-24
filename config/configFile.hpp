@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/22 16:04:30 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/24 15:38:45 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ typedef struct s_config
 	std::string 		hostName;
 	int 				maxBodySize;
 	bool 				autoIndex;
-	std::string 		rootPath;
+	std::string 		rootDir;
+	std::string			indexFile;
 	std::string 		cgiPath;
-
 	
 } t_server_config;
 
