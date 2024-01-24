@@ -3,7 +3,7 @@
 
 
 
-HttpResponse::HttpResponse(HttpRequest request) {
+HttpResponse::HttpResponse(t_server_config &config, HttpRequest request) :config(config){
 	(void)request;
 	constructHeader();
 	constructBody();
@@ -49,12 +49,8 @@ void	HttpResponse::constructHeader(void) {
 	headerString = getHeaderString();
 }
 
-void	HttpResponse::constructBody(void) {
-	std::string users[3];
-	users[0] = "aouchaad";
-	users[1] = "nettalha";
-	users[2] = "esekouni";
-	std::string indexPath = "/Users/" + users[0] + "/Desktop/webserv/Sites-available/Default/index.html";
+void	HttpResponse::constructBody() {
+	std::string indexPath = config.rootDir + config.indexFile;
 	body = getFileContent(indexPath);
 }
 

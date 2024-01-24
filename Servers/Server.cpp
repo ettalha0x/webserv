@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
-Server::Server(int domain, int service, int protocol, int port, u_long interface, int backlog) {
-	socket = new ListeningSocket(domain, service, protocol, port, interface, backlog);
+Server::Server(t_server_config &config, int domain, int service, int protocol, u_long interface, int backlog) {
+	socket = new ListeningSocket(domain, service, protocol, config.port[0], interface, backlog);
 }
 
 ListeningSocket 	*Server::get_sock() {
