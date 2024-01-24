@@ -6,11 +6,12 @@
 
 class HttpResponse {
 	private:
-		int statusCode; // Default status code
-		std::string statusMessage; // Default status message
-		std::map<std::string, std::string> headers;
-		std::string headerString; // Constructed header string
-		std::string body; // Body of the response
+		int 								statusCode; // Default status code
+		std::string 						statusMessage; // Default status message
+		std::string 						headerString; // Constructed header string
+		std::string 						body; // Body of the response
+		t_server_config 					config;
+		std::map<std::string, std::string>	headers;
 
 		// Setters function
 		void	setStatusCode(int statusCode);
@@ -32,7 +33,7 @@ class HttpResponse {
 		
 	public:
 
-		HttpResponse(HttpRequest request);
+		HttpResponse(t_server_config &config, HttpRequest request);
 		std::string	getHeader();
 		std::string	getBody();
 

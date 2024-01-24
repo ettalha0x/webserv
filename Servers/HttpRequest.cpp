@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/22 15:51:02 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/24 15:40:14 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 
 std::string extructBoundary(std::string requestData, size_t pos) {
 	size_t startPos = pos + 9; // 9 is the length of "boundary="
-	size_t endPos = requestData.find("\n", startPos);
+	size_t endPos = requestData.find("\r\n", startPos);
 	size_t boundaryLength = endPos - startPos;
 	std::string boundary = requestData.substr(startPos, boundaryLength);
 	boundary = (boundary + "--");

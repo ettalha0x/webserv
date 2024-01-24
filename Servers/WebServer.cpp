@@ -2,7 +2,7 @@
 # include "Utils/Utils.hpp"
 # include <sys/event.h>
 
-WebServer::WebServer(): Server(AF_INET, SOCK_STREAM, 0, 8080, INADDR_ANY, 10) {
+WebServer::WebServer(t_server_config &config): Server(config, AF_INET, SOCK_STREAM, 0, INADDR_ANY, 10), config(config) {
 	launch();
 }
 
@@ -30,11 +30,11 @@ void WebServer::handler(int &fdIndex) {
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     // newRequest.parse(request);
     Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
-	// std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
+	std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
 }
 
 void WebServer::responder(int &fdIndex) {
-    HttpResponse newResponse(Requests[client_sockets[fdIndex].fd]);
+    HttpResponse newResponse(config, Requests[client_sockets[fdIndex].fd]);
     std::string res =  newResponse.getHeader() + newResponse.getBody();
     // int bytesSent = 
     send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
