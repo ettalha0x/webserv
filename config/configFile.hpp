@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/24 15:38:45 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/25 19:41:52 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sys/stat.h>
 
 typedef struct s_config
 {
@@ -62,4 +63,4 @@ class CantOpenConfFileException : public std::exception {
 };
 
 
-void readConfigeFile(std::string path);
+std::vector<t_server_config> readConfigeFile(std::string path);
