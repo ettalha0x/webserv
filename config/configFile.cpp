@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/25 21:26:51 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/26 19:52:20 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,16 +205,5 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].indexFile = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
 		if (configs[i].cgiPath.empty())
 			configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
-	}
-}
-
-int main (int ac, char **av) {
-	try {
-		std::vector<t_server_config> configs;
-		configs = readConfigeFile(av[1]);
-		setToDefault(configs);
-		printConfigs(configs);
-	} catch (std::exception &e) {
-		std::cout << "line : " << lineCount << "  error: " << e.what() << std::endl;
 	}
 }
