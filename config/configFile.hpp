@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/25 19:41:52 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/26 19:56:22 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,6 @@ class CantOpenConfFileException : public std::exception {
 };
 
 
-std::vector<t_server_config> readConfigeFile(std::string path);
+std::vector<t_server_config> readConfigeFile(char *path);
+void setToDefault(std::vector<t_server_config> &configs);
+void printConfigs(std::vector<t_server_config> &configs);

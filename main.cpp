@@ -1,20 +1,26 @@
 #include "Webserv.hpp"
 
-int main(){
-    t_server_config config;
+int main(int ac, char**av){
+    
+    std::vector<t_server_config> configs;
+    if (ac == 2) {
+        try {
+            configs = readConfigeFile(av[1]);
+            setToDefault(configs);
+            printConfigs(configs);
+        } catch (std::exception &e) {
+            std::cout << e.what() << std::endl;
+            exit(1);
+        } 
+    } else {
+        t_server_config default_config;
+        configs.push_back(default_config);
+        setToDefault(configs);
+    }
 
-    std::cout << "---------------- Webserv is starting ----------------" << std::endl;
-    config.port.push_back(8080);
-    config.port.push_back(1337);
-    config.rootDir = "Sites-available/Default/";
-    config.indexFile = "index.html";
-    config.serverName = "webserv.1337.ma";
-    config.hostName = "localhost";
-    config.maxBodySize = 1024;
-    config.autoIndex = false;
-    config.cgiPath = "Sites-available/Default/";
-
-
-    WebServer  webserv(config);
+    // for (size_t i = 0; i < configs.size(); i++)
+    // {
+        WebServer webServ(configs[0]);
+    // }
     return 0;
 }

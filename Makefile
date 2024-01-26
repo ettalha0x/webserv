@@ -7,7 +7,8 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Servers/HttpRequest.cpp \
 		Servers/HttpResponse.cpp \
 		Servers/HttpRequest.cpp \
-		Servers/WebServer.cpp
+		Servers/WebServer.cpp \
+		config/configFile.cpp
 OBJS = $(SRCS:.cpp=.o)
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM = rm -rf
