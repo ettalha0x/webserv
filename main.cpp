@@ -5,6 +5,7 @@ int main(){
 
     std::cout << "---------------- Webserv is starting ----------------" << std::endl;
     config.port.push_back(8080);
+    config.port.push_back(1337);
     config.rootDir = "Sites-available/Default/";
     config.indexFile = "index.html";
     config.serverName = "webserv.1337.ma";
