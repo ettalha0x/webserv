@@ -1,8 +1,0 @@
-#!/bin/bash
-
-for i in {0..10000}; do
-    curl -sS "http://10.12.8.3:8080" &
-    sleep 0.01
-done
-
-wait
