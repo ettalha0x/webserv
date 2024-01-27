@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/22 15:51:33 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/27 16:58:27 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ class HttpRequest {
 		std::string 	_boundary;
 		std::string		_contentType;
 		int				_contentLength;
+		int				_port;
+		std::string		_serverName;
 
 		HeaderContainer Headers;
 		std::string		body;
@@ -47,6 +49,8 @@ class HttpRequest {
 
 		/*geters*/
 		
+		void			setPortAndServerName(void);
+		
 		std::string 	GetRequestLine(void) const;
 		std::string 	GetPath(void) const;
 		std::string 	GetMethod(void) const;
@@ -56,8 +60,10 @@ class HttpRequest {
 		HeaderContainer GetHeaders(void) const;
 		std::string 	GetBody(void) const;
 		QueryContainer 	GetQuerty(void) const;
-		std::string 	GetContentType(void)const;
+		std::string 	GetContentType(void) const;
+		std::string		GetServerName(void) const;
 		int 			GetContentLength(void) const;
+		int				GetPort(void) const;
 		bool 			bodyExistOrNot(void) const;
 		bool 			ChunkedOrNot(void) const;
 		
