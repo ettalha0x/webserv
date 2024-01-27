@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/24 16:23:15 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/27 17:08:22 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,12 @@ QueryContainer HttpRequest::GetQuerty(void) const {
 	return this->Query;}
 std::string HttpRequest::GetContentType(void) const {
 	return this->_contentType;}
+std::string HttpRequest::GetServerName(void) const {
+	return this->_serverName;}
 int HttpRequest::GetContentLength(void) const {
 	return this->_contentLength;}
+int HttpRequest::GetPort(void) const {
+	return this->_port;}
 
 bool HttpRequest::bodyExistOrNot(void) const{
 	return this->bodyExist;}
@@ -124,8 +128,14 @@ void HttpRequest::parser(std::string request) {
 		this->bodyExist = true;
 		this->body = request.substr(pos + 4, request.length() - (pos + 4));
 	}
+	setPortAndServerName();
 }
 
+void HttpRequest::setPortAndServerName(void) {
+	size_t pos = this->_Host.find(":");
+	this->_serverName = this->_Host.substr(0, pos);
+	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
+}
 std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "####################################################" << std::endl;
 	os << "Request Line : " << obj.GetRequestLine() << std::endl;
@@ -152,6 +162,8 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "body : ---- " << obj.GetBody() << "---- body" << std::endl;
 	os << "bodyExist ? : " << obj.bodyExistOrNot() << std::endl;
 	os << "chunked ? : " << obj.ChunkedOrNot() << std::endl;
+	os << "Port : " << obj.GetPort() << std::endl;
+	os << "Server name : " << obj.GetServerName() << std::endl;
 	os << "####################################################" << std::endl;
 	return os;
 }
@@ -178,3 +190,4 @@ bool requestChecker(std::string requestData) {
 	}
 	return false;
 }
+
