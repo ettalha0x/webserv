@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/26 19:52:20 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/27 18:38:18 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		checkPath(value);
 		tmp->rootDir = value;
 	} else if (key == "indexFile") {
-		checkPath(value);
+		// checkPath(value);
 		tmp->indexFile = value;
 	} else if (key == "cgiPath") {
 		checkPath(value);

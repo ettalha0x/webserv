@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/27 17:08:22 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/27 18:47:07 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,8 +125,10 @@ void HttpRequest::parser(std::string request) {
 	}
 	pos = request.find("\r\n\r\n");
 	if (pos != request.npos) {
-		this->bodyExist = true;
+		// this->bodyExist = true;
 		this->body = request.substr(pos + 4, request.length() - (pos + 4));
+		if (!this->body.empty())
+			this->bodyExist = true;
 	}
 	setPortAndServerName();
 }
