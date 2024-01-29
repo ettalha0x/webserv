@@ -7,6 +7,7 @@ int main(int ac, char**av){
         try {
             configs = readConfigeFile(av[1]);
             setToDefault(configs);
+            checkForDuplicatedPorts(configs);
             printConfigs(configs);
         } catch (std::exception &e) {
             std::cout << e.what() << std::endl;

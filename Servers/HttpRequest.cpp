@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/27 17:08:22 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/27 18:45:49 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,8 +125,10 @@ void HttpRequest::parser(std::string request) {
 	}
 	pos = request.find("\r\n\r\n");
 	if (pos != request.npos) {
-		this->bodyExist = true;
+		// this->bodyExist = true;
 		this->body = request.substr(pos + 4, request.length() - (pos + 4));
+		if (!this->body.empty())
+			this->bodyExist = true;
 	}
 	setPortAndServerName();
 }

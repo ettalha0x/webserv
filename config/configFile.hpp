@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/26 19:56:22 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/29 12:11:44 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@
 
 typedef struct s_config
 {
-	std::vector<int>	port;
-	std::string 		serverName;
-	std::string 		hostName;
-	int 				maxBodySize;
-	bool 				autoIndex;
-	std::string 		rootDir;
-	std::string			indexFile;
-	std::string 		cgiPath;
+	int							port;
+	std::string 				serverName;
+	std::string 				hostName;
+	int 						maxBodySize;
+	bool 						autoIndex;
+	std::string 				rootDir;
+	std::vector<std::string	>	indexFile;
+	std::string 				cgiPath;
 	
 } t_server_config;
 
@@ -61,8 +61,15 @@ class CantOpenConfFileException : public std::exception {
 			return "cant open confige file";
 	}
 };
+class DuplicatedPortException : public std::exception {
+	public:
+		const char * what() const throw() {
+			return "the same port used in different servers";
+	}
+};
 
 
 std::vector<t_server_config> readConfigeFile(char *path);
 void setToDefault(std::vector<t_server_config> &configs);
 void printConfigs(std::vector<t_server_config> &configs);
+void checkForDuplicatedPorts(std::vector<t_server_config> &configs);
