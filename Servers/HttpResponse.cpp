@@ -50,7 +50,7 @@ void	HttpResponse::constructHeader(void) {
 }
 
 void	HttpResponse::constructBody() {
-	std::string indexPath = config.rootDir + "/" + config.indexFile;
+	std::string indexPath = config.rootDir + "/" + config.indexFile[0];
 	body = getFileContent(indexPath);
 }
 

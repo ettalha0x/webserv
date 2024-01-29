@@ -21,7 +21,7 @@ int main(int ac, char**av){
 
     // for (size_t i = 0; i < configs.size(); i++)
     // {
-        WebServer webServ(configs[0]);
+        WebServer webServ(configs);
     // }
     return 0;
 }

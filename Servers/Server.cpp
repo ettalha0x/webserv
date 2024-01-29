@@ -2,7 +2,7 @@
 
 Server::Server(std::vector<t_server_config> &configs, int domain, int service, int protocol, u_long interface, int backlog) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		sockets.push_back(new ListeningSocket(domain, service, protocol, configs[i].port[0], interface, backlog));
+		sockets.push_back(new ListeningSocket(domain, service, protocol, configs[i].port, interface, backlog));
 	}
 }
 
