@@ -7,9 +7,9 @@ WebServer::WebServer(t_server_config &config): Server(config, AF_INET, SOCK_STRE
 }
 
 void WebServer::accepter() {
-	struct sockaddr_in address = get_sock()[0]->get_address();
+	struct sockaddr_in address = get_sock()->get_address();
 	int		addrlen = sizeof(address);
-	server_socket = accept(get_sock()[0]->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	server_socket = accept(get_sock()->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
 void WebServer::handler(int &fdIndex) {
@@ -30,7 +30,7 @@ void WebServer::handler(int &fdIndex) {
 	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
     newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
     Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
-	std::cout << stringRequests[client_sockets[fdIndex].fd] << std::endl;
+	std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
 }
 
 void WebServer::responder(int &fdIndex) {
@@ -43,7 +43,7 @@ void WebServer::responder(int &fdIndex) {
 }
 
 void WebServer::launch() {
-    int server_socket = get_sock()[0]->get_socket();
+    int server_socket = get_sock()->get_socket();
 
     pollfd server_pollfd;
     server_pollfd.fd = server_socket;
