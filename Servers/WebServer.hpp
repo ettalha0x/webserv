@@ -10,7 +10,7 @@ typedef std::map<int , std::string> stringReqContainer;
 
 class WebServer:  public Server {
 	private:
-		t_server_config		config;
+		std::vector<t_server_config>		configs;
 		int					server_socket;
 		std::vector<pollfd>	client_sockets;
 		stringReqContainer	stringRequests;
@@ -21,7 +21,8 @@ class WebServer:  public Server {
 		void				responder(int &fdIndex);
 
 	public:
-		WebServer(t_server_config	&config);
+		WebServer(std::vector<t_server_config>	&configs);
+		int		init_pollfd();
 		void	launch();
 		~WebServer();
 };
