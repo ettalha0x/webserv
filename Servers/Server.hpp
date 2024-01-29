@@ -12,14 +12,14 @@ class Server
 {
 	private:
 
-		ListeningSocket		*socket;
+		std::vector<ListeningSocket *> sockets;
 	public:
 
-		Server(t_server_config &config, int domain, int service, int protocol, u_long interface, int backlog);
+		Server(std::vector<t_server_config> &configs, int domain, int service, int protocol, u_long interface, int backlog);
 		virtual void accepter() = 0;
 		virtual void handler(int &fdIndex) = 0;
 		virtual void responder(int &fdIndex) = 0;
 		virtual void launch() = 0;
-		ListeningSocket* get_sock();
+		std::vector<ListeningSocket*> get_sock();
 		~Server();
 };

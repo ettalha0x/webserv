@@ -18,7 +18,7 @@ void	HttpResponse::setStatusMessage(std::string statusMessage) {
 }
 
 void HttpResponse::addHeader(const std::string& key, const std::string& value) {
-			headers[key] = value;
+	headers[key] = value;
 }
 
 int	HttpResponse::getStatusCode() {
@@ -50,7 +50,7 @@ void	HttpResponse::constructHeader(void) {
 }
 
 void	HttpResponse::constructBody() {
-	std::string indexPath = config.rootDir + config.indexFile;
+	std::string indexPath = config.rootDir + "/" + config.indexFile;
 	body = getFileContent(indexPath);
 }
 

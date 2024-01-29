@@ -7,9 +7,9 @@ This project is a part of the 42 core curriculum, The goal of the project is to 
 - [X] implementing the class Socket and it's childs.
 - [X] implementing the class Server and it's childs.
 - [X] implementing the class httpResponse.
-- [x] set connection to non-blocking mode.
-- [x] implementing non-blocking mode logic.
-- [x] multiple clients connections (seem to be working).
+- [X] set connection to non-blocking mode.
+- [X] implementing non-blocking mode logic.
+- [X] multiple clients connections (seem to be working).
 
 ## Authors
 
