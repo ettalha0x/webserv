@@ -35,9 +35,9 @@
     <script>
         // Increment the counter each time the page is refreshed
         window.onload = function() {
-            let counter = parseInt(localStorage.getItem("counter")) || 0;
+            let counter = parseInt(sessionStorage.getItem("counter")) || 0;
             counter++;
-            localStorage.setItem("counter", counter);
+            sessionStorage.setItem("counter", counter);
             document.getElementById("counter").textContent = "Counter: " + counter;
         };
     </script>
