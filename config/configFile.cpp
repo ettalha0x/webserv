@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/27 18:38:18 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/01/29 12:11:31 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,25 +31,42 @@ void checkPath(std::string path) {
 	throw InvalidPathException();
 }
 
-std::vector<int> parsePorts(std::string value) {
-	// check values and parse theme
-	std::vector<int> ports;
+// std::vector<int> parsePorts(std::string value) {
+// 	// check values and parse theme
+// 	std::vector<int> ports;
+// 	size_t startPos = 0;
+// 	size_t endPos;
+// 	for (size_t i = 0; i < value.length(); i++) {
+// 		if (!std::isdigit(value[i]) && value[i] != ',')
+// 			throw UndefinedValueException();
+// 		if (value[i] == ',' || i == value.length() - 1) {
+// 			endPos = i;
+// 			if (i == value.length() - 1)
+// 				endPos++;
+// 			ports.push_back(std::atoi(value.substr(startPos, endPos - startPos).c_str()));
+// 			startPos = endPos + 1;
+// 		}
+// 	}
+	
+	
+// // 	return ports;
+// // }
+std::vector<std::string> parseIndexs(std::string value) {
+	std::vector<std::string> indexs;
 	size_t startPos = 0;
 	size_t endPos;
 	for (size_t i = 0; i < value.length(); i++) {
-		if (!std::isdigit(value[i]) && value[i] != ',')
-			throw UndefinedValueException();
 		if (value[i] == ',' || i == value.length() - 1) {
 			endPos = i;
 			if (i == value.length() - 1)
 				endPos++;
-			ports.push_back(std::atoi(value.substr(startPos, endPos - startPos).c_str()));
+			indexs.push_back(value.substr(startPos, endPos - startPos));
 			startPos = endPos + 1;
 		}
 	}
 	
 	
-	return ports;
+	return indexs;
 }
 
 void identifieANDfill(std::string line, t_server_config *tmp) {
@@ -82,12 +99,16 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		tmp->rootDir = value;
 	} else if (key == "indexFile") {
 		// checkPath(value);
-		tmp->indexFile = value;
+		tmp->indexFile = parseIndexs(value);
 	} else if (key == "cgiPath") {
 		checkPath(value);
 		tmp->cgiPath = value;
 	} else if (key == "port") {
-		tmp->port = parsePorts(value);
+		for (size_t index = 0; index < value.length(); index++) {
+			if (!std::isdigit(value[index]))
+				throw UndefinedValueException();
+		}
+		tmp->port = std::atoi(value.c_str());
 	} else 
 		throw UndefinedTokenException();
 }
@@ -103,6 +124,7 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 	std::vector<t_server_config> configs;
 	while (1) {
 		t_server_config tmp;
+		tmp.port = -1;
 		header = OpenAccolade = CloseAccolade = false;
 		while (std::getline(configeFile, line, '\n')) {
 			lineCount++;
@@ -170,11 +192,8 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 
 void printConfigs(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		std::cout << "ports : ";
-		for (size_t j = 0; j < configs[i].port.size(); j++) {
-			std::cout << configs[i].port[j] << " , ";
-		}
-		std::cout << std::endl;
+		
+		std::cout << "port : " << configs[i].port << std::endl;
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
 		std::cout << "hostName : " << configs[i].hostName << std::endl;
 		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
@@ -183,16 +202,45 @@ void printConfigs(std::vector<t_server_config> &configs) {
 		else
 			std::cout << "autoIndex : off" << std::endl;			
 		std::cout << "rootDir : " << configs[i].rootDir << std::endl;
-		std::cout << "indexFile : " << configs[i].indexFile << std::endl;
+		for (size_t j = 0; j < configs[i].indexFile.size(); j++) {
+			std::cout << "indexFile : " << configs[i].indexFile[j] << std::endl;
+		}
 		std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
 		std::cout << "**********************************************" << std::endl;
 	}
 }
 
+bool portExist(std::vector<t_server_config> &configs, int port) {
+	for (size_t i = 0; i < configs.size(); i++) {
+		if (configs[i].port == port)
+			return true;
+	}
+	return false;
+}
+
+int unusedPort(std::vector<t_server_config> &configs) {
+	int port = 8080;
+	while (true) {
+		if (!portExist(configs, port))
+			break;
+		port++;
+	}
+	return port;
+}
+
+void checkForDuplicatedPorts(std::vector<t_server_config> &configs) {
+	for (size_t i = 0; i < configs.size(); i++) {
+		for (size_t j = i + 1; j < configs.size(); j++) {
+			if (configs[i].port == configs[j].port)
+				throw DuplicatedPortException(); 
+		}
+	}
+}
+
 void setToDefault(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		if (configs[i].port.empty())
-			configs[i].port.push_back(8080);
+		if (configs[i].port == -1)
+			configs[i].port = unusedPort(configs);
 		if (configs[i].serverName.empty())
 			configs[i].serverName = "localhost";
 		if (configs[i].hostName.empty())
@@ -202,7 +250,7 @@ void setToDefault(std::vector<t_server_config> &configs) {
 		if (configs[i].rootDir.empty())
 			configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
 		if (configs[i].indexFile.empty())
-			configs[i].indexFile = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
+			configs[i].indexFile.push_back("index.html");
 		if (configs[i].cgiPath.empty())
 			configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
 	}
