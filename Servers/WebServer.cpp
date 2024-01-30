@@ -16,6 +16,7 @@ void WebServer::handler(int &fdIndex) {
     char buffer[BUFSIZ] = {0};
     int bytesReceived = 0;
     bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ, 0);
+    buffer[bytesReceived] = '\0';
     std::cout << "bytesReceived : " << bytesReceived << std::endl;
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
@@ -26,23 +27,33 @@ void WebServer::handler(int &fdIndex) {
         std::cout << "socket already exist append it if it's not comleted yet" << std::endl;
         stringRequests[client_sockets[fdIndex].fd].append(buffer);
     }
-    HttpRequest newRequest;
-	std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
-    newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
-    Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
-	std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
+    if (requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
+        HttpRequest newRequest;
+        newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
+        Requests.insert(make_pair(client_sockets[fdIndex].fd, newRequest));
+        std::cout << "-------------- REQUSTE " << fdIndex << " --------------" << std::endl;
+        std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
+    }
+
+    cout << "********************* Port and configIndex from handler *********************" << endl;
+    cout << "key: " << client_sockets[fdIndex].fd << endl;
+    cout << Requests[client_sockets[fdIndex].fd].GetPort() << std::endl;
+    cout << getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs) << endl;
+
 }
 
 void WebServer::responder(int &fdIndex) {
-    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+
+    cout << "********************* Port and configIndex from responder *********************" << endl;
     cout << Requests[client_sockets[fdIndex].fd].GetPort() << std::endl;
+    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
     cout << configIndex << endl;
     HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
     std::string res =  newResponse.getHeader() + newResponse.getBody();
     // int bytesSent = 
     send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
     stringRequests.erase(client_sockets[fdIndex].fd);
-    // Requests.erase(client_sockets[fdIndex].fd);
+    Requests.erase(client_sockets[fdIndex].fd);
 }
 
 std::vector<int>    WebServer::init_pollfd() {
@@ -55,6 +66,7 @@ std::vector<int>    WebServer::init_pollfd() {
         server_pollfd.fd = server_fd;
         server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
         server_pollfd.revents = 0;
+        cout << "server fd: "<< server_pollfd.fd << endl;
         client_sockets.push_back(server_pollfd);  // Add server socket to the list
         server_fds.push_back(server_pollfd.fd);
     }
@@ -81,7 +93,7 @@ void WebServer::launch() {
             perror("poll");
             exit(EXIT_FAILURE);
         }
-        for (int i = 0; i < (int)tmp.size(); ++i) {
+        for (int i = 0; i < (int)tmp.size(); i++) {
             if (tmp[i].revents & POLLIN) {
                 bool isServerFd = false;
                 int serverIndex = -1;
@@ -99,6 +111,7 @@ void WebServer::launch() {
                     client_pollfd.fd = this->server_socket;
                     client_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
                     client_pollfd.revents = 0;
+                    cout << "client fd: "<< client_pollfd.fd << endl;
                     client_sockets.push_back(client_pollfd);  // Add client socket to the list
                 } else {
                     handler(i);
