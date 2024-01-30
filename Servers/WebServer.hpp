@@ -16,13 +16,13 @@ class WebServer:  public Server {
 		stringReqContainer	stringRequests;
 		RequestContainer	Requests;
 		// ResponseContainer	responses;
-		void				accepter();
+		void				accepter(int &serverIndex);
 		void				handler(int	&fdIndex);
 		void				responder(int &fdIndex);
 
 	public:
 		WebServer(std::vector<t_server_config>	&configs);
-		int		init_pollfd();
+		std::vector<int>		init_pollfd();
 		void	launch();
 		~WebServer();
 };

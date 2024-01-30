@@ -6,10 +6,10 @@ WebServer::WebServer(std::vector<t_server_config> &configs): Server(configs, AF_
 	launch();
 }
 
-void WebServer::accepter() {
-	struct sockaddr_in address = get_sock()[0]->get_address();
+void WebServer::accepter(int    &serverIndex) {
+	struct sockaddr_in address = get_server_sock()[serverIndex]->get_address();
 	int		addrlen = sizeof(address);
-	server_socket = accept(get_sock()[0]->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	server_socket = accept(get_server_sock()[serverIndex]->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
 
 void WebServer::handler(int &fdIndex) {
@@ -34,38 +34,36 @@ void WebServer::handler(int &fdIndex) {
 }
 
 void WebServer::responder(int &fdIndex) {
-    HttpResponse newResponse(configs[0], Requests[client_sockets[fdIndex].fd]);
+    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+    cout << Requests[client_sockets[fdIndex].fd].GetPort() << std::endl;
+    cout << configIndex << endl;
+    HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
     std::string res =  newResponse.getHeader() + newResponse.getBody();
     // int bytesSent = 
     send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
     stringRequests.erase(client_sockets[fdIndex].fd);
     // Requests.erase(client_sockets[fdIndex].fd);
 }
-int    WebServer::init_pollfd() {
-    // for (size_t i = 0; i < configs.size(); i++)
-    // {
-       int server_fd = get_sock()[0]->get_socket();
+
+std::vector<int>    WebServer::init_pollfd() {
+    std::vector<int>    server_fds;
+    for (size_t i = 0; i < configs.size(); i++)
+    {
+       int server_fd = get_server_sock()[i]->get_socket();
 
         pollfd server_pollfd;
         server_pollfd.fd = server_fd;
         server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
         server_pollfd.revents = 0;
         client_sockets.push_back(server_pollfd);  // Add server socket to the list
-    // }
-    return server_fd;
+        server_fds.push_back(server_pollfd.fd);
+    }
+    return server_fds;
 }
 
 void WebServer::launch() {
     
-   int server_fd = init_pollfd();
-
-    // int server_fd = get_sock()[0]->get_socket();
-
-    // pollfd server_pollfd;
-    // server_pollfd.fd = server_fd;
-    // server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
-    // server_pollfd.revents = 0;
-    // client_sockets.push_back(server_pollfd);  // Add server socket to the list
+   std::vector<int> server_fds = init_pollfd();
 
     int j = 0;
     while (true) {
@@ -85,8 +83,18 @@ void WebServer::launch() {
         }
         for (int i = 0; i < (int)tmp.size(); ++i) {
             if (tmp[i].revents & POLLIN) {
-                if (tmp[i].fd == server_fd) {
-                    accepter();
+                bool isServerFd = false;
+                int serverIndex = -1;
+                for (int j = 0; j < (int)server_fds.size(); ++j) {
+                    if (tmp[i].fd == server_fds[j]) {
+                        isServerFd = true;
+                        serverIndex = j;
+                        break;
+                    }
+                }
+
+                if (isServerFd) {
+                    accepter(serverIndex);
                     pollfd client_pollfd;
                     client_pollfd.fd = this->server_socket;
                     client_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
