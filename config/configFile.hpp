@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/29 12:11:44 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/31 22:52:08 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,29 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <sys/stat.h>
+
+typedef struct location {
+	std::vector<std::string>	paths;
+	std::vector<std::string>	indexs;
+	std::string 				name;
+	std::string 				root;
+	bool 						autoIndex;
+	int							maxBodySize;
+} location;
 
 typedef struct s_config
 {
-	int							port;
-	std::string 				serverName;
-	std::string 				hostName;
-	int 						maxBodySize;
-	bool 						autoIndex;
-	std::string 				rootDir;
-	std::vector<std::string	>	indexFile;
-	std::string 				cgiPath;
+	std::map<std::string, location> locations;
+	std::vector<std::string>		indexFile;
+	std::string 					serverName;
+	unsigned int 					host;
+	std::string 					rootDir;
+	std::string 					cgiPath;
+	bool 							autoIndex;
+	int 							maxBodySize;
+	int								port;
 	
 } t_server_config;
 
@@ -65,6 +76,12 @@ class DuplicatedPortException : public std::exception {
 	public:
 		const char * what() const throw() {
 			return "the same port used in different servers";
+	}
+};
+class DuplicatedLocationException : public std::exception {
+	public:
+		const char * what() const throw() {
+			return "Duplicated location";
 	}
 };
 

@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/29 12:11:31 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/01/31 23:06:10 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,33 @@ std::vector<std::string> parseIndexs(std::string value) {
 	return indexs;
 }
 
+std::vector<std::string> mySplite(std::string value) {
+	std::vector<std::string> strs;
+	for (size_t i = 0; i < value.size(); i++) {
+		std::string tmp;
+		while (i < value.size() && value[i] != '.')
+			tmp.push_back(value[i++]);
+		if (tmp.empty())
+			throw UndefinedValueException();
+		strs.push_back(tmp);
+	}
+	if (strs.size() != 4)
+		throw UndefinedValueException();
+	return strs;
+}
+
+unsigned int extructHost(std::string value) {
+	std::vector<std::string> strs = mySplite(value);
+	unsigned int result = 0;
+	char *endPtr;
+	for (size_t i = 0; i < strs.size(); i++) {
+		result += std::strtol(strs[i].c_str(), &endPtr, 10) << i * 8;
+		if (endPtr && endPtr[0])
+			throw UndefinedValueException();
+	}
+	return result;
+}
+
 void identifieANDfill(std::string line, t_server_config *tmp) {
 	size_t seperatorPos = line.find("=");
 	size_t delimiterPos = line.find(";");
@@ -79,8 +106,8 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 	if (key == "serverName") {
 		// check errors in value
 		tmp->serverName = value;
-	} else if (key == "hostName") {
-		tmp->hostName = value;
+	} else if (key == "host") {
+		tmp->host = extructHost(value);
 	} else if (key == "maxBodySize") {
 		for (size_t i = 0; i < value.length(); i++) {
 			if (!std::isdigit(value[i]))
@@ -113,6 +140,100 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		throw UndefinedTokenException();
 }
 
+void identifieANDfilllocation(std::string line, location *tmp) {
+	size_t seperatorPos = line.find("=");
+	size_t delimiterPos = line.find(";");
+	if (seperatorPos == line.npos || delimiterPos == line.npos)
+		throw SyntaxErrorException();
+	std::string key = line.substr(0, seperatorPos);
+	std::string value = line.substr(seperatorPos + 1, delimiterPos - (seperatorPos + 1));
+	if (key == "root") {
+		// checkPath(value);
+		tmp->root = value;
+	} else if (key == "maxBodySize") {
+		for (size_t i = 0; i < value.length(); i++) {
+			if (!std::isdigit(value[i]))
+				throw UndefinedValueException();
+		}
+		tmp->maxBodySize = std::atoi(value.c_str());
+	} else if (key == "autoIndex") {
+		if (value == "off")
+			tmp->autoIndex = false;
+		else if (value == "on")
+			tmp->autoIndex = true;
+		else
+			throw UndefinedValueException();
+	} else if (key == "indexs") {
+		// checkPath(value);
+		tmp->indexs = parseIndexs(value);
+	} else if (key == "path") {
+		// check path
+		tmp->paths.push_back(value);
+	} else 
+		throw UndefinedTokenException();
+}
+
+location locationHandler(std::string line, std::ifstream &configFile) {
+	location tmp;
+	bool start = false;
+	bool end = false;
+	bool isName = false;
+	line.erase(0,8);
+	size_t pos;
+	if ((pos = line.find("[")) != line.npos) {
+		line.erase(pos, 1);
+		start = true;
+	}
+	if (line[0] != '(' || line[line.length() - 1] != ')')
+		throw SyntaxErrorException();
+	isName = true;
+	tmp.name = line.substr(1,line.length() - 2);
+	while (std::getline(configFile, line, '\n')) {
+		cleanLine(line);
+		if(line.empty())
+			continue;
+		if (!start) {
+			if (line == "[" || line[0] == '[') {
+				start = true;
+				if (line == "[")
+					continue;
+				else
+					line.erase(0,1);
+			}
+			else
+				throw SyntaxErrorException();
+		}
+		else {
+			size_t pos;
+			if (line.find('[') != line.npos)
+				throw SyntaxErrorException();
+			if ((pos = line.find(']')) != line.npos) {
+				if (pos == (line.length() - 1)) {
+					end = true;
+					line.erase(pos, 1);
+				}
+				else
+					throw SyntaxErrorException();
+				if (line.empty())
+					break;
+			}
+			if (end && line.find(']') != line.npos)
+				throw SyntaxErrorException();
+			identifieANDfilllocation(line, &tmp);
+			if (end)
+				break;
+		}
+	}
+	return tmp;
+}
+
+bool checkDuplicatLocation(t_server_config tmp, std::string name) {
+	std::map<std::string, location>::iterator it = tmp.locations.find(name);
+	if (it != tmp.locations.end())
+		throw DuplicatedLocationException();
+	return false;
+}
+
 std::vector<t_server_config> readConfigeFile(char *path) {
 	std::ifstream configeFile(path);
 	if (!configeFile.is_open())
@@ -124,6 +245,7 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 	std::vector<t_server_config> configs;
 	while (1) {
 		t_server_config tmp;
+		tmp.host = 0;
 		tmp.port = -1;
 		header = OpenAccolade = CloseAccolade = false;
 		while (std::getline(configeFile, line, '\n')) {
@@ -169,8 +291,15 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 					}
 					if (CloseAccolade && line.find('}') != line.npos)
 						throw SyntaxErrorException();
-					std::cout << "--" << line << "--" << std::endl;
-					identifieANDfill(line, &tmp);
+					// std::cout << "--" << line << "--" << std::endl;
+					if ((line.substr(0,8) == "location")) {
+						location tmpLocation = locationHandler(line, configeFile);
+						// std::cout << "%%% " << tmpLocation.maxBodySize << " %%%" << std::endl;
+						if (!checkDuplicatLocation(tmp, tmpLocation.name))
+							tmp.locations.insert(std::make_pair(tmpLocation.name, tmpLocation));
+						// std::cout << "^^^^ " << tmp.locations[tmpLocation.name].maxBodySize << " ^^^^^" << std::endl;
+					} else
+						identifieANDfill(line, &tmp);
 					if (CloseAccolade)
 						break;
 				}
@@ -195,7 +324,7 @@ void printConfigs(std::vector<t_server_config> &configs) {
 		
 		std::cout << "port : " << configs[i].port << std::endl;
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
-		std::cout << "hostName : " << configs[i].hostName << std::endl;
+		std::cout << "hostName : " << configs[i].host << std::endl;
 		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
 		if (configs[i].autoIndex)
 			std::cout << "autoIndex : on" << std::endl;
@@ -206,6 +335,22 @@ void printConfigs(std::vector<t_server_config> &configs) {
 			std::cout << "indexFile : " << configs[i].indexFile[j] << std::endl;
 		}
 		std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
+		int number = 1;
+		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
+			std::cout << "location " << number << " name : " << it->second.name << std::endl;
+			std::cout << "location " << number << " root : " << it->second.root << std::endl;
+			std::cout << "location " << number << " maxBodySize : " << it->second.maxBodySize << std::endl;
+			if (it->second.autoIndex)
+				std::cout << "location " << number << " autoIndex : on" << std::endl;
+			else
+				std::cout << "location " << number << " autoIndex : off" << std::endl;
+			for (size_t k = 0; k < it->second.paths.size(); k++)
+				std::cout << "location " << number << " path : " << it->second.paths[k] << std::endl;
+			for (size_t k = 0; k < it->second.indexs.size(); k++)
+				std::cout << "location " << number << " indexs : " << it->second.indexs[k] << std::endl;
+			number++;
+			std::cout << "----------------------------------------------" << std::endl;
+		}
 		std::cout << "**********************************************" << std::endl;
 	}
 }
@@ -243,8 +388,8 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].port = unusedPort(configs);
 		if (configs[i].serverName.empty())
 			configs[i].serverName = "localhost";
-		if (configs[i].hostName.empty())
-			configs[i].hostName = "host";
+		if (configs[i].host == 0)
+			configs[i].host = 16777343;
 		if (configs[i].maxBodySize == 0)
 			configs[i].maxBodySize = 1024;
 		if (configs[i].rootDir.empty())
