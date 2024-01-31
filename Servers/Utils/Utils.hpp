@@ -7,3 +7,4 @@
 
 std::string getCurrentTimeInGMT();
 std::string getFileContent(std::string fileName);
+int         getConfigIndexByPort(int port, const std::vector<t_server_config>& configs);

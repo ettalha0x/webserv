@@ -6,7 +6,7 @@ Server::Server(std::vector<t_server_config> &configs, int domain, int service, i
 	}
 }
 
-std::vector<ListeningSocket*>	Server::get_sock() {
+std::vector<ListeningSocket*>	Server::get_server_sock() {
 	return sockets;
 }
 

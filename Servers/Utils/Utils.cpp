@@ -34,3 +34,12 @@ std::string getFileContent(std::string fileName) {
     file.close();
     return content;
 }
+
+int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) {
+    for (int i = 0; i < (int)configs.size(); i++) {
+        if (configs[i].port == port) {
+            return i;
+        }
+    }
+    return -1; // Return -1 if no configuration with the given port number is found
+}
