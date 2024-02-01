@@ -6,6 +6,7 @@
 
 class HttpResponse {
 	private:
+		HttpRequest 						request;
 		int 								statusCode; // Default status code
 		std::string 						statusMessage; // Default status message
 		std::string 						headerString; // Constructed header string
@@ -17,15 +18,17 @@ class HttpResponse {
 		void	setStatusCode(int statusCode);
 		void	setStatusMessage(std::string statusMessage);
 
-		// Function to add a header to the response
-		void addHeader(const std::string& key, const std::string& value);
 
 		// Function to get the status code
 		int	getStatusCode();
 		// Function to get the status message
-		std::string	getStatusMessage();
+		std::string	getStatusMessage(int	statusCode);
+
+		// Function to add a header to the response
+		void addHeader(const std::string& key, const std::string& value);
 		// Function to get the constructed response header
 		std::string getHeaderString() const;
+
 		// Function to get the body
 		void	constructHeader(void);
 		void	constructBody(void);
@@ -33,7 +36,7 @@ class HttpResponse {
 		
 	public:
 
-		HttpResponse(t_server_config &config, HttpRequest request);
+		HttpResponse(t_server_config &config, HttpRequest &request);
 		std::string	getHeader();
 		std::string	getBody();
 
