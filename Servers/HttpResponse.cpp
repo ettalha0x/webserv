@@ -3,8 +3,7 @@
 
 
 
-HttpResponse::HttpResponse(t_server_config &config, HttpRequest request) :config(config){
-	(void)request;
+HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request) :request(request), config(config) {
 	constructHeader();
 	constructBody();
 }
@@ -25,8 +24,19 @@ int	HttpResponse::getStatusCode() {
 	return statusCode;
 }
 
-std::string	HttpResponse::getStatusMessage() {
-	return statusMessage;
+std::string	HttpResponse::getStatusMessage(int	statusCode) {
+	switch (statusCode) {
+		case 200:
+			return "OK";
+		case 400:
+			return "Bad Request";
+		case 404:
+			return "Not Found";
+		case 500:
+			return "Internal Server Error";
+		default:
+			return "Unknown Status";
+	}
 }
 
 std::string HttpResponse::getHeaderString() const {
@@ -41,17 +51,25 @@ std::string HttpResponse::getHeaderString() const {
 
 void	HttpResponse::constructHeader(void) {
 	setStatusCode(200);
-	setStatusMessage("OK");
-	addHeader("Content-Type", "text/html");
-	// newResponse.addHeader("Content-Length", "1337");
+	setStatusMessage(getStatusMessage(getStatusCode()));
+	addHeader("Content-Type", request.GetContentType());
+	// addHeader("Content-Length", std::to_string(request.GetContentLength()));
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
 }
 
 void	HttpResponse::constructBody() {
-	std::string indexPath = config.rootDir + "/" + config.indexFile[0];
-	body = getFileContent(indexPath);
+	std::string Path;
+	struct stat st;
+	if (request.GetPath() == "/") {
+		Path = config.rootDir + "/" + config.indexFile[0];
+	} else {
+		Path = config.rootDir + request.GetPath();
+		if (stat(Path.c_str(), &st))
+			Path = "Sites-available/Error-pages/404-Not-Found.html";
+	}
+	body = getFileContent(Path);
 }
 
 std::string	HttpResponse::getHeader() {
