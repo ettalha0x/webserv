@@ -53,15 +53,23 @@ void	HttpResponse::constructHeader(void) {
 	setStatusCode(200);
 	setStatusMessage(getStatusMessage(getStatusCode()));
 	addHeader("Content-Type", request.GetContentType());
-	addHeader("Content-Length", std::to_string(request.GetContentLength()));
+	// addHeader("Content-Length", std::to_string(request.GetContentLength()));
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
 }
 
 void	HttpResponse::constructBody() {
-	std::string indexPath = config.rootDir + "/" + config.indexFile[0];
-	body = getFileContent(indexPath);
+	std::string Path;
+	struct stat st;
+	if (request.GetPath() == "/") {
+		Path = config.rootDir + "/" + config.indexFile[0];
+	} else {
+		Path = config.rootDir + request.GetPath();
+		if (stat(Path.c_str(), &st))
+			Path = "Sites-available/Error-pages/404-Not-Found.html";
+	}
+	body = getFileContent(Path);
 }
 
 std::string	HttpResponse::getHeader() {

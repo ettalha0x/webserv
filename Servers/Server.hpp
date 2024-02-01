@@ -3,6 +3,7 @@
 # include <unistd.h>
 # include <iostream>
 # include <fstream>
+# include <sys/stat.h>
 # include <vector>
 # include <map>
 # include "../Sockets/SocketLib.hpp"

@@ -15,7 +15,7 @@ void WebServer::accepter(int    &serverIndex) {
 void WebServer::handler(int &fdIndex) {
     char buffer[BUFSIZ * 4] = {0};
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ, 0);
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ * 4, 0);
     buffer[bytesReceived] = '\0';
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
