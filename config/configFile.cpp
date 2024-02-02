@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/31 23:06:10 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/02 17:26:41 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,13 @@ unsigned int extructHost(std::string value) {
 	return result;
 }
 
+void checkforIncorrectMethod(std::vector<std::string> methods) {
+	for (size_t i = 0; i < methods.size(); i++) {
+		if (methods[i] != "POST" && methods[i] != "DELETE" && methods[i] != "GET")
+			throw UndefinedValueException();
+	}
+}
+
 void identifieANDfill(std::string line, t_server_config *tmp) {
 	size_t seperatorPos = line.find("=");
 	size_t delimiterPos = line.find(";");
@@ -136,7 +143,10 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 				throw UndefinedValueException();
 		}
 		tmp->port = std::atoi(value.c_str());
-	} else 
+	} else if (key == "acceptedMethods") {
+		tmp->acceptedMethods = parseIndexs(value);
+		checkforIncorrectMethod(tmp->acceptedMethods);
+	}else 
 		throw UndefinedTokenException();
 }
 
@@ -187,7 +197,7 @@ location locationHandler(std::string line, std::ifstream &configFile) {
 	if (line[0] != '(' || line[line.length() - 1] != ')')
 		throw SyntaxErrorException();
 	isName = true;
-	tmp.name = line.substr(1,line.length() - 2);
+	tmp.uri = line.substr(1,line.length() - 2);
 	while (std::getline(configFile, line, '\n')) {
 		cleanLine(line);
 		if(line.empty())
@@ -295,8 +305,8 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 					if ((line.substr(0,8) == "location")) {
 						location tmpLocation = locationHandler(line, configeFile);
 						// std::cout << "%%% " << tmpLocation.maxBodySize << " %%%" << std::endl;
-						if (!checkDuplicatLocation(tmp, tmpLocation.name))
-							tmp.locations.insert(std::make_pair(tmpLocation.name, tmpLocation));
+						if (!checkDuplicatLocation(tmp, tmpLocation.uri))
+							tmp.locations.insert(std::make_pair(tmpLocation.uri, tmpLocation));
 						// std::cout << "^^^^ " << tmp.locations[tmpLocation.name].maxBodySize << " ^^^^^" << std::endl;
 					} else
 						identifieANDfill(line, &tmp);
@@ -337,7 +347,7 @@ void printConfigs(std::vector<t_server_config> &configs) {
 		std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
 		int number = 1;
 		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
-			std::cout << "location " << number << " name : " << it->second.name << std::endl;
+			std::cout << "location " << number << " name : " << it->second.uri << std::endl;
 			std::cout << "location " << number << " root : " << it->second.root << std::endl;
 			std::cout << "location " << number << " maxBodySize : " << it->second.maxBodySize << std::endl;
 			if (it->second.autoIndex)

@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/31 22:52:08 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/02 17:29:34 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 typedef struct location {
 	std::vector<std::string>	paths;
 	std::vector<std::string>	indexs;
-	std::string 				name;
+	std::string 				uri;
 	std::string 				root;
 	bool 						autoIndex;
 	int							maxBodySize;
@@ -30,6 +30,7 @@ typedef struct location {
 typedef struct s_config
 {
 	std::map<std::string, location> locations;
+	std::vector<std::string> 		acceptedMethods;
 	std::vector<std::string>		indexFile;
 	std::string 					serverName;
 	unsigned int 					host;
