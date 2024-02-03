@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/01/27 16:58:27 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/02 17:29:55 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class HttpRequest {
 		int				GetPort(void) const;
 		bool 			bodyExistOrNot(void) const;
 		bool 			ChunkedOrNot(void) const;
+		std::string 	GetFileExtantion(void)const;
 		
 		void 			read_and_parse(std::istringstream &requestStream);
 		void 			fill_vars_from_headerContainer(void);
