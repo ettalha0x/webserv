@@ -37,6 +37,8 @@ class HttpResponse {
 	public:
 
 		HttpResponse(t_server_config &config, HttpRequest &request);
+		std::string 	GetFileExtension(std::string path);
+		size_t		GetContentLength();
 		std::string	getHeader();
 		std::string	getBody();
 

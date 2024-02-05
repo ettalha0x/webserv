@@ -4,8 +4,8 @@
 
 
 HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request) :request(request), config(config) {
-	constructHeader();
 	constructBody();
+	constructHeader();
 }
 
 void	HttpResponse::setStatusCode(int statusCode) {
@@ -15,6 +15,10 @@ void	HttpResponse::setStatusCode(int statusCode) {
 void	HttpResponse::setStatusMessage(std::string statusMessage) {
 	this->statusMessage = statusMessage;
 }
+
+ size_t		HttpResponse::GetContentLength() {
+	return body.length();
+ };
 
 void HttpResponse::addHeader(const std::string& key, const std::string& value) {
 	headers[key] = value;
@@ -50,10 +54,8 @@ std::string HttpResponse::getHeaderString() const {
 }
 
 void	HttpResponse::constructHeader(void) {
-	setStatusCode(200);
 	setStatusMessage(getStatusMessage(getStatusCode()));
-	addHeader("Content-Type", request.GetContentType());
-	// addHeader("Content-Length", std::to_string(request.GetContentLength()));
+	addHeader("Content-Length", std::to_string(GetContentLength()));
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
@@ -66,10 +68,22 @@ void	HttpResponse::constructBody() {
 		Path = config.rootDir + "/" + config.indexFile[0];
 	} else {
 		Path = config.rootDir + request.GetPath();
+		setStatusCode(200);
 		if (stat(Path.c_str(), &st))
+		{
+			setStatusCode(404);
 			Path = "Sites-available/Error-pages/404-Not-Found.html";
+		}
 	}
+	addHeader("Content-Type", GetFileExtension(Path));
 	body = getFileContent(Path);
+}
+
+std::string HttpResponse::GetFileExtension(std::string path){
+	size_t pos = path.find(".");
+	if (pos != path.npos)
+		return  "text/" + path.substr(pos + 1, path.length() - (pos + 1));
+	return  ("text/html");
 }
 
 std::string	HttpResponse::getHeader() {
