@@ -82,7 +82,7 @@ void	HttpResponse::constructBody() {
 std::string HttpResponse::GetFileExtension(std::string path){
 	size_t pos = path.find(".");
 	if (pos != path.npos)
-		return  "text/" + path.substr(pos + 1, path.length() - (pos + 1));
+		return GetExtensionPrefix(path.substr(pos + 1, path.length() - (pos + 1)));
 	return  ("text/html");
 }
 

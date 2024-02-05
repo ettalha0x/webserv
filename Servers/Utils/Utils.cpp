@@ -43,3 +43,19 @@ int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) 
     }
     return -1; // Return -1 if no configuration with the given port number is found
 }
+
+std::string GetExtensionPrefix(std::string extension) {
+    std::ifstream file("webserv/Servers/Utils/contentTypes.txt");
+    if (!file)
+        return "text/" + extension;
+    std::string line;
+    while (std::getline(file, line)) {
+        size_t pos = line.find("/" + extension);
+        if (pos != line.npos) {
+            file.close();
+            return line;
+        }
+    }
+    file.close();
+    return "text/" + extension;
+}
