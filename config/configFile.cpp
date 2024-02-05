@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/02 17:26:41 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/05 10:26:36 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,11 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 	} else if (key == "acceptedMethods") {
 		tmp->acceptedMethods = parseIndexs(value);
 		checkforIncorrectMethod(tmp->acceptedMethods);
-	}else 
+	} else if (key == "accepted_extentions") {
+		tmp->accepted_extentions = parseIndexs(value);
+	} else if (key == "cgi_extentions") {
+		tmp->cgi_extentions = parseIndexs(value);
+	} else 
 		throw UndefinedTokenException();
 }
 
@@ -173,13 +177,24 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 			tmp->autoIndex = true;
 		else
 			throw UndefinedValueException();
-	} else if (key == "indexs") {
+	} else if (key == "index") {
 		// checkPath(value);
-		tmp->indexs = parseIndexs(value);
-	} else if (key == "path") {
-		// check path
-		tmp->paths.push_back(value);
-	} else 
+		tmp->index = value;
+	} else if (key == "redirection") {
+		// check Path
+		tmp->redirection = value;
+	} else if (key == "upload_path") {
+		// check Path
+		tmp->upload_path = value;
+	} else if (key == "cgi_path") {
+		// check Path
+		tmp->cgi_path = value;
+	} else if (key == "cgi_extentions") {
+		tmp->cgi_extentions = parseIndexs(value);
+	} else if (key == "acceptedMethods") {
+		tmp->acceptedMethods = parseIndexs(value);
+		checkforIncorrectMethod(tmp->acceptedMethods);
+	}else
 		throw UndefinedTokenException();
 }
 
@@ -329,37 +344,71 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 	return configs;
 }
 
+void printLocation(location loc, int number) {
+	std::cout << "\tlocation " << number << " uri : " << loc.uri << std::endl;
+	std::cout << "\tlocation " << number << " root : " << loc.root << std::endl;
+	std::cout << "\tlocation " << number << " redirection : " << loc.redirection << std::endl;
+	std::cout << "\tlocation " << number << " upload_path : " << loc.upload_path << std::endl;
+	std::cout << "\tlocation " << number << " cgi_path : " << loc.cgi_path << std::endl;
+	
+	std::cout << "\tlocation " << number << " cgi_extention : ";
+	for (size_t i = 0; i < loc.cgi_extentions.size(); i++)
+		std::cout << loc.cgi_extentions[i] << "\t";
+	std::cout << std::endl;
+	std::cout << "\tlocation " << number << " index : " << loc.index << std::endl;
+	if (loc.autoIndex)
+		std::cout << "\tlocation " << number << " autoIndex : on" << std::endl;
+	else
+		std::cout << "\tlocation " << number << " autoIndex : off" << std::endl;
+
+	std::cout << "\tlocation " << number << " accepted_methods : ";
+	for (size_t i = 0; i < loc.acceptedMethods.size(); i++)
+		std::cout << loc.acceptedMethods[i] << "\t";
+	std::cout << std::endl;
+	std::cout << "\tlocation " << number << " maxBodySize : " << loc.maxBodySize << std::endl;
+	std::cout << "----------------------------------------------" << std::endl;
+} 
+
 void printConfigs(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		
-		std::cout << "port : " << configs[i].port << std::endl;
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
-		std::cout << "hostName : " << configs[i].host << std::endl;
-		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
+		std::cout << "host : " << configs[i].host << std::endl;
+		std::cout << "rootDir : " << configs[i].rootDir << std::endl;
+		std::cout << "port : " << configs[i].port << std::endl;
+		
+		std::cout << "indexFile : ";
+		for (size_t j = 0; j < configs[i].indexFile.size(); j++)
+			std::cout << configs[i].indexFile[j] << "\t";
+		std::cout << std::endl;
+			
 		if (configs[i].autoIndex)
 			std::cout << "autoIndex : on" << std::endl;
 		else
-			std::cout << "autoIndex : off" << std::endl;			
-		std::cout << "rootDir : " << configs[i].rootDir << std::endl;
-		for (size_t j = 0; j < configs[i].indexFile.size(); j++) {
-			std::cout << "indexFile : " << configs[i].indexFile[j] << std::endl;
-		}
+			std::cout << "autoIndex : off" << std::endl;
+
+		std::cout << "acceptedMethods : ";	
+		for (size_t j = 0; j < configs[i].acceptedMethods.size(); j++)
+			std::cout << configs[i].acceptedMethods[j] << "\t";
+		std::cout << std::endl;
+		
 		std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
+		
+		std::cout << "cgi_extentions : ";
+		for (size_t j = 0; j < configs[i].cgi_extentions.size(); j++)
+			std::cout << configs[i].cgi_extentions[j] << "\t";
+		std::cout << std::endl;
+		
+		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
+		
 		int number = 1;
+		std::cout << "accepted_extentions : ";
+		for (size_t j = 0; j < configs[i].accepted_extentions.size(); j++)
+			std::cout << configs[i].accepted_extentions[j] << "\t";
+		std::cout << std::endl;
+		
 		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
-			std::cout << "location " << number << " name : " << it->second.uri << std::endl;
-			std::cout << "location " << number << " root : " << it->second.root << std::endl;
-			std::cout << "location " << number << " maxBodySize : " << it->second.maxBodySize << std::endl;
-			if (it->second.autoIndex)
-				std::cout << "location " << number << " autoIndex : on" << std::endl;
-			else
-				std::cout << "location " << number << " autoIndex : off" << std::endl;
-			for (size_t k = 0; k < it->second.paths.size(); k++)
-				std::cout << "location " << number << " path : " << it->second.paths[k] << std::endl;
-			for (size_t k = 0; k < it->second.indexs.size(); k++)
-				std::cout << "location " << number << " indexs : " << it->second.indexs[k] << std::endl;
+			printLocation(it->second, number);
 			number++;
-			std::cout << "----------------------------------------------" << std::endl;
 		}
 		std::cout << "**********************************************" << std::endl;
 	}
