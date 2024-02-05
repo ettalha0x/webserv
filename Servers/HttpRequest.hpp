@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/05 11:38:28 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/05 15:34:19 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "../config/configFile.hpp"
 #include <iostream>
 #include <map>
 #include <vector>
