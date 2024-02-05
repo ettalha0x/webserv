@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/02 17:37:06 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/05 10:40:29 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,6 @@ int HttpRequest::GetContentLength(void) const {
 	return this->_contentLength;}
 int HttpRequest::GetPort(void) const {
 	return this->_port;}
-std::string HttpRequest::GetFileExtantion(void) const {
-	size_t pos = _path.find(".");
-	if (pos != _path.npos)
-		return _path.substr(pos + 1, _path.length() - (pos + 1));
-	return "NFEX";
-}
 
 bool HttpRequest::bodyExistOrNot(void) const{
 	return this->bodyExist;}
