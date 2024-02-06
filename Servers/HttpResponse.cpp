@@ -53,6 +53,11 @@ std::string HttpResponse::getHeaderString() const {
 	return headerString + "\r\n";
 }
 
+
+std::string	HttpResponse::getLocationRoute(std::string &path) {
+    return (path.substr(0, path.find_last_of('/') + 1));
+}
+
 void	HttpResponse::constructHeader(void) {
 	setStatusMessage(getStatusMessage(getStatusCode()));
 	addHeader("Content-Length", std::to_string(GetContentLength()));
@@ -61,22 +66,43 @@ void	HttpResponse::constructHeader(void) {
 	headerString = getHeaderString();
 }
 
+location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
+	for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); ++it) {
+		if (it->first == locationRoute) {
+			return it->second;
+		}
+  	}
+	throw std::exception();
+}
+
 void	HttpResponse::constructBody() {
-	std::string Path;
+	std::string path;
+	std::string locationRoute;
+	std::string finalPath;
 	struct stat st;
-	if (request.GetPath() == "/") {
-		Path = config.rootDir + "/" + config.indexFile[0];
-	} else {
-		Path = config.rootDir + request.GetPath();
+
+	path = request.GetPath();
+	locationRoute = getLocationRoute(path);
+
+	try
+	{
+		location location = getMatchedLocation(locationRoute);
+		finalPath =  location.root + path;
 		setStatusCode(200);
-		if (stat(Path.c_str(), &st))
+		if (stat(finalPath.c_str(), &st))
 		{
 			setStatusCode(404);
-			Path = "Sites-available/Error-pages/404-Not-Found.html";
+			finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 		}
+
 	}
-	addHeader("Content-Type", GetFileExtension(Path));
-	body = getFileContent(Path);
+	catch(const std::exception& e)
+	{
+		finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+	}
+
+	addHeader("Content-Type", GetFileExtension(finalPath));
+	body = getFileContent(finalPath);
 }
 
 std::string HttpResponse::GetFileExtension(std::string path){
