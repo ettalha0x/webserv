@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/05 10:40:29 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:45:32 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,16 @@ int HttpRequest::GetContentLength(void) const {
 	return this->_contentLength;}
 int HttpRequest::GetPort(void) const {
 	return this->_port;}
-
+std::string HttpRequest::GetRequestedFile(void) const {
+	return _requestedFile;
+}
 bool HttpRequest::bodyExistOrNot(void) const{
 	return this->bodyExist;}
 bool HttpRequest::ChunkedOrNot(void) const{
 	return this->isChunked;}
 
 
-void HttpRequest::ckeckForQuery(void) {
+void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	size_t pos;
 	if ((pos = this->_path.find("?")) != this->_path.npos) {
 		size_t andCarPos = pos;
@@ -71,6 +73,15 @@ void HttpRequest::ckeckForQuery(void) {
 		}
 		this->_path = this->_path.substr(0, pos);
 	}
+	if ((pos = this->_path.find(".")) != this->_path.npos) {
+		size_t slashPos = this->_path.find_last_of("/");
+		if (slashPos != _path.npos)
+			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
+		else 
+			this->_requestedFile = _path;
+	}
+	else
+		this->_requestedFile = "index.html";
 }
 
 void HttpRequest::read_and_parse(std::istringstream& requestStream) {
@@ -111,7 +122,7 @@ void HttpRequest::parser(std::string request) {
 	pos++;
 	size_t endPos = this->_RequestLine.find(" ", pos);
 	this->_path = this->_RequestLine.substr(pos, endPos - pos);
-	ckeckForQuery();
+	ckeckForQueryAndRequestedFile();
 	endPos++;
 	this->_HttpVersion = this->_RequestLine.substr(endPos, _RequestLine.length() - endPos);
 	read_and_parse(requestStream);
@@ -147,6 +158,7 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "HOST : " << obj.GetHost() << std::endl;
 	os << "contentType : " << obj.GetContentType() << std::endl;
 	os << "contentLength : " << obj.GetContentLength() << std::endl;
+	os << "requestedFile : " << obj.GetRequestedFile() << std::endl;
 	os << "boundary : " << obj.GetBoundary() << std::endl;
 	QueryContainer::iterator it = obj.GetQuerty().begin();
 	while(it != obj.GetQuerty().end()) {

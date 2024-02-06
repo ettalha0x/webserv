@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/05 11:38:28 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:35:11 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class HttpRequest {
 		std::string 	_Host;
 		std::string 	_boundary;
 		std::string		_contentType;
+		std::string		_requestedFile;
 		int				_contentLength;
 		int				_port;
 		std::string		_serverName;
@@ -65,12 +66,13 @@ class HttpRequest {
 		std::string		GetServerName(void) const;
 		int 			GetContentLength(void) const;
 		int				GetPort(void) const;
+		std::string		GetRequestedFile(void)const;
 		bool 			bodyExistOrNot(void) const;
 		bool 			ChunkedOrNot(void) const;
 		
 		void 			read_and_parse(std::istringstream &requestStream);
 		void 			fill_vars_from_headerContainer(void);
-		void 			ckeckForQuery(void);
+		void 			ckeckForQueryAndRequestedFile(void);
 		void 			parser(std::string request);
 };
 
