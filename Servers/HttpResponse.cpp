@@ -87,10 +87,14 @@ void	HttpResponse::constructBody() {
 	try
 	{
 		location location = getMatchedLocation(locationRoute);
-		finalPath =  location.root + path;
+		std::string file = request.GetRequestedFile();
+		if (file.empty())
+			file = location.index;
+		finalPath =  location.root + path + file;
 		setStatusCode(200);
 		if (stat(finalPath.c_str(), &st))
 		{
+			std::cout << "Location not found 1" << std::endl;
 			setStatusCode(404);
 			finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 		}
@@ -98,9 +102,10 @@ void	HttpResponse::constructBody() {
 	}
 	catch(const std::exception& e)
 	{
+		std::cout << "Location not found 2" << std::endl;
 		finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 	}
-
+	std::cout << "finalPath: " << finalPath << std::endl;
 	addHeader("Content-Type", GetFileExtension(finalPath));
 	body = getFileContent(finalPath);
 }
