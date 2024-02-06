@@ -6,12 +6,13 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/06 11:35:11 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:50:39 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "../config/configFile.hpp"
 #include <iostream>
 #include <map>
 #include <vector>

@@ -28,6 +28,8 @@ class HttpResponse {
 		void addHeader(const std::string& key, const std::string& value);
 		// Function to get the constructed response header
 		std::string getHeaderString() const;
+		std::string getLocationRoute(std::string &path);
+		location	getMatchedLocation(std::string &locationRoute);
 
 		// Function to get the body
 		void	constructHeader(void);
@@ -38,9 +40,9 @@ class HttpResponse {
 
 		HttpResponse(t_server_config &config, HttpRequest &request);
 		std::string 	GetFileExtension(std::string path);
-		size_t		GetContentLength();
-		std::string	getHeader();
-		std::string	getBody();
+		size_t			GetContentLength();
+		std::string		getHeader();
+		std::string		getBody();
 
 		~HttpResponse();
 };
