@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/06 11:45:32 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/06 12:01:19 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 		}
 		this->_path = this->_path.substr(0, pos);
 	}
+	size_t slashPos = this->_path.find_last_of("/");
 	if ((pos = this->_path.find(".")) != this->_path.npos) {
-		size_t slashPos = this->_path.find_last_of("/");
 		if (slashPos != _path.npos)
 			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
 		else 
@@ -82,6 +82,7 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	}
 	else
 		this->_requestedFile = "index.html";
+	_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }
 
 void HttpRequest::read_and_parse(std::istringstream& requestStream) {
