@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/06 12:01:19 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/06 12:23:49 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,6 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 		else 
 			this->_requestedFile = _path;
 	}
-	else
-		this->_requestedFile = "index.html";
 	_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }
 
