@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/06 12:23:49 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/02/07 13:25:47 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,8 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	if ((pos = this->_path.find(".")) != this->_path.npos) {
 		if (slashPos != _path.npos)
 			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
-		else 
-			this->_requestedFile = _path;
+		// else 
+		// 	this->_requestedFile = _path;
 	}
 	_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }

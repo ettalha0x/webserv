@@ -59,3 +59,19 @@ std::string GetExtensionPrefix(std::string extension) {
     file.close();
     return "text/" + extension;
 }
+
+
+std::string list_dir(std::string dir_name) {
+    DIR *dir = opendir(dir_name.c_str());
+    
+    if (dir == NULL) {
+        return "<h1> Could not open directory: " + dir_name + "</h1>";
+    }
+    std::string result = "<h1> directory listing for " + dir_name + ": </h1>\n <ul>";
+    struct dirent *entry;
+    for (entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
+        if (entry->d_name[0] != '.') 
+            result += std::string("<li> <a href=\"") + entry->d_name + std::string("\"") + std::string(">") + entry->d_name + std::string("</li>") + std::string("\n");
+    }
+    return result + std::string("</ul>");
+};
