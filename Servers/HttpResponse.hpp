@@ -34,6 +34,7 @@ class HttpResponse {
 		// Function to get the body
 		void	constructHeader(void);
 		void	constructBody(void);
+		void	check_method(location Location);
 
 		
 	public:
@@ -45,4 +46,17 @@ class HttpResponse {
 		std::string		getBody();
 
 		~HttpResponse();
+};
+
+class NotAllowedException : public std::exception {
+	public:
+		const char * what() const throw() {
+			return "Method Not Allowed";
+	}
+};
+class LocationNotFoundException : public std::exception {
+	public:
+		const char * what() const throw() {
+			return "Location Not Found";
+	}
 };
