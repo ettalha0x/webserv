@@ -38,6 +38,8 @@ std::string	HttpResponse::getStatusMessage(int	statusCode) {
 			return "Not Found";
 		case 500:
 			return "Internal Server Error";
+		case 301:
+			return "Moved Permanently";
 		default:
 			return "Unknown Status";
 	}
@@ -72,7 +74,15 @@ location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
 			return it->second;
 		}
   	}
-	throw std::exception();
+	throw LocationNotFoundException();
+}
+
+void HttpResponse::check_method(location Location) {
+	for (size_t i = 0; i < Location.acceptedMethods.size(); i++) {
+		if (request.GetMethod() == Location.acceptedMethods[i])
+			return;
+	}
+	throw NotAllowedException();
 }
 
 void	HttpResponse::constructBody() {
@@ -87,6 +97,12 @@ void	HttpResponse::constructBody() {
 	try
 	{
 		location location = getMatchedLocation(locationRoute);
+		check_method(location);
+		if (!location.redirection.empty()) {
+			setStatusCode(301);
+			addHeader("location", location.redirection);
+			return;
+		}
 		std::string file = request.GetRequestedFile();
 		if (file.empty())
 			file = location.index;
@@ -100,10 +116,14 @@ void	HttpResponse::constructBody() {
 		}
 
 	}
-	catch(const std::exception& e)
+	catch(const LocationNotFoundException& e)
 	{
-		std::cout << "Location not found 2" << std::endl;
+		std::cout << e.what() << std::endl;
 		finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+	}
+	catch (const NotAllowedException& e) {
+		std::cout << e.what() << std::endl;
+		finalPath = "Sites-available/Error-pages/405-Method-Not-Allowed.html";
 	}
 	std::cout << "finalPath: " << finalPath << std::endl;
 	addHeader("Content-Type", GetFileExtension(finalPath));
