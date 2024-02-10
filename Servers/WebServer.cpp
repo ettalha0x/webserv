@@ -1,7 +1,7 @@
 # include "WebServer.hpp"
 # include "Utils/Utils.hpp"
 # include <sys/event.h>
-
+#include <cstring>
 WebServer::WebServer(std::vector<t_server_config> &configs): Server(configs, AF_INET, SOCK_STREAM, 0, INADDR_ANY, 10), configs(configs) {
 	launch();
 }
@@ -13,24 +13,32 @@ void WebServer::accepter(int    &serverIndex) {
 }
 
 void WebServer::handler(int &fdIndex) {
-    char buffer[BUFSIZ * 4] = {0};
+    // char buffer[1024];
+    bzero(buffer, 1024);
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFSIZ * 4, 0);
-    buffer[bytesReceived] = '\0';
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 1024, 0);
+    if (bytesReceived < 0) {
+        perror("recv: ");
+        exit(EXIT_FAILURE);
+    }
+    // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
         std::cout << "Request not exist yet insert it as a new request  " << fdIndex << std::endl;
+        // std::string sub(buffer);
         stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
     } else {
         // socket already exist append it if it's not comleted yet
         std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
-        stringRequests[client_sockets[fdIndex].fd].append(buffer);
+        stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+        // stringRequests[client_sockets[fdIndex].fd] = stringRequests[client_sockets[fdIndex].fd] + std::string(buffer);
+        // std::cout << buffer << std::endl;
     }
     if (requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
         Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
-        std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
+        // std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
     }
 }
 
@@ -64,12 +72,8 @@ void WebServer::launch() {
     
    std::vector<int> server_fds = init_pollfd();
 
-    int j = 0;
     while (true) {
-        if ( j++ % 2 == 0) // this to avoid double printing the message bellow i don't fu** know why but it's working 
-            std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
-
-
+        // std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
         std::vector<pollfd> tmp = client_sockets;
         int num_events = poll(&tmp[0], tmp.size(), -1);  // Wait indefinitely
         if (num_events == 0) {
@@ -84,7 +88,7 @@ void WebServer::launch() {
             if (tmp[i].revents & POLLIN) {
                 bool isServerFd = false;
                 int serverIndex = -1;
-                for (int j = 0; j < (int)server_fds.size(); ++j) {
+                for (int j = 0; j < (int)server_fds.size(); j++) {
                     if (tmp[i].fd == server_fds[j]) {
                         isServerFd = true;
                         serverIndex = j;
@@ -105,6 +109,7 @@ void WebServer::launch() {
             }
             if (tmp[i].revents & POLLOUT) {
                 if (requestChecker(stringRequests[tmp[i].fd])){
+                    std::cout << "request received" << std::endl;
                     responder(i);
                     close(tmp[i].fd);
                     std::cout << "-------------- DONE --------------" << std::endl;

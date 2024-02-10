@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/07 13:25:47 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:35:24 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	if ((pos = this->_path.find(".")) != this->_path.npos) {
 		if (slashPos != _path.npos)
 			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
-		// else 
-		// 	this->_requestedFile = _path;
 	}
 	_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }
@@ -159,10 +157,9 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "contentLength : " << obj.GetContentLength() << std::endl;
 	os << "requestedFile : " << obj.GetRequestedFile() << std::endl;
 	os << "boundary : " << obj.GetBoundary() << std::endl;
-	QueryContainer::iterator it = obj.GetQuerty().begin();
-	while(it != obj.GetQuerty().end()) {
-		os << "Query key : " << it->first << " | value : " << it->second << std::endl;
-		it++;
+	
+	for (size_t j = 0; j < obj.GetQuerty().size(); j++) {
+		os << "Query key : " << obj.GetQuerty()[j].first << " | value : " << obj.GetQuerty()[j].second << std::endl;
 	}
   
 	HeaderContainer tmp = obj.GetHeaders();
@@ -172,7 +169,7 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 		os << "Headers key : " << iter->first << " , value : " << iter->second << std::endl;
 		iter++;
 	}
-	os << "body : ---- " << obj.GetBody() << "---- body" << std::endl;
+	os << "body : **** " << obj.GetBody() << " **** body" << std::endl;
 	os << "bodyExist ? : " << obj.bodyExistOrNot() << std::endl;
 	os << "chunked ? : " << obj.ChunkedOrNot() << std::endl;
 	os << "Port : " << obj.GetPort() << std::endl;
@@ -181,26 +178,33 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	return os;
 }
 
-std::string extructBoundary(std::string requestData, size_t pos) {
-	size_t startPos = pos + 9; // 9 is the length of "boundary="
-	size_t endPos = requestData.find("\r\n", startPos);
-	size_t boundaryLength = endPos - startPos;
-	std::string boundary = requestData.substr(startPos, boundaryLength);
-	boundary.append("--");
-	return boundary;
-}
-
 bool requestChecker(std::string requestData) {
-	size_t pos = 0;
-	if ((pos = requestData.find("\r\n\r\n")) != requestData.npos) {
-		if ((pos = requestData.find("boundary")) != requestData.npos) {
-			std::string ENDboundary = extructBoundary(requestData, pos);
-			if ((pos = requestData.find(ENDboundary)) != requestData.npos)
-				return true;
-			return false;
-		}
-		return true;
-	}
-	return false;
+    size_t pos;
+	// std::cout << "+++ " << requestData << " +++" << std::endl;
+    if (requestData.find("GET") != requestData.npos) {
+        if (requestData.find("\r\n\r\n") != requestData.npos)
+            return true;
+        return false;
+    } else if (requestData.find("POST") != requestData.npos) {
+        size_t headerEndPos;
+        if ((headerEndPos = requestData.find("\r\n\r\n")) != requestData.npos) {
+            if (requestData.find("chunked") != requestData.npos) {
+                if (requestData.find("\r\n0\r\n") != requestData.npos) {
+                    return true;
+				}
+                return false;
+            } else if ((pos = requestData.find("Content-Length")) != requestData.npos) {
+                size_t endPos = requestData.find("\r\n", pos);
+                size_t bodySize = std::atoi((requestData.substr(pos + 16, endPos - (pos + 16))).c_str());
+                std::string sub = requestData.substr(headerEndPos + 4, requestData.length() - (headerEndPos + 4));
+                if (sub.size() >= bodySize)
+				{
+                    return true;
+				}
+                return false;
+            }
+        }
+        return false;
+    }
+    return false;
 }
-
