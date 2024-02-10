@@ -19,7 +19,7 @@ class WebServer:  public Server {
 		void				accepter(int &serverIndex);
 		void				handler(int	&fdIndex);
 		void				responder(int &fdIndex);
-
+		char				buffer[1024];
 	public:
 		WebServer(std::vector<t_server_config>	&configs);
 		std::vector<int>		init_pollfd();
