@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/04 00:34:22 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/10 15:26:28 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,31 +19,31 @@
 #include <sys/stat.h>
 
 typedef struct location {
-	std::string 				uri;
-	std::string 				root;
-	std::string					redirection;
-	std::string					upload_path;
-	std::string					cgi_path;
-	std::vector<std::string>	cgi_extentions;
-	std::string					index;
-	bool 						autoIndex;
-	std::vector<std::string> 	acceptedMethods;
-	int							maxBodySize;
+	std::string 				uri;//
+	std::string 				root;//
+	std::string					redirection;//
+	std::string					upload_path;//
+	std::string					cgi_path;//
+	std::vector<std::string>	cgi_extentions;//
+	std::string					index;//
+	bool 						autoIndex;//
+	std::vector<std::string> 	acceptedMethods;//
+	// int							maxBodySize;
 	
 } location;
 
 typedef struct s_config
 {
-	std::string 					serverName;
-	unsigned int 					host;
+	std::string 					serverName;//
+	unsigned int 					host;//
 	std::string 					rootDir;
-	int								port;
-	std::vector<std::string>		indexFile;
+	int								port;//
+	std::string						indexFile;
 	bool 							autoIndex;
 	std::vector<std::string> 		acceptedMethods;
 	std::string 					cgiPath;
 	std::vector<std::string> 		cgi_extentions;
-	int 							maxBodySize;
+	int 							maxBodySize;//
 	std::vector<std::string>		accepted_extentions;
 	std::map<std::string, location> locations;
 	

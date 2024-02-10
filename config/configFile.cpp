@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/05 10:26:36 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/10 15:52:17 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		tmp->rootDir = value;
 	} else if (key == "indexFile") {
 		// checkPath(value);
-		tmp->indexFile = parseIndexs(value);
+		tmp->indexFile = value;
 	} else if (key == "cgiPath") {
 		checkPath(value);
 		tmp->cgiPath = value;
@@ -164,12 +164,12 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	if (key == "root") {
 		// checkPath(value);
 		tmp->root = value;
-	} else if (key == "maxBodySize") {
-		for (size_t i = 0; i < value.length(); i++) {
-			if (!std::isdigit(value[i]))
-				throw UndefinedValueException();
-		}
-		tmp->maxBodySize = std::atoi(value.c_str());
+	// } else if (key == "maxBodySize") {
+	// 	for (size_t i = 0; i < value.length(); i++) {
+	// 		if (!std::isdigit(value[i]))
+	// 			throw UndefinedValueException();
+	// 	}
+	// 	tmp->maxBodySize = std::atoi(value.c_str());
 	} else if (key == "autoIndex") {
 		if (value == "off")
 			tmp->autoIndex = false;
@@ -365,7 +365,7 @@ void printLocation(location loc, int number) {
 	for (size_t i = 0; i < loc.acceptedMethods.size(); i++)
 		std::cout << loc.acceptedMethods[i] << "\t";
 	std::cout << std::endl;
-	std::cout << "\tlocation " << number << " maxBodySize : " << loc.maxBodySize << std::endl;
+	// std::cout << "\tlocation " << number << " maxBodySize : " << loc.maxBodySize << std::endl;
 	std::cout << "----------------------------------------------" << std::endl;
 } 
 
@@ -441,6 +441,18 @@ void checkForDuplicatedPorts(std::vector<t_server_config> &configs) {
 	}
 }
 
+void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
+	location tmp;
+
+	tmp.acceptedMethods = configs[i].acceptedMethods;
+	tmp.autoIndex = configs[i].autoIndex;
+	tmp.cgi_extentions = configs[i].cgi_extentions;
+	tmp.cgi_path = configs[i].cgiPath;
+	tmp.index = configs[i].indexFile;
+	tmp.root = configs[i].rootDir;
+	configs[i].locations.insert(std::make_pair("/", tmp));
+}
+
 void setToDefault(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
 		if (configs[i].port == -1)
@@ -452,10 +464,16 @@ void setToDefault(std::vector<t_server_config> &configs) {
 		if (configs[i].maxBodySize == 0)
 			configs[i].maxBodySize = 1024;
 		if (configs[i].rootDir.empty())
-			configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
-		if (configs[i].indexFile.empty())
-			configs[i].indexFile.push_back("index.html");
+			configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Server_1";
+		// if (configs[i].indexFile.empty())
+		// 	configs[i].indexFile.push_back("index.html");
 		if (configs[i].cgiPath.empty())
-			configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/Default";
+			configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/CGI";
+		if (configs[i].cgi_extentions.empty()) {
+			configs[i].cgi_extentions.push_back(".py");
+			configs[i].cgi_extentions.push_back(".php");
+		}
+		if (configs[i].locations.find("/") == configs[i].locations.end())
+			setDefaultLocation(i, configs);	
 	}
 }
