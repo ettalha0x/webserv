@@ -108,19 +108,21 @@ void	HttpResponse::constructBody() {
 			file = location.index;
 		finalPath =  location.root + path + file;
 		setStatusCode(200);
-		if (stat(finalPath.c_str(), &st) || file.empty())
-		{
-			if (location.autoIndex) {
-				setStatusCode(200);
-				addHeader("Content-Type", "text/html");
-				body = list_dir(finalPath.substr(0, finalPath.find_last_of('/')));
-				return;
-			}
-			else
-			{
-				std::cout << "Location not found 1" << std::endl;
-				setStatusCode(404);
-				finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+		if (stat(finalPath.c_str(), &st) || file.empty()) {
+			finalPath =  location.upload_path + "/" + file;
+			if (stat(finalPath.c_str(), &st) || file.empty()) {
+				if (location.autoIndex) {
+					std::cout << "AutoIndex" << std::endl;
+					setStatusCode(200);
+					addHeader("Content-Type", "text/html");
+					body = list_dir(finalPath.substr(0, finalPath.find_last_of('/')));
+					return;
+				}
+				else {
+					std::cout << "Location not found 1" << std::endl;
+					setStatusCode(404);
+					finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+				}
 			}
 		}
 
