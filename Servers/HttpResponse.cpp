@@ -17,7 +17,7 @@ void	HttpResponse::setStatusMessage(std::string statusMessage) {
 }
 
  size_t		HttpResponse::GetContentLength() {
-	return body.length();
+	return body.size();
  };
 
 void HttpResponse::addHeader(const std::string& key, const std::string& value) {

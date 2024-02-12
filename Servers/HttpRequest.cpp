@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/10 12:35:24 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/02/11 16:31:48 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,26 +181,24 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 bool requestChecker(std::string requestData) {
     size_t pos;
 	// std::cout << "+++ " << requestData << " +++" << std::endl;
-    if (requestData.find("GET") != requestData.npos) {
+	// size_t firstNLPos = requestData.find('\n');
+    if (requestData.find("GET") == 0) {
         if (requestData.find("\r\n\r\n") != requestData.npos)
             return true;
         return false;
-    } else if (requestData.find("POST") != requestData.npos) {
+    } else if (requestData.find("POST") == 0) {
         size_t headerEndPos;
         if ((headerEndPos = requestData.find("\r\n\r\n")) != requestData.npos) {
             if (requestData.find("chunked") != requestData.npos) {
-                if (requestData.find("\r\n0\r\n") != requestData.npos) {
+                if (requestData.find("\r\n0\r\n") != requestData.npos)
                     return true;
-				}
                 return false;
             } else if ((pos = requestData.find("Content-Length")) != requestData.npos) {
                 size_t endPos = requestData.find("\r\n", pos);
                 size_t bodySize = std::atoi((requestData.substr(pos + 16, endPos - (pos + 16))).c_str());
                 std::string sub = requestData.substr(headerEndPos + 4, requestData.length() - (headerEndPos + 4));
                 if (sub.size() >= bodySize)
-				{
                     return true;
-				}
                 return false;
             }
         }

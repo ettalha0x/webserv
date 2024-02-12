@@ -10,7 +10,7 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Servers/WebServer.cpp \
 		config/configFile.cpp
 OBJS = $(SRCS:.cpp=.o)
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM = rm -rf
 
 %.o:%.cpp Webserv.hpp

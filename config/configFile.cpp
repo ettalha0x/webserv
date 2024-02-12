@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/10 15:52:17 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/11 15:13:02 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,11 +375,7 @@ void printConfigs(std::vector<t_server_config> &configs) {
 		std::cout << "host : " << configs[i].host << std::endl;
 		std::cout << "rootDir : " << configs[i].rootDir << std::endl;
 		std::cout << "port : " << configs[i].port << std::endl;
-		
-		std::cout << "indexFile : ";
-		for (size_t j = 0; j < configs[i].indexFile.size(); j++)
-			std::cout << configs[i].indexFile[j] << "\t";
-		std::cout << std::endl;
+		std::cout << "indexFile : " << configs[i].indexFile << std::endl;
 			
 		if (configs[i].autoIndex)
 			std::cout << "autoIndex : on" << std::endl;
