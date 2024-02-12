@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/06 11:50:39 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/10 16:22:27 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,5 +78,4 @@ class HttpRequest {
 };
 
 std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);
-std::string 	extructBoundary(std::string requestData, size_t pos);
 bool 			requestChecker(std::string requestData);

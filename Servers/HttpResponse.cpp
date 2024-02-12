@@ -17,7 +17,7 @@ void	HttpResponse::setStatusMessage(std::string statusMessage) {
 }
 
  size_t		HttpResponse::GetContentLength() {
-	return body.length();
+	return body.size();
  };
 
 void HttpResponse::addHeader(const std::string& key, const std::string& value) {
@@ -111,7 +111,6 @@ void	HttpResponse::constructBody() {
 		if (stat(finalPath.c_str(), &st) || file.empty())
 		{
 			if (location.autoIndex) {
-				std::cout << "AutoIndex" << std::endl;
 				setStatusCode(200);
 				addHeader("Content-Type", "text/html");
 				body = list_dir(finalPath.substr(0, finalPath.find_last_of('/')));

@@ -22,6 +22,14 @@ std::string getCurrentTimeInGMT() {
 std::string getFileContent(std::string fileName) {
     // Open the file
     std::ifstream file(fileName);
+    // std::string content;
+    // if (file.is_open()) {
+    //     std::cout << RED << fileName << RESET << std::endl;
+    //     std::stringstream fileContent;
+    //     fileContent << file.rdbuf();
+    //     content = fileContent.str();
+    //     file.close();
+    // }
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
         return "";
@@ -45,7 +53,7 @@ int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) 
 }
 
 std::string GetExtensionPrefix(std::string extension) {
-    std::ifstream file("webserv/Servers/Utils/contentTypes.txt");
+    std::ifstream file("./Servers/Utils/contentTypes.txt");
     if (!file)
         return "text/" + extension;
     std::string line;
