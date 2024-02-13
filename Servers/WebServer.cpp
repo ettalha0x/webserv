@@ -12,7 +12,7 @@ void WebServer::accepter(int    &serverIndex) {
 	int		addrlen = sizeof(address);
 	server_socket = accept(get_server_sock()[serverIndex]->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
 }
-
+ 
 void WebServer::handler(int &fdIndex) {
     // char buffer[1024];
     bzero(buffer, 1024);
@@ -45,30 +45,59 @@ void WebServer::handler(int &fdIndex) {
     }
 }
 
+// void WebServer::responder(int &fdIndex) {
+//     int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+//     HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
+//     std::string res =  newResponse.getHeader() + newResponse.getBody();
+//     size_t bytesToBeSent = res.length();
+//     std::cout << GREEN << bytesToBeSent << RESET << std::endl;
+//     ssize_t bytesSent = 0;
+//     ssize_t tot = 0;
+//     while (tot < (ssize_t)bytesToBeSent) {
+//         bytesSent = send(client_sockets[fdIndex].fd, res.c_str() + tot, bytesToBeSent - tot, 0);
+//         if (bytesSent < 0) {
+//             perror("error: ");
+//             continue;
+//         }
+//         std::cout << YELLOW << bytesSent << RESET << std::endl;
+//         tot += bytesSent;
+//         std::cout << RED << tot << RESET << std::endl;
+//     }
+//     // send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
+//     // std::cout << "----------------------------------------" << std::endl;
+//     // std::cout << res << std::endl;
+//     stringRequests.erase(client_sockets[fdIndex].fd);
+//     Requests.erase(client_sockets[fdIndex].fd);
+// }
+
 void WebServer::responder(int &fdIndex) {
-    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
-    HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
-    std::string res =  newResponse.getHeader() + newResponse.getBody();
-    size_t bytesToBeSent = res.length();
-    std::cout << GREEN << bytesToBeSent << RESET << std::endl;
-    ssize_t bytesSent = 0;
-    ssize_t tot = 0;
-    while (tot < (ssize_t)bytesToBeSent) {
-        bytesSent = send(client_sockets[fdIndex].fd, res.c_str() + tot, bytesToBeSent - tot, 0);
-        if (bytesSent < 0) {
-            perror("error: ");
-            continue;
-        }
-        std::cout << YELLOW << bytesSent << RESET << std::endl;
-        tot += bytesSent;
-        std::cout << RED << tot << RESET << std::endl;
+    if (stringResponses.find(client_sockets[fdIndex].fd) == stringResponses.end()) {
+        int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+        HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
+        t_res tmp;
+        tmp.res =  newResponse.getHeader() + newResponse.getBody();
+        tmp.pos = 0;
+        stringRequests.erase(client_sockets[fdIndex].fd);
+        stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, tmp));
+        Requests.erase(client_sockets[fdIndex].fd);
     }
-    // send(client_sockets[fdIndex].fd, res.c_str(), res.length(), 0);
-    // std::cout << "----------------------------------------" << std::endl;
-    // std::cout << res << std::endl;
-    stringRequests.erase(client_sockets[fdIndex].fd);
-    Requests.erase(client_sockets[fdIndex].fd);
+    int byteSent;
+    int toSent;
+    if (stringResponses[client_sockets[fdIndex].fd].res.length() - stringResponses[client_sockets[fdIndex].fd].pos < 102400)
+        toSent = stringResponses[client_sockets[fdIndex].fd].res.length() - stringResponses[client_sockets[fdIndex].fd].pos;
+    else
+        toSent = 102400;
+    byteSent = send(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].res.c_str() + stringResponses[client_sockets[fdIndex].fd].pos, toSent, 0);
+    if (byteSent > 0)
+        stringResponses[client_sockets[fdIndex].fd].pos += byteSent;
+    if (stringResponses[client_sockets[fdIndex].fd].pos == stringResponses[client_sockets[fdIndex].fd].res.length()) {
+        close(client_sockets[fdIndex].fd);
+        int temp = client_sockets[fdIndex].fd;
+        stringResponses.erase(temp);
+        client_sockets.erase(client_sockets.begin() + fdIndex);
+    }
 }
+
 
 std::vector<int>    WebServer::init_pollfd() {
     std::vector<int>    server_fds;
@@ -129,9 +158,9 @@ void WebServer::launch() {
                 if (requestChecker(stringRequests[tmp[i].fd])){
                     // std::cout << "request received" << std::endl;
                     responder(i);
-                    close(tmp[i].fd);
+                    // close(tmp[i].fd);
                     std::cout << "-------------- DONE --------------" << std::endl;
-                    client_sockets.erase(client_sockets.begin() + i);
+                    // client_sockets.erase(client_sockets.begin() + i);
                 }
             }
         }
