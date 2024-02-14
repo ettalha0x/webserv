@@ -20,7 +20,6 @@ void WebServer::handler(int &fdIndex) {
     bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 1024, 0);
     if (bytesReceived < 0) {
         perror("recv: ");
-        exit(EXIT_FAILURE);
     }
     // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
@@ -31,13 +30,23 @@ void WebServer::handler(int &fdIndex) {
         // std::cout << "****"  << stringRequests[client_sockets[fdIndex].fd] << "****" << std::endl;
     } else {
         // socket already exist append it if it's not comleted yet
-        std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
-        stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+        // try {
+            if (bytesReceived > 0) {
+                std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
+                stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+            }
+        // }
+        // catch(const std::exception& e)
+        // {
+        //     std::cerr << "Got You " << e.what() << '\n';
+        //     exit(EXIT_FAILURE);
+        // }
+        
         // std::cout << "####" << stringRequests[client_sockets[fdIndex].fd] << "####" << std::endl;
         // stringRequests[client_sockets[fdIndex].fd] = stringRequests[client_sockets[fdIndex].fd] + std::string(buffer);
         // std::cout << buffer << std::endl;
     }
-    if (requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
+    if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
         Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
@@ -75,7 +84,8 @@ bool WebServer::responder(int &fdIndex) {
         int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
         HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
         // t_res tmp;
-        std::string res =  newResponse.getHeader() + newResponse.getBody();
+        std::string res;
+        res = newResponse.getHeader() + newResponse.getBody();
         // tmp.pos = 0;
         // stringRequests.erase(client_sockets[fdIndex].fd);
         stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
