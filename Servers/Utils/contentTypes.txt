@@ -42,3 +42,4 @@ video/x-ms-wmv
 video/x-msvideo    
 video/x-flv   
 video/webm
+video/mov

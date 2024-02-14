@@ -43,6 +43,30 @@ std::string getFileContent(std::string fileName) {
     return content;
 }
 
+// std::string getFileContent(std::string fileName) {
+//     // Open the file
+//     std::ifstream file(fileName);
+//     std::string content;
+//     if (file.is_open()) {
+//         std::cout << RED << fileName << RESET << std::endl;
+//         std::stringstream fileContent;
+//         fileContent << file.rdbuf();
+//         content = fileContent.str();
+//         file.close();
+//     }
+//     // if (!file.is_open()) {
+//     //     std::cerr << "Failed to open file: " << fileName << std::endl;
+//     //     return "";
+//     //     // throw std::runtime_error("Failed to open file: " + fileName);
+//     //     throw std::runtime_error("Failed to open file: " + fileName);
+//     // }
+//     // // Read the file content
+//     // std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+//     // // Close the file
+//     // file.close();
+//     return content;
+// }
+
 int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) {
     for (int i = 0; i < (int)configs.size(); i++) {
         if (configs[i].port == port) {
