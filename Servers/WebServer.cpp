@@ -20,24 +20,26 @@ void WebServer::handler(int &fdIndex) {
     bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 1024, 0);
     if (bytesReceived < 0) {
         perror("recv: ");
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
     // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
         // socket not exist yet insert it as a new sokcet
         std::cout << "Request not exist yet insert it as a new request  " << fdIndex << std::endl;
-        // std::string sub(buffer);
         stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
+        // std::string sub(buffer);
         // std::cout << "****"  << stringRequests[client_sockets[fdIndex].fd] << "****" << std::endl;
     } else {
         // socket already exist append it if it's not comleted yet
-        std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
-        stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+        if (bytesReceived > 0) {
+            std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
+            stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+        }
         // std::cout << "####" << stringRequests[client_sockets[fdIndex].fd] << "####" << std::endl;
         // stringRequests[client_sockets[fdIndex].fd] = stringRequests[client_sockets[fdIndex].fd] + std::string(buffer);
         // std::cout << buffer << std::endl;
     }
-    if (requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
+    if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
         Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
@@ -160,6 +162,7 @@ void WebServer::launch() {
                         stringRequests.erase(tmp[i].fd);
                         close(tmp[i].fd);
                         client_sockets.erase(client_sockets.begin() + i);
+                        tmp.erase(tmp.begin() + i);
                     }
                     std::cout << "-------------- DONE --------------" << std::endl;
                 }
