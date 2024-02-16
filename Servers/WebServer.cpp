@@ -38,18 +38,27 @@ void WebServer::handler(int &fdIndex) {
     if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
-        Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
+        if (Requests.find(client_sockets[fdIndex].fd) == Requests.end()) {
+            Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
+        }
+        else {
+            Requests[client_sockets[fdIndex].fd] = newRequest;
+        }
+        stringRequests[client_sockets[fdIndex].fd].clear();
         std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
     }
 }
 
 bool WebServer::responder(int &fdIndex) {
+    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+    HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
+    std::string res;
+    res = newResponse.getHeader() + newResponse.getBody();
     if (stringResponses.find(client_sockets[fdIndex].fd) == stringResponses.end()) {
-        int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
-        HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
-        std::string res;
-        res = newResponse.getHeader() + newResponse.getBody();
         stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
+    }
+    else {
+        stringResponses[client_sockets[fdIndex].fd] = res;
     }
     ssize_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
     if (bytesSent > 0) {
@@ -57,7 +66,7 @@ bool WebServer::responder(int &fdIndex) {
         std::cout << GREEN << bytesSent << RESET << std::endl;
     }
     if (stringResponses[client_sockets[fdIndex].fd].empty()) {
-       stringResponses.erase(client_sockets[fdIndex].fd);
+       stringResponses[client_sockets[fdIndex].fd].clear();
        return true;
     }
     return false;
@@ -119,8 +128,7 @@ void WebServer::launch() {
             if (tmp_client_sockets[i].revents & POLLOUT) {
                 if (requestChecker(stringRequests[tmp_client_sockets[i].fd])){
                     if (responder(i)) {
-                        Requests.erase(tmp_client_sockets[i].fd);
-                        stringRequests.erase(tmp_client_sockets[i].fd);
+                        // Requests.erase(tmp_client_sockets[i].fd);
                         // close(tmp_client_sockets[i].fd);
                         // client_sockets.erase(client_sockets.begin() + i);
                         // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
