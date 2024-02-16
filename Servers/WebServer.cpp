@@ -70,8 +70,8 @@ void    WebServer::init_pollfd() {
         server_pollfd.fd = get_server_sock()[i]->get_socket();
         server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
         server_pollfd.revents = 0;
-        client_sockets.push_back(server_pollfd);  // Add server socket to the list
-        server_sockets.push_back(server_pollfd);
+        server_sockets.push_back(server_pollfd); // Add server socket to the list
+        client_sockets.push_back(server_pollfd); 
     }
 }
 
@@ -122,8 +122,8 @@ void WebServer::launch() {
                         Requests.erase(tmp_client_sockets[i].fd);
                         stringRequests.erase(tmp_client_sockets[i].fd);
                         // close(tmp_client_sockets[i].fd);
-                        client_sockets.erase(client_sockets.begin() + i);
-                        tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
+                        // client_sockets.erase(client_sockets.begin() + i);
+                        // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
                     }
                     std::cout << "-------------- DONE --------------" << std::endl;
                 }
