@@ -13,11 +13,11 @@ class Server
 {
 	private:
 
-		std::vector<ListeningSocket *> sockets;
+		std::vector<ListeningSocket *> server_sockets;
 	public:
 
 		Server(std::vector<t_server_config> &configs, int domain, int service, int protocol, u_long interface, int backlog);
-		virtual void accepter(int &serverIndex) = 0;
+		virtual int accepter(int &serverIndex) = 0;
 		virtual void handler(int &fdIndex) = 0;
 		virtual bool responder(int &fdIndex) = 0;
 		virtual void launch() = 0;
