@@ -26,7 +26,6 @@ void WebServer::handler(int &fdIndex) {
     }
     // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
-        // socket not exist yet insert it as a new sokcet
         std::cout << "Request not exist yet insert it as a new request  " << fdIndex << std::endl;
         stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
     } else {
@@ -38,15 +37,17 @@ void WebServer::handler(int &fdIndex) {
     if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
+        newRequest.completed = true;
         if (Requests.find(client_sockets[fdIndex].fd) == Requests.end()) {
+            std::cout << "New client " << std::endl;
             Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
         }
         else {
+            std::cout << "Client already exist " << std::endl;
             Requests[client_sockets[fdIndex].fd] = newRequest;
         }
-        // client_sockets[fdIndex].revents = POLLOUT;
         stringRequests[client_sockets[fdIndex].fd].clear();
-        std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
+        std::cout << Requests[client_sockets[fdIndex].fd].GetPath() << std::endl;
     }
 }
 
@@ -61,14 +62,15 @@ bool WebServer::responder(int &fdIndex) {
     else {
         stringResponses[client_sockets[fdIndex].fd] = res;
     }
-    ssize_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
+    size_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
     if (bytesSent > 0) {
         stringResponses[client_sockets[fdIndex].fd].erase(0, (size_t)bytesSent);
         std::cout << GREEN << bytesSent << RESET << std::endl;
     }
     if (stringResponses[client_sockets[fdIndex].fd].empty()) {
        stringResponses[client_sockets[fdIndex].fd].clear();
-    //    client_sockets[fdIndex].events = POLLIN;
+       Requests[client_sockets[fdIndex].fd].served = true;
+       std::cout << "Response sent successfully !" << std::endl;
        return true;
     }
     return false;
@@ -94,7 +96,6 @@ void WebServer::launch() {
         // std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
         std::vector<pollfd> tmp_client_sockets = client_sockets;
         int num_events = poll(&tmp_client_sockets[0], tmp_client_sockets.size(), -1);  // Wait indefinitely
-        // std::cout << "***** poll returned: " << num_events << " *****" << std::endl;
         if (num_events == 0) {
             std::cout << "No events occurred" << std::endl;
             continue;  // No events occurred, continue to the next iteration of the loop
@@ -103,17 +104,12 @@ void WebServer::launch() {
             perror("poll");
             exit(EXIT_FAILURE);
         }
-        std::vector<int> to_remove;
         for (int i = 0; i < (int)tmp_client_sockets.size(); i++) {
             if (tmp_client_sockets[i].revents & POLLIN) {
-                // std::cout << "***** readable fd: " << tmp_client_sockets[i].fd <<  "*****" << std::endl;
                 bool isServerFd = false;
                 int serverIndex = -1;
                 for (int j = 0; j < (int)server_sockets.size(); j++) {
                     if (tmp_client_sockets[i].fd == server_sockets[j].fd) {
-                        // client_sockets.erase(client_sockets.begin() + i);
-                        // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
-                        to_remove.push_back(i);
                         isServerFd = true;
                         serverIndex = j;
                         std::cout << "***** request from server :" << serverIndex << "*****" << std::endl;
@@ -127,26 +123,23 @@ void WebServer::launch() {
                     client_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
                     client_pollfd.revents = 0;
                     client_sockets.push_back(client_pollfd); // add client to the client_sockets list
-                    // tmp_client_sockets.push_back(client_pollfd);
                 } else {
                     handler(i);
                 }
             }
             if (tmp_client_sockets[i].revents & POLLOUT) {
-                // if (requestChecker(stringRequests[tmp_client_sockets[i].fd])){
-                    if (responder(i)) {
+                if (Requests[tmp_client_sockets[i].fd].completed && !Requests[tmp_client_sockets[i].fd].served){
+                    if (!responder(i)) {
+
                         // Requests.erase(tmp_client_sockets[i].fd);
                         // close(tmp_client_sockets[i].fd);
                         // client_sockets.erase(client_sockets.begin() + i);
                         // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
+                        std::cout << "-------------- NOT DONE --------------" << std::endl;
                     }
                     std::cout << "-------------- DONE --------------" << std::endl;
-                // }
+                }
             }
-        }
-        for (int i = to_remove.size() - 1; i >= 0; --i) {
-            client_sockets.erase(client_sockets.begin() + to_remove[i]);
-            tmp_client_sockets.erase(tmp_client_sockets.begin() + to_remove[i]);
         }
     }
 }
