@@ -47,7 +47,7 @@ void WebServer::handler(int &fdIndex) {
             Requests[client_sockets[fdIndex].fd] = newRequest;
         }
         stringRequests[client_sockets[fdIndex].fd].clear();
-        std::cout << Requests[client_sockets[fdIndex].fd].GetPath() << std::endl;
+        std::cout << Requests[client_sockets[fdIndex].fd].GetRequestLine() << std::endl;
     }
 }
 
@@ -131,10 +131,6 @@ void WebServer::launch() {
                 if (Requests[tmp_client_sockets[i].fd].completed && !Requests[tmp_client_sockets[i].fd].served){
                     if (!responder(i)) {
 
-                        // Requests.erase(tmp_client_sockets[i].fd);
-                        // close(tmp_client_sockets[i].fd);
-                        // client_sockets.erase(client_sockets.begin() + i);
-                        // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
                         std::cout << "-------------- NOT DONE --------------" << std::endl;
                     }
                     std::cout << "-------------- DONE --------------" << std::endl;
