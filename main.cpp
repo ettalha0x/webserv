@@ -19,9 +19,6 @@ int main(int ac, char**av){
         setToDefault(configs);
     }
 
-    // for (size_t i = 0; i < configs.size(); i++)
-    // {
-        WebServer webServ(configs);
-    // }
+    WebServer webServ(configs);
     return 0;
 }

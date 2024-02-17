@@ -44,6 +44,7 @@ void WebServer::handler(int &fdIndex) {
         else {
             Requests[client_sockets[fdIndex].fd] = newRequest;
         }
+        // client_sockets[fdIndex].revents = POLLOUT;
         stringRequests[client_sockets[fdIndex].fd].clear();
         std::cout << Requests[client_sockets[fdIndex].fd] << std::endl;
     }
@@ -67,6 +68,7 @@ bool WebServer::responder(int &fdIndex) {
     }
     if (stringResponses[client_sockets[fdIndex].fd].empty()) {
        stringResponses[client_sockets[fdIndex].fd].clear();
+    //    client_sockets[fdIndex].events = POLLIN;
        return true;
     }
     return false;
@@ -89,10 +91,10 @@ void WebServer::launch() {
     init_pollfd();
 
     while (true) {
-        std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
+        // std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
         std::vector<pollfd> tmp_client_sockets = client_sockets;
         int num_events = poll(&tmp_client_sockets[0], tmp_client_sockets.size(), -1);  // Wait indefinitely
-        std::cout << "***** poll returned: " << num_events << " *****" << std::endl;
+        // std::cout << "***** poll returned: " << num_events << " *****" << std::endl;
         if (num_events == 0) {
             std::cout << "No events occurred" << std::endl;
             continue;  // No events occurred, continue to the next iteration of the loop
@@ -104,7 +106,7 @@ void WebServer::launch() {
         std::vector<int> to_remove;
         for (int i = 0; i < (int)tmp_client_sockets.size(); i++) {
             if (tmp_client_sockets[i].revents & POLLIN) {
-                std::cout << "***** readable fd: " << tmp_client_sockets[i].fd <<  "*****" << std::endl;
+                // std::cout << "***** readable fd: " << tmp_client_sockets[i].fd <<  "*****" << std::endl;
                 bool isServerFd = false;
                 int serverIndex = -1;
                 for (int j = 0; j < (int)server_sockets.size(); j++) {
@@ -131,7 +133,7 @@ void WebServer::launch() {
                 }
             }
             if (tmp_client_sockets[i].revents & POLLOUT) {
-                if (requestChecker(stringRequests[tmp_client_sockets[i].fd])){
+                // if (requestChecker(stringRequests[tmp_client_sockets[i].fd])){
                     if (responder(i)) {
                         // Requests.erase(tmp_client_sockets[i].fd);
                         // close(tmp_client_sockets[i].fd);
@@ -139,7 +141,7 @@ void WebServer::launch() {
                         // tmp_client_sockets.erase(tmp_client_sockets.begin() + i);
                     }
                     std::cout << "-------------- DONE --------------" << std::endl;
-                }
+                // }
             }
         }
         for (int i = to_remove.size() - 1; i >= 0; --i) {
