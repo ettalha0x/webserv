@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/17 16:37:00 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/02/18 22:51:14 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,28 @@ HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(fals
 
 HttpRequest::~HttpRequest() {}
 
+HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
+	this->_RequestLine = obj._RequestLine;
+	this->_path = obj._path;
+	this->_method = obj._method;
+	this->_HttpVersion = obj._HttpVersion;
+	this->_Host = obj._Host;
+	this->_boundary = obj._boundary;
+	this->_contentType = obj._contentType;
+	this->_requestedFile = obj._requestedFile;
+	this->_contentLength = obj._contentLength;
+	this->_port = obj._port;
+	this->_serverName = obj._serverName;
+	this->Headers = obj.Headers;
+	this->body = obj.body;
+	this->Query = obj.Query;
+	this->bodyExist = obj.bodyExist;
+	this->isChunked = obj.isChunked;
+	this->Headers = obj.Headers;
+	this->completed = obj.completed;
+	this->served = false;
+	return *this;
+}
 
 std::string HttpRequest::GetRequestLine(void) const {
 	return this->_RequestLine;}
