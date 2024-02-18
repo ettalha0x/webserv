@@ -3,6 +3,7 @@
 # include <sys/poll.h>
 # include "Server.hpp"
 # include "HttpResponse.hpp"
+# define BUFFER_SIZE 1024 * 4
 
 typedef std::map<int , HttpRequest> RequestContainer;
 typedef std::map<int , HttpResponse> ResponseContainer;
@@ -17,11 +18,12 @@ class WebServer:  public Server {
 		stringReqContainer				stringRequests;
 		stringResContainer				stringResponses;
 		RequestContainer				Requests;
+		bool							resGenerated;
 		// ResponseContainer	responses;
 		int								accepter(int &serverIndex);
 		void							handler(int	&fdIndex);
 		bool							responder(int &fdIndex);
-		char							buffer[1024];
+		char							buffer[BUFFER_SIZE];
 
 	public:
 		WebServer(std::vector<t_server_config>	&configs);

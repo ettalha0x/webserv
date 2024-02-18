@@ -18,11 +18,21 @@ int WebServer::accepter(int    &serverIndex) {
 }
  
 void WebServer::handler(int &fdIndex) {
-    bzero(buffer, 1024);
+    bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, 1024, 0);
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
+    
+    // if (bytesReceived == 0) {
+    //     std::cout << "Client closed the connection " << std::endl;
+    //     close(client_sockets[fdIndex].fd);
+    //     client_sockets.erase(client_sockets.begin() + fdIndex);
+    //     return;
+    // } else 
     if (bytesReceived < 0) {
+        std::cout << RED;
         perror("recv: ");
+        std::cout << RESET << std::endl;
+        return;
     }
     // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
     if (stringRequests.find(client_sockets[fdIndex].fd) == stringRequests.end()) {
@@ -46,31 +56,41 @@ void WebServer::handler(int &fdIndex) {
             std::cout << "Client already exist " << std::endl;
             Requests[client_sockets[fdIndex].fd] = newRequest;
         }
+        client_sockets[fdIndex].events |= POLLOUT;
         stringRequests[client_sockets[fdIndex].fd].clear();
         std::cout << Requests[client_sockets[fdIndex].fd].GetRequestLine() << std::endl;
     }
 }
 
 bool WebServer::responder(int &fdIndex) {
-    int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
-    HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
-    std::string res;
-    res = newResponse.getHeader() + newResponse.getBody();
-    if (stringResponses.find(client_sockets[fdIndex].fd) == stringResponses.end()) {
-        stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
-    }
-    else {
-        stringResponses[client_sockets[fdIndex].fd] = res;
+    if (!resGenerated){   
+        int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
+        HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
+        std::string res;
+        res = newResponse.getHeader() + newResponse.getBody();
+        if (stringResponses.find(client_sockets[fdIndex].fd) == stringResponses.end()) {
+            stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
+        }
+        else {
+            stringResponses[client_sockets[fdIndex].fd] = res;
+        }
+        resGenerated = true;
     }
     size_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
-    if (bytesSent > 0) {
+    if (bytesSent < 0) {
+        std::cout << RED;
+        perror("write()");
+        std::cout << RESET << std::endl;
+    } else if (bytesSent > 0){
         stringResponses[client_sockets[fdIndex].fd].erase(0, (size_t)bytesSent);
-        std::cout << GREEN << bytesSent << RESET << std::endl;
+        std::cout << GREEN << "byte sent: " << bytesSent << RESET << std::endl;
     }
     if (stringResponses[client_sockets[fdIndex].fd].empty()) {
        stringResponses[client_sockets[fdIndex].fd].clear();
        Requests[client_sockets[fdIndex].fd].served = true;
-       std::cout << "Response sent successfully !" << std::endl;
+       client_sockets[fdIndex].events |= POLLIN;
+       std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
+       resGenerated = false;
        return true;
     }
     return false;
@@ -130,10 +150,8 @@ void WebServer::launch() {
             if (tmp_client_sockets[i].revents & POLLOUT) {
                 if (Requests[tmp_client_sockets[i].fd].completed && !Requests[tmp_client_sockets[i].fd].served){
                     if (!responder(i)) {
-
-                        std::cout << "-------------- NOT DONE --------------" << std::endl;
+                        std::cout << GREEN << "-------------- Response NOT completed YET ! -------------- " << RESET << std::endl;
                     }
-                    std::cout << "-------------- DONE --------------" << std::endl;
                 }
             }
         }
