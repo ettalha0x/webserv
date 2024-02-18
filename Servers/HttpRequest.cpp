@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/11 16:31:48 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/17 16:37:00 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 #include <unistd.h>
 
-HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(false){}
+HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(false), completed(false), served(false) {}
 
 HttpRequest::~HttpRequest() {}
 

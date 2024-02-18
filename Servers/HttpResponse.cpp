@@ -107,6 +107,7 @@ void	HttpResponse::constructBody() {
 		if (file.empty())
 			file = location.index;
 		finalPath =  location.root + path + file;
+		addHeader("Content-Type", GetFileExtension(finalPath));
 		setStatusCode(200);
 		if (stat(finalPath.c_str(), &st) || file.empty()) {
 			finalPath =  location.upload_path + "/" + file;
@@ -114,7 +115,6 @@ void	HttpResponse::constructBody() {
 				if (location.autoIndex) {
 					std::cout << "AutoIndex" << std::endl;
 					setStatusCode(200);
-					addHeader("Content-Type", "text/html");
 					body = list_dir(finalPath.substr(0, finalPath.find_last_of('/')));
 					return;
 				}
