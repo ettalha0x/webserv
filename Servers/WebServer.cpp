@@ -5,7 +5,7 @@
 #include <signal.h>
 
 WebServer::WebServer(std::vector<t_server_config> &configs): Server(configs, AF_INET, SOCK_STREAM, 0, INADDR_ANY, 10), configs(configs) {
-	launch();
+    launch();
 }
 
 int WebServer::accepter(int    &serverIndex) {
@@ -18,9 +18,13 @@ int WebServer::accepter(int    &serverIndex) {
 }
  
 void WebServer::handler(int &fdIndex) {
+    if (stringResponses.find(client_sockets[fdIndex].fd) != stringResponses.end() && !stringResponses[client_sockets[fdIndex].fd].empty())
+        return;
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
-    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
+    //         stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
+    // if (stringResponses[client_sockets[fdIndex].fd].empty())
+        bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
     
     // if (bytesReceived == 0) {
     //     std::cout << "Client closed the connection " << std::endl;
@@ -45,6 +49,7 @@ void WebServer::handler(int &fdIndex) {
             }
     }
     if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
+        resGenerated.insert(std::make_pair(client_sockets[fdIndex].fd, false));
         HttpRequest newRequest;
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
         newRequest.completed = true;
@@ -63,7 +68,7 @@ void WebServer::handler(int &fdIndex) {
 }
 
 bool WebServer::responder(int &fdIndex) {
-    if (!resGenerated){   
+    if (!resGenerated[client_sockets[fdIndex].fd]){   
         int configIndex = getConfigIndexByPort(Requests[client_sockets[fdIndex].fd].GetPort(), configs);
         HttpResponse newResponse(configs[configIndex], Requests[client_sockets[fdIndex].fd]);
         std::string res;
@@ -74,7 +79,7 @@ bool WebServer::responder(int &fdIndex) {
         else {
             stringResponses[client_sockets[fdIndex].fd] = res;
         }
-        resGenerated = true;
+        resGenerated[client_sockets[fdIndex].fd] = true;
     }
     size_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
     if (bytesSent < 0) {
@@ -90,7 +95,7 @@ bool WebServer::responder(int &fdIndex) {
        Requests[client_sockets[fdIndex].fd].served = true;
        client_sockets[fdIndex].events |= POLLIN;
        std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
-       resGenerated = false;
+       resGenerated[client_sockets[fdIndex].fd] = false;
        return true;
     }
     return false;

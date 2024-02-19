@@ -9,6 +9,7 @@ typedef std::map<int , HttpRequest> RequestContainer;
 typedef std::map<int , HttpResponse> ResponseContainer;
 typedef std::map<int , std::string> stringReqContainer;
 typedef std::map<int , std::string> stringResContainer;
+typedef std::map<int , bool>		resTracker;
 
 class WebServer:  public Server {
 	private:
@@ -18,7 +19,7 @@ class WebServer:  public Server {
 		stringReqContainer				stringRequests;
 		stringResContainer				stringResponses;
 		RequestContainer				Requests;
-		bool							resGenerated;
+		resTracker						resGenerated;
 		// ResponseContainer	responses;
 		int								accepter(int &serverIndex);
 		void							handler(int	&fdIndex);
