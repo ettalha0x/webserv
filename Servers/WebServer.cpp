@@ -9,9 +9,9 @@ WebServer::WebServer(std::vector<t_server_config> &configs): Server(configs, AF_
 }
 
 int WebServer::accepter(int    &serverIndex) {
-	struct sockaddr_in address = get_server_sock()[serverIndex]->get_address();
+	struct sockaddr_in address = get_server_sock()[serverIndex].get_address();
 	int		addrlen = sizeof(address);
-	int new_client_socket = accept(get_server_sock()[serverIndex]->get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+	int new_client_socket = accept(get_server_sock()[serverIndex].get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
     if (new_client_socket < 0)
         perror("accept()");
     return new_client_socket;
@@ -22,12 +22,11 @@ void WebServer::handler(int &fdIndex) {
         return;
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
-    //         stringResponses.insert(std::make_pair(client_sockets[fdIndex].fd, res));
-    // if (stringResponses[client_sockets[fdIndex].fd].empty())
-        bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
+    bytesReceived =  recv(client_sockets[fdIndex].fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
+    client_sockets[fdIndex].events |= POLLOUT;
     
     // if (bytesReceived == 0) {
-    //     std::cout << "Client closed the connection " << std::endl;
+    //     std::cout << RED << "Client closed the connection " << RESET << std::endl;
     //     close(client_sockets[fdIndex].fd);
     //     client_sockets.erase(client_sockets.begin() + fdIndex);
     //     return;
@@ -43,10 +42,10 @@ void WebServer::handler(int &fdIndex) {
         std::cout << "Request not exist yet insert it as a new request  " << fdIndex << std::endl;
         stringRequests.insert(std::make_pair(client_sockets[fdIndex].fd, buffer));
     } else {
-            if (bytesReceived > 0) {
-                std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
-                stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
-            }
+        if (bytesReceived > 0) {
+            std::cout << "Request already exist append it if it's not comleted yet" << std::endl;
+            stringRequests[client_sockets[fdIndex].fd].append(buffer, bytesReceived);
+        }
     }
     if (bytesReceived > 0 && requestChecker(stringRequests[client_sockets[fdIndex].fd])) {
         resGenerated.insert(std::make_pair(client_sockets[fdIndex].fd, false));
@@ -54,16 +53,16 @@ void WebServer::handler(int &fdIndex) {
         newRequest.parser(stringRequests[client_sockets[fdIndex].fd]);
         newRequest.completed = true;
         if (Requests.find(client_sockets[fdIndex].fd) == Requests.end()) {
-            std::cout << "New client " << std::endl;
+            std::cout << "New client " << client_sockets[fdIndex].fd << std::endl;
             Requests.insert(std::make_pair(client_sockets[fdIndex].fd, newRequest));
+            std::cout << Requests[client_sockets[fdIndex].fd].GetRequestLine() << std::endl;
         }
         else {
-            std::cout << "Client already exist " << std::endl;
+            std::cout << "Client already exist " << client_sockets[fdIndex].fd << std::endl;
             Requests[client_sockets[fdIndex].fd] = newRequest;
+             std::cout << Requests[client_sockets[fdIndex].fd].GetRequestLine() << std::endl;
         }
-        client_sockets[fdIndex].events |= POLLOUT;
         stringRequests[client_sockets[fdIndex].fd].clear();
-        std::cout << Requests[client_sockets[fdIndex].fd].GetRequestLine() << std::endl;
     }
 }
 
@@ -82,6 +81,7 @@ bool WebServer::responder(int &fdIndex) {
         resGenerated[client_sockets[fdIndex].fd] = true;
     }
     size_t bytesSent = write(client_sockets[fdIndex].fd, stringResponses[client_sockets[fdIndex].fd].c_str(), stringResponses[client_sockets[fdIndex].fd].length());
+    client_sockets[fdIndex].events |= POLLIN;
     if (bytesSent < 0) {
         std::cout << RED;
         perror("write()");
@@ -93,7 +93,6 @@ bool WebServer::responder(int &fdIndex) {
     if (stringResponses[client_sockets[fdIndex].fd].empty()) {
        stringResponses[client_sockets[fdIndex].fd].clear();
        Requests[client_sockets[fdIndex].fd].served = true;
-       client_sockets[fdIndex].events |= POLLIN;
        std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
        resGenerated[client_sockets[fdIndex].fd] = false;
        return true;
@@ -105,7 +104,7 @@ void    WebServer::init_pollfd() {
     for (size_t i = 0; i < configs.size(); i++)
     {
         pollfd server_pollfd;
-        server_pollfd.fd = get_server_sock()[i]->get_socket();
+        server_pollfd.fd = get_server_sock()[i].get_socket();
         server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
         server_pollfd.revents = 0;
         server_sockets.push_back(server_pollfd); // Add server socket to the list
@@ -137,7 +136,7 @@ void WebServer::launch() {
                     if (tmp_client_sockets[i].fd == server_sockets[j].fd) {
                         isServerFd = true;
                         serverIndex = j;
-                        std::cout << "***** request from server :" << serverIndex << "*****" << std::endl;
+                        std::cout << "***** request from server : " << serverIndex << " *****" << std::endl;
                         break;
                     }
                 }

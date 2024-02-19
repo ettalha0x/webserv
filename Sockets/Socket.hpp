@@ -33,7 +33,7 @@ class Socket
 		int		get_socket();
 		
 		// distructor
-		~Socket();
+		virtual ~Socket();
  
 
 };
