@@ -3,6 +3,7 @@
 int main(int ac, char**av){
     
     std::vector<t_server_config> configs;
+    signal(SIGPIPE, SIG_IGN);
     if (ac == 2) {
         try {
             configs = readConfigeFile(av[1]);
