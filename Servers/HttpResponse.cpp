@@ -3,6 +3,10 @@
 
 
 
+HttpResponse::HttpResponse() {
+	
+}
+
 HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request) :request(request), config(config) {
 	constructBody();
 	constructHeader();
