@@ -57,7 +57,6 @@ bool WebServer::responder(int &fd) {
         HttpResponse newResponse(configs[configIndex], clients[fd].getRequest());
         clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
         clients[fd].resGenerated = true;
-
     }
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
     clients[fd].getPollfd().events |= POLLIN;

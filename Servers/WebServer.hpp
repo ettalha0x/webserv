@@ -27,7 +27,6 @@ class WebServer:  public Server {
 		void							handler(int	&fd);
 		bool							responder(int &fd);
 		char							buffer[BUFFER_SIZE];
-
 	public:
 		WebServer(std::vector<t_server_config>	&configs);
 		void							init_pollfd();

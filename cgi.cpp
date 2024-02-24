@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:12 by esekouni          #+#    #+#             */
-/*   Updated: 2024/01/30 18:23:08 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/02/24 15:48:07 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,31 +99,31 @@ std::string	 content_type(std::string content, std::string boundry)
 }
 
 
-cgi::cgi(HttpRequest new_request)
+cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :finalPath(finalPath), cgiPath(cgiPath)
 {
-	std::cout <<"####################################################" << std::endl;
-	std::cout << "Request Line : " << new_request.GetRequestLine() << std::endl;
-	std::cout << "method : " << new_request.GetMethod() << std::endl;
-	std::cout << "path : " << new_request.GetPath() << std::endl;
-	std::cout << "http version : " << new_request.GetHttpVersion() << std::endl;
-	std::cout << "HOST : " << new_request.GetHost() << std::endl;
-	std::cout << "boundary : " << new_request.GetBoundary() << std::endl;
+	// std::cout <<"####################################################" << std::endl;
+	// std::cout << "Request Line : " << new_request.GetRequestLine() << std::endl;
+	// std::cout << "method : " << new_request.GetMethod() << std::endl;
+	// std::cout << "path : " << new_request.GetPath() << std::endl;
+	// std::cout << "http version : " << new_request.GetHttpVersion() << std::endl;
+	// std::cout << "HOST : " << new_request.GetHost() << std::endl;
+	// std::cout << "boundary : " << new_request.GetBoundary() << std::endl;
 	std::vector<std::pair<std::string, std::string > > b = new_request.GetQuerty() ;
 	std::vector<std::pair<std::string, std::string > >::iterator it_body = b.begin();
-	std::cout << "           Querty          "  << std::endl;
-	while (it_body != b.end())
-	{
-		std::cout << it_body->first << " = " << it_body->second << std::endl;
-		it_body++;
-	}
-	std::cout <<"####################################################" << std::endl;
+	// std::cout << "           Querty          "  << std::endl;
+	// while (it_body != b.end())
+	// {
+	// 	std::cout << it_body->first << " = " << it_body->second << std::endl;
+	// 	it_body++;
+	// }
+	// std::cout <<"####################################################" << std::endl;
 
 	this->REQUEST_METHOD = new_request.GetMethod();
 	this->env.push_back("REQUEST_METHOD=" + new_request.GetMethod());
 	this->PATH = new_request.GetPath();
 	this->env.push_back("HttpVersion=" + new_request.GetHttpVersion());
-	this->env.push_back("SCRIPT_NAME=file.php");
-	this->env.push_back("SCRIPT_FILENAME=Sites-available/CGI/file.php");
+	this->env.push_back("SCRIPT_NAME=" + new_request.GetRequestedFile());
+	this->env.push_back("SCRIPT_FILENAME=" + finalPath);
 	this->env.push_back("REDIRECT_STATUS=200");
 	// int i;
 	// i = this->PATH.rfind('/');
@@ -166,7 +166,8 @@ cgi::cgi(HttpRequest new_request)
 	else
 		this->QUERY_STRING_POST = this->QUERY_STRING;
 	
-	std::cout << "     CCCCGGGGGGIIIII        "  << this->execute(this->REQUEST_METHOD);
+	// std::cout << "     CCCCGGGGGGIIIII        "  << this->execute(this->REQUEST_METHOD);
+	this->cgi_res =  this->execute(this->REQUEST_METHOD,new_request);
 }
 
 
@@ -191,7 +192,7 @@ char **cgi::convert_to_char_double()
 	return envp;
 }
 
-std::string	cgi::execute(std::string req_method)
+std::string	cgi::execute(std::string req_method, HttpRequest new_request)
 {
 	int fd[2];
 	std::string result;
@@ -199,9 +200,7 @@ std::string	cgi::execute(std::string req_method)
 	std::string	type_script;
 	char **envp = convert_to_char_double();
 	// type_script = "python3";
-	file_name = this->PATH;
-	if (file_name == "/favicon.ico")
-		return ("");
+	file_name = new_request.GetRequestedFile();
 	int i = file_name.find('.');
 	std::string ext;
 	std::string cmd;
@@ -209,14 +208,14 @@ std::string	cgi::execute(std::string req_method)
 	if (ext == "py")
 	{
 		type_script = "python3";
-		file_name = "Sites-available/CGI/test.py";
-		cmd = "/usr/bin/python3";
+		file_name = finalPath;
+		cmd = cgiPath + "/python3";
 	}
 	else
 	{
 		type_script = "./php-cgi";
-		file_name = "Sites-available/CGI/file.php";
-		cmd = "/Users/esekouni/Desktop/webserv/Sites-available/CGI/php-cgi";
+		file_name = finalPath;
+		cmd = cgiPath + "/php-cgi";
 	}
 	char *typescript = (char *)type_script.c_str();
 	char *filename = (char *)file_name.c_str();
@@ -263,4 +262,8 @@ std::string	cgi::execute(std::string req_method)
 	}
 	
 	return (result);
+}
+std::string cgi::get_cgi_res()
+{
+	return (this->cgi_res);
 }

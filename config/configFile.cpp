@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/11 15:13:02 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/24 15:49:48 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -463,8 +463,8 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Server_1";
 		// if (configs[i].indexFile.empty())
 		// 	configs[i].indexFile.push_back("index.html");
-		if (configs[i].cgiPath.empty())
-			configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/CGI";
+		// if (configs[i].cgiPath.empty())
+		// 	configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/CGI";
 		if (configs[i].cgi_extentions.empty()) {
 			configs[i].cgi_extentions.push_back(".py");
 			configs[i].cgi_extentions.push_back(".php");

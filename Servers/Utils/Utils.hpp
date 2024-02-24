@@ -17,3 +17,4 @@ int         getConfigIndexByPort(int port, const std::vector<t_server_config>& c
 std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool    alreadyExist(const std::vector<pollfd>& vector, int element);
+std::string getCgiExtension(std::string filename);

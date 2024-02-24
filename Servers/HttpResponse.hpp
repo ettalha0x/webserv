@@ -2,6 +2,7 @@
 
 # include "Utils/Utils.hpp"
 # include "HttpRequest.hpp"
+#include  "../cgi.hpp"
 #include <map>
 
 class HttpResponse {

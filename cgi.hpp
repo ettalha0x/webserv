@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/01/30 15:38:43 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/02/24 15:30:05 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,15 @@ class cgi
 		std::string		GATEWAY_INTERFACE;
 		std::string		REDIRECT_STATUS;
 		std::vector< std::string > env;
+		std::string		cgi_res;
+		std::string 	finalPath;
+		std::string 	cgiPath;
 	public:
 		// void	set_data_request();
-		cgi(HttpRequest new_request);
+		cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath);
 		char **convert_to_char_double();
-		std::string execute(std::string req_method);
+		std::string execute(std::string req_method, HttpRequest new_request);
+		std::string get_cgi_res();
 };
 
 

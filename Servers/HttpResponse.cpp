@@ -144,7 +144,15 @@ void	HttpResponse::constructBody() {
 	}
 	std::cout << "finalPath: " << finalPath << std::endl;
 	addHeader("Content-Type", GetFileExtension(finalPath));
-	body = getFileContent(finalPath);
+	std::string exe = getCgiExtension(finalPath);
+	if ((exe == "php" && !stat((config.cgiPath + "/php-cgi").c_str(), &st)) || (exe == "py" && !stat((config.cgiPath + "/python3").c_str(), &st)))
+	{
+		cgi CGI(request, finalPath, config.cgiPath);
+		body = CGI.get_cgi_res();
+		std::cout << YELLOW << body << RESET << std::endl;
+	}
+	else
+		body = getFileContent(finalPath);
 }
 
 std::string HttpResponse::GetFileExtension(std::string path){
