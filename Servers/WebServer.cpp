@@ -46,6 +46,17 @@ void WebServer::handler(int &fd) {
         clients[fd].resGenerated = false;
         clients[fd].getRequest().parser(clients[fd].getStringReq());
         clients[fd].getRequest().completed = true;
+		HeaderContainer tmp = clients[fd].getRequest().GetHeaders();
+		if (tmp.find("Referer") == tmp.end())
+		{
+			session ss;
+			this->ID = ss.create_session(clients[fd].getRequest());
+			std::cout << this->ID << std::endl;
+		}
+		else
+		{
+			this->ID = tmp["cookie"];
+		}
         std::cout << clients[fd].getRequest().GetRequestLine() << std::endl;
         clients[fd].getStringReq().clear();
     }
@@ -54,7 +65,7 @@ void WebServer::handler(int &fd) {
 bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){   
         int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
-        HttpResponse newResponse(configs[configIndex], clients[fd].getRequest());
+        HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
         clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
         clients[fd].resGenerated = true;
     }

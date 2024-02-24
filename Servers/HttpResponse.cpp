@@ -7,7 +7,7 @@ HttpResponse::HttpResponse() {
 	
 }
 
-HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request) :request(request), config(config) {
+HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request, std::string ID) :request(request), config(config), ID(ID) {
 	constructBody();
 	constructHeader();
 }
@@ -55,6 +55,11 @@ std::string HttpResponse::getHeaderString() const {
 
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		headerString += it->first + ": " + it->second + "\r\n";
+	}
+	HeaderContainer tmp = request.GetHeaders();
+	if (tmp.find("Referer") == tmp.end())
+	{
+		headerString += "Set-cookie: sessionId=" + this->ID + "; Max-Age=120 \r\n";
 	}
 	return headerString + "\r\n";
 }

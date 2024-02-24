@@ -14,7 +14,7 @@ class HttpResponse {
 		std::string 						body; // Body of the response
 		t_server_config 					config;
 		std::map<std::string, std::string>	headers;
-
+		std::string 		ID;
 		// Setters function
 		void	setStatusCode(int statusCode);
 		void	setStatusMessage(std::string statusMessage);
@@ -40,7 +40,7 @@ class HttpResponse {
 		
 	public:
 		HttpResponse();
-		HttpResponse(t_server_config &config, HttpRequest &request);
+		HttpResponse(t_server_config &config, HttpRequest &request, std::string ID);
 		std::string 	GetFileExtension(std::string path);
 		size_t			GetContentLength();
 		std::string		getHeader();
