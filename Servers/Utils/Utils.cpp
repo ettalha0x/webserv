@@ -84,3 +84,15 @@ bool    alreadyExist(const std::vector<pollfd>& vector, int element) {
   }
   return false;
 }
+
+std::string getCgiExtension(std::string filename) {
+    size_t i = filename.find_last_of(".");
+    if (i < filename.length())
+    {
+        std::string exe;
+        exe = filename.substr(i+1, filename.length());
+        return (exe);
+    }
+    else
+        return ("");
+}
