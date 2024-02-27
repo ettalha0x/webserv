@@ -74,7 +74,7 @@ std::string list_dir(std::string dir_name) {
     if (dir == NULL) {
         return "<h1> Could not open directory: " + dir_name + "</h1>";
     }
-    std::string result = "<!DOCTYPE html><html><meta charset=\"UTF-8\"><body> <h1> Directory listing: </h1><hr><ul>";
+    std::string result = "<!DOCTYPE html><html><meta charset=\"UTF-8\"><body><center><h1> Directory listing: </h1></center><hr><ul>";
     struct dirent *entry;
     for (entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
         if (entry->d_name[0] != '.') {
