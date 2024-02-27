@@ -60,6 +60,13 @@ std::string GetExtensionPrefix(std::string extension) {
     return "text/" + extension;
 }
 
+bool is_directory(const std::string& path) {
+  struct stat statbuf;
+  if (stat(path.c_str(), &statbuf) == -1) {
+    return false;
+  }
+  return S_ISDIR(statbuf.st_mode);
+}
 
 std::string list_dir(std::string dir_name) {
     DIR *dir = opendir(dir_name.c_str());
@@ -67,14 +74,21 @@ std::string list_dir(std::string dir_name) {
     if (dir == NULL) {
         return "<h1> Could not open directory: " + dir_name + "</h1>";
     }
-    std::string result = "<h1> directory listing for " + dir_name + ": </h1>\n <ul>";
+    std::string result = "<!DOCTYPE html><html><meta charset=\"UTF-8\"><body> <h1> Directory listing: </h1><hr><ul>";
     struct dirent *entry;
     for (entry = readdir(dir); entry != NULL; entry = readdir(dir)) {
-        if (entry->d_name[0] != '.') 
-            result += std::string("<li> <a href=\"") + entry->d_name + std::string("\"") + std::string(">") + entry->d_name + std::string("</li>") + std::string("\n");
+        if (entry->d_name[0] != '.') {
+            if (entry->d_type == DT_DIR) {
+                result += std::string("<li> 📁 <a href=\"") + entry->d_name + "/\">" + entry->d_name + "</a></li>\n";
+            }
+            else {
+                result += std::string("<li> 📄 <a href=\"") + entry->d_name + "\">" + entry->d_name + "</a></li>\n";
+            }
+        }
     }
-    return result + std::string("</ul>");
-};
+    closedir(dir);
+    return result + "</ul></body></html>";
+}
 
 bool    alreadyExist(const std::vector<pollfd>& vector, int element) {
   for (size_t i = 0; i < vector.size(); ++i) {
