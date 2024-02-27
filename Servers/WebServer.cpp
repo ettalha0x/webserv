@@ -4,8 +4,15 @@
 #include <cstring>
 #include <signal.h>
 
-WebServer::WebServer(std::vector<t_server_config> &configs): Server(configs, AF_INET, SOCK_STREAM, 0, INADDR_ANY, 10), configs(configs) {
+WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
+    for (size_t i = 0; i < configs.size(); i++) {
+		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port, INADDR_ANY, 10));
+	}
     launch();
+}
+
+std::vector<ListeningSocket>	WebServer::get_server_sock() {
+	return server_listening_sockets;
 }
 
 int WebServer::accepter(int    &serverIndex) {
