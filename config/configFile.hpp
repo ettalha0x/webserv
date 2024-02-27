@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/10 15:26:28 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/27 19:07:35 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct s_config
 	std::vector<std::string> 		acceptedMethods;
 	std::string 					cgiPath;
 	std::vector<std::string> 		cgi_extentions;
-	int 							maxBodySize;//
+	size_t 							maxBodySize;//
 	std::vector<std::string>		accepted_extentions;
 	std::map<std::string, location> locations;
 	

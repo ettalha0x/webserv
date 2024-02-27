@@ -13,6 +13,7 @@
 
 
 # define BUFFER_SIZE 1024 * 4
+# define MILLION 1000000
 
 class Client;
 
