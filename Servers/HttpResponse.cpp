@@ -44,6 +44,8 @@ std::string	HttpResponse::getStatusMessage(int	statusCode) {
 			return "Internal Server Error";
 		case 301:
 			return "Moved Permanently";
+		case 413:
+			return "Request Entity Too Large";
 		default:
 			return "Unknown Status";
 	}
@@ -103,7 +105,13 @@ void	HttpResponse::constructBody() {
 
 	path = request.GetPath();
 	locationRoute = getLocationRoute(path);
-
+	if (request.GetBodySize() > config.maxBodySize * MILLION) {
+		std::cout << "body too large" << std::endl;
+		setStatusCode(413);
+		addHeader("Content-Type", "text/html");
+		body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Request Body Too Large</title></head><body><h1>Request Body Too Large</h1></body></html>";
+		return;
+	}
 	try
 	{
 		location location = getMatchedLocation(locationRoute);

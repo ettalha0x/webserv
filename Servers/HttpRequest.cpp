@@ -6,14 +6,14 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/18 22:51:14 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/27 19:08:34 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 #include <unistd.h>
 
-HttpRequest::HttpRequest() : _contentLength(0), bodyExist(false), isChunked(false), completed(false), served(false) {}
+HttpRequest::HttpRequest() : _contentLength(0), _bodySize(0), bodyExist(false), isChunked(false), completed(false), served(false) {}
 
 HttpRequest::~HttpRequest() {}
 
@@ -29,6 +29,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
 	this->_contentLength = obj._contentLength;
 	this->_port = obj._port;
 	this->_serverName = obj._serverName;
+	this->_bodySize = obj._bodySize;
 	this->Headers = obj.Headers;
 	this->body = obj.body;
 	this->Query = obj.Query;
@@ -66,6 +67,9 @@ int HttpRequest::GetContentLength(void) const {
 	return this->_contentLength;}
 int HttpRequest::GetPort(void) const {
 	return this->_port;}
+size_t HttpRequest::GetBodySize(void) const {
+	return this->_bodySize;
+}
 std::string HttpRequest::GetRequestedFile(void) const {
 	return _requestedFile;
 }
@@ -161,6 +165,8 @@ void HttpRequest::parser(std::string request) {
 			this->bodyExist = true;
 	}
 	setPortAndServerName();
+	if (this->bodyExist)
+		this->_bodySize = this->body.size();
 }
 
 void HttpRequest::setPortAndServerName(void) {
