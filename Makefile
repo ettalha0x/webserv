@@ -3,7 +3,6 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Sockets/Socket.cpp \
         Sockets/BindingSocket.cpp \
         Sockets/ListeningSocket.cpp \
-		Servers/Server.cpp \
 		Servers/HttpRequest.cpp \
 		Servers/HttpResponse.cpp \
 		Servers/HttpRequest.cpp \
