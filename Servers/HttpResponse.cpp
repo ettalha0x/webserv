@@ -53,7 +53,7 @@ std::string	HttpResponse::getStatusMessage(int	statusCode) {
 
 std::string HttpResponse::getHeaderString() const {
 
-	std::string headerString = "HTTP/1.1 " + std::to_string(statusCode) + " " + statusMessage + "\r\n";
+	std::string headerString = "HTTP/1.1 " + ft_to_string(statusCode) + " " + statusMessage + "\r\n";
 
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		headerString += it->first + ": " + it->second + "\r\n";
@@ -73,7 +73,7 @@ std::string	HttpResponse::getLocationRoute(std::string &path) {
 
 void	HttpResponse::constructHeader(void) {
 	setStatusMessage(getStatusMessage(getStatusCode()));
-	addHeader("Content-Length", std::to_string(GetContentLength()));
+	addHeader("Content-Length", ft_to_string(GetContentLength()));
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
