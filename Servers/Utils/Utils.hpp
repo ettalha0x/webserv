@@ -3,6 +3,7 @@
 # include <sys/poll.h>
 # include "../../Webserv.hpp"
 # include <iostream>
+# include <sstream>
 #include <dirent.h>
 # include <vector>
 # include <ctime>
@@ -19,3 +20,10 @@ std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);
 std::string getCgiExtension(std::string filename);
+
+template<typename T>
+std::string ft_to_string(const T& value) {
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+};

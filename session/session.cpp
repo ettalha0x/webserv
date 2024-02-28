@@ -1,4 +1,5 @@
 #include "session.hpp"
+#include "../Servers/Utils/Utils.hpp"
 #include <string>
 
 session::session()
@@ -69,7 +70,7 @@ std::string   session::create_session(HttpRequest new_request)
     {
 		std::srand(std::time(nullptr) % 100000);
         int id = std::rand() % 100000 + 1;
-        std::string ID = std::to_string(id);
+        std::string ID = ft_to_string(id);
 		this->id_session.push_back(ID);
 		// std::cout << 
         std::ofstream outfile("session/" +ID);
