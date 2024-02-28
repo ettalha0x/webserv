@@ -104,9 +104,12 @@ void	HttpResponse::constructBody() {
 	struct stat st;
 
 	path = request.GetPath();
+	if (path.find_last_of('/') != path.size() - 1)
+		path += "/";
 	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
 
 	locationRoute = getLocationRoute(path);
+
 	std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
 	if (request.GetBodySize() > config.maxBodySize * MILLION) {
 		std::cout << "body too large" << std::endl;
