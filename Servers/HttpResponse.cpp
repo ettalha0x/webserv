@@ -104,7 +104,10 @@ void	HttpResponse::constructBody() {
 	struct stat st;
 
 	path = request.GetPath();
+	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
+
 	locationRoute = getLocationRoute(path);
+	std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
 	if (request.GetBodySize() > config.maxBodySize * MILLION) {
 		std::cout << "body too large" << std::endl;
 		setStatusCode(413);
