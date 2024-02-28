@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/27 19:08:34 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:41:52 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,9 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	if ((pos = this->_path.find(".")) != this->_path.npos) {
 		if (slashPos != _path.npos)
 			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
+			_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 	}
-	_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
+	// _path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }
 
 void HttpRequest::read_and_parse(std::istringstream& requestStream) {
