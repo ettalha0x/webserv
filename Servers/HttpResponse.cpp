@@ -10,6 +10,13 @@ HttpResponse::HttpResponse() {
 HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request, std::string ID) :request(request), config(config), ID(ID) {
 	constructBody();
 	constructHeader();
+	std::string locationRoute;
+	std::string path;
+	path = request.GetPath();
+	locationRoute = getLocationRoute(path);
+	location location = getMatchedLocation(locationRoute);
+	// std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
+	upload(request, location.upload_path);
 }
 
 void	HttpResponse::setStatusCode(int statusCode) {
@@ -106,7 +113,7 @@ void	HttpResponse::constructBody() {
 	path = request.GetPath();
 	if (path.find_last_of('/') != path.size() - 1)
 		path += "/";
-	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
+	// std::cout << YELLOW << "Path: " << path << RESET << std::endl;
 
 	locationRoute = getLocationRoute(path);
 
@@ -161,7 +168,7 @@ void	HttpResponse::constructBody() {
 		std::cout << e.what() << std::endl;
 		finalPath = "Sites-available/Error-pages/405-Method-Not-Allowed.html";
 	}
-	std::cout << "finalPath: " << finalPath << std::endl;
+	// std::cout << "finalPath: " << finalPath << std::endl;
 	addHeader("Content-Type", GetFileExtension(finalPath));
 	std::string exe = getCgiExtension(finalPath);
 	if ((exe == "php" && !stat((config.cgiPath + "/php-cgi").c_str(), &st)) || (exe == "py" && !stat((config.cgiPath + "/python3").c_str(), &st)))
