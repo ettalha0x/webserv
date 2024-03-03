@@ -15,7 +15,7 @@ HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request, std::s
 	path = request.GetPath();
 	locationRoute = getLocationRoute(path);
 	location location = getMatchedLocation(locationRoute);
-	// std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
+	std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
 	upload(request, location.upload_path);
 }
 

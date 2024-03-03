@@ -25,7 +25,7 @@ session::~session()
 std::string Data(std::string ID, HttpRequest new_request)
 { 
     std::string data;   
-    data = "UserID = " + ID;
+    data = "UserID = " + ID + "\n";
     if (new_request.GetMethod() == "GET") 
     {
 		std::string user="";
@@ -37,11 +37,11 @@ std::string Data(std::string ID, HttpRequest new_request)
         std::string user="";
         if (new_request.GetBody().length() > 0)
         {
-            int i = new_request.GetBody().find("="); 
-            user = new_request.GetBody().substr(i+1 , new_request.GetBody().length()); 
+            // int i = new_request.GetBody().find("="); 
+            // user = new_request.GetBody().substr(i+1 , new_request.GetBody().length()); 
 			data += "Path = " + new_request.GetPath() + "\n";
         } 
-        data += "User_Name = " + user + "\n"; 
+        // data += "User_Name = " + user + "\n"; 
     } 
     data += "Current_time = " + getCurrentTimeInGMT(); 
     return (data);

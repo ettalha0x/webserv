@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:12 by esekouni          #+#    #+#             */
-/*   Updated: 2024/02/24 15:48:07 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/03 18:45:04 by esekouni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <unistd.h>
 #include "cgi.hpp"
+#include <signal.h>
 
 std::string intToString(int value) {
     std::stringstream ss;
@@ -229,6 +230,8 @@ std::string	cgi::execute(std::string req_method, HttpRequest new_request)
 	is_pipe = 1;
 	if (pipe(fd) == -1)
 		return ("ERROR\n");
+	std::time_t currentTime = std::time(nullptr);
+	std::cout << "begin ===>>> " <<  currentTime << std::endl;
 	pid = fork();
 	if (pid == -1)
 		return ("ERROR\n");
@@ -248,12 +251,35 @@ std::string	cgi::execute(std::string req_method, HttpRequest new_request)
 	}
 	else
 	{
+		int N = 0;
+		time_t time;
 		if (req_method == "POST")
 		{
 			write(fd[1], this->body.c_str(), this->body.length());
 		}
-		waitpid(pid, &status, 0); 
+		while (1)
+		{
+			N = waitpid(pid, &status, WNOHANG);
+			time = std::time(nullptr);
+			// std::cout << "time == " << time << " currentTime + 5 == " << currentTime + 5 << "  N == " << N << std::endl
+			if (time > currentTime + 5 && N == 0)
+			{
+				kill(pid, SIGKILL);
+				break ;
+			}
+			else if (N != 0)
+				break;
+		}
+		 
+		
+		currentTime = std::time(nullptr);
+		std::cout << "end ===>>>    " << currentTime << std::endl;
 		close(fd[1]);
+		// if (WIFEXITED(status))
+		// {
+        //     int exitStatus = WEXITSTATUS(status);
+        //     std::cout << "Child process exited with status: " << exitStatus << std::endl;
+        // }
         char buffer[4096];
         ssize_t bytesRead;
         while ((bytesRead = read(fd[0], buffer, sizeof(buffer))) > 0)

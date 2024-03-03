@@ -64,7 +64,7 @@ void WebServer::handler(int &fd) {
 		{
 			this->ID = tmp["cookie"];
 		}
-        std::cout << RED << clients[fd].getRequest().GetPath() << RESET << std::endl;
+        std::cout << RED << clients[fd].getStringReq()<< RESET << std::endl;
         clients[fd].getStringReq().clear();
     }
 }
