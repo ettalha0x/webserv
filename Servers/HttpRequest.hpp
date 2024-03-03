@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/27 19:08:16 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/02 11:43:28 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@
 #include <vector>
 #include <sstream>
 
+#define GREEN "\033[1;32m"
+#define RED "\033[1;31m"
+#define YELLOW "\033[1;33m"
+#define RESET "\033[0m"
 
 typedef std::map<std::string, std::string> HeaderContainer;
 
@@ -27,7 +31,7 @@ typedef std::vector<std::pair<std::string, std::string> > QueryContainer;
 
 class HttpRequest {
 	private:
-		std::string 	_RequestLine;  				/*GET /favicon.ico HTTP/1.1*/
+		std::string 	_RequestLine; 				/*GET /favicon.ico HTTP/1.1*/
 		std::string 	_path; 						/*path of the requested resource*/
 		std::string 	_method;					/* POST || GET || DELETE */
 		std::string 	_HttpVersion;				/*the version of the http protocol being used*/
@@ -35,6 +39,7 @@ class HttpRequest {
 		std::string 	_boundary;
 		std::string		_contentType;
 		std::string		_requestedFile;
+		std::string		_requestURI;
 		int				_contentLength;
 		int				_port;
 		size_t			_bodySize;
@@ -50,6 +55,7 @@ class HttpRequest {
 	public:
 		bool			completed;
 		bool			served;
+		bool			badRequest;
 		HttpRequest();
 		HttpRequest &operator=(const HttpRequest & obj);
 		~HttpRequest();
@@ -73,6 +79,7 @@ class HttpRequest {
 		int				GetPort(void) const;
 		size_t 			GetBodySize(void) const;
 		std::string		GetRequestedFile(void)const;
+		std::string		GetRequestURI(void) const;
 		bool 			bodyExistOrNot(void) const;
 		bool 			ChunkedOrNot(void) const;
 		
@@ -84,3 +91,11 @@ class HttpRequest {
 
 std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);
 bool 			requestChecker(std::string requestData);
+
+
+class BadRequestException : public std::exception {
+	public:
+		const char *what() const throw() {
+			return "bad request";
+		}
+};
