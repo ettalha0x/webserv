@@ -43,16 +43,22 @@ std::string	HttpResponse::getStatusMessage(int	statusCode) {
 	switch (statusCode) {
 		case 200:
 			return "OK";
+		case 301:
+			return "Moved Permanently";
 		case 400:
 			return "Bad Request";
 		case 404:
 			return "Not Found";
-		case 500:
-			return "Internal Server Error";
-		case 301:
-			return "Moved Permanently";
+		case 405:
+			return "Method Not Allowed";
 		case 413:
 			return "Request Entity Too Large";
+		case 414:
+			return "URI Too Long";
+		case 500:
+			return "Internal Server Error";
+		case 501:
+			return "Not Implemented"; 
 		default:
 			return "Unknown Status";
 	}
@@ -118,31 +124,55 @@ void	HttpResponse::constructBody() {
 	locationRoute = getLocationRoute(path);
 
 	std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
+	if (request.GetRequestURI().size() > 2048) {
+		setStatusCode(414);
+		addHeader("Content-Type", "text/html");
+		body = ERROR414;
+		return;
+	}
+	// HeaderContainer::iterator it = request.GetHeaders().find("Transfer-Encoding");
+	if ((!(request.GetHeaders()["Transfer-Encoding"].empty()) && request.GetHeaders()["Transfer-Encoding"] != "chunked") || request.GetHttpVersion() != "HTTP/1.1") {
+		std::cout << RED << request << RESET << std::endl;
+		std::cout << "=" << request.GetHttpVersion() << "=" << std::endl;
+		std::cout << RED << "not implimented" << RESET << std::endl;
+		setStatusCode(501);
+		addHeader("Content-Type", "text/html");
+		if (!config.Errors[501].empty())
+			body = getFileContent(config.Errors[501]);
+		else
+			body = ERROR501;
+		return;
+
+	}
 	if (request.GetBodySize() > config.maxBodySize * MILLION) {
 		std::cout << "body too large" << std::endl;
 		setStatusCode(413);
 		addHeader("Content-Type", "text/html");
-		body = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Request Body Too Large</title></head><body><h1>Request Body Too Large</h1></body></html>";
+		if (!config.Errors[413].empty())
+			body = getFileContent(config.Errors[413]);
+		else
+			body = ERROR413;
 		return;
 	}
+	location Location;
 	try
 	{
-		location location = getMatchedLocation(locationRoute);
-		check_method(location);
-		if (!location.redirection.empty()) {
+		Location = getMatchedLocation(locationRoute);
+		check_method(Location);
+		if (!Location.redirection.empty()) {
 			setStatusCode(301);
-			addHeader("location", location.redirection);
+			addHeader("location", Location.redirection);
 			return;
 		}
 		std::string file = request.GetRequestedFile();
 		if (file.empty())
-			file = location.index;
-		finalPath =  location.root + path + file;
+			file = Location.index;
+		finalPath =  Location.root + path + file;
 		setStatusCode(200);
 		if (stat(finalPath.c_str(), &st) || file.empty()) {
-			uploadPath =  location.upload_path + "/" + file;
+			uploadPath =  Location.upload_path + "/" + file;
 			if (stat(uploadPath.c_str(), &st) || file.empty()) {
-				if (!stat(uploadPath.c_str(), &st) && file.empty() && location.autoIndex) {
+				if (!stat(uploadPath.c_str(), &st) && file.empty() && Location.autoIndex) {
 					std::cout << "AutoIndex" << std::endl;
 					setStatusCode(200);
 					addHeader("Content-Type", GetFileExtension(finalPath));
@@ -151,7 +181,13 @@ void	HttpResponse::constructBody() {
 				}
 				else {
 					setStatusCode(404);
-					finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+					addHeader("Content-Type", "text/html");
+					if (!config.Errors[404].empty())
+						body = getFileContent(config.Errors[404]);
+					else
+						body = ERROR404;
+					return;
+					// finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 				}
 			} else {
 				finalPath = uploadPath;
@@ -162,18 +198,32 @@ void	HttpResponse::constructBody() {
 	catch(const LocationNotFoundException& e)
 	{
 		std::cout << e.what() << std::endl;
-		finalPath = "Sites-available/Error-pages/404-Not-Found.html";
+		setStatusCode(404);
+		addHeader("Content-Type", "text/html");
+		if (!config.Errors[404].empty())
+			body = getFileContent(config.Errors[404]);
+		else
+			body = ERROR404;
+		return;
+		// finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 	}
 	catch (const NotAllowedException& e) {
 		std::cout << e.what() << std::endl;
-		finalPath = "Sites-available/Error-pages/405-Method-Not-Allowed.html";
+		setStatusCode(405);
+		addHeader("Content-Type", "text/html");
+		if (!config.Errors[405].empty())
+			body = getFileContent(config.Errors[405]);
+		else
+			body = ERROR405;
+		return;
+		// finalPath = "Sites-available/Error-pages/405-Method-Not-Allowed.html";
 	}
 	// std::cout << "finalPath: " << finalPath << std::endl;
 	addHeader("Content-Type", GetFileExtension(finalPath));
 	std::string exe = getCgiExtension(finalPath);
-	if ((exe == "php" && !stat((config.cgiPath + "/php-cgi").c_str(), &st)) || (exe == "py" && !stat((config.cgiPath + "/python3").c_str(), &st)))
+	if ((exe == "php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (exe == "py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
 	{
-		cgi CGI(request, finalPath, config.cgiPath);
+		cgi CGI(request, finalPath, Location.cgi_path);
 		body = CGI.get_cgi_res();
 		std::cout << YELLOW << body << RESET << std::endl;
 	}

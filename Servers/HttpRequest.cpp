@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/03 18:49:46 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/03 18:55:13 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 #include <unistd.h>
 
-HttpRequest::HttpRequest() : _contentLength(0), _bodySize(0), bodyExist(false), isChunked(false), completed(false), served(false) {}
+HttpRequest::HttpRequest() : _contentLength(0), _bodySize(0), bodyExist(false), isChunked(false), completed(false), served(false), badRequest(false){}
 
 HttpRequest::~HttpRequest() {}
 
@@ -38,6 +38,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
 	this->Headers = obj.Headers;
 	this->completed = obj.completed;
 	this->served = false;
+	this->badRequest = false;
 	return *this;
 }
 
@@ -69,6 +70,12 @@ int HttpRequest::GetPort(void) const {
 	return this->_port;}
 size_t HttpRequest::GetBodySize(void) const {
 	return this->_bodySize;
+}
+std::string HttpRequest::GetRequestURI(void) const {
+	size_t pos = _RequestLine.find_last_of(" ");
+	if (pos != _RequestLine.npos)
+		return _RequestLine.substr(0, pos);
+	return _RequestLine;
 }
 std::string HttpRequest::GetRequestedFile(void) const {
 	return _requestedFile;
@@ -121,6 +128,9 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 		bool stop = false;
 		while (1) {
 			size_t equalCarPos = this->_path.find("=", andCarPos);
+			if (equalCarPos == this->_path.npos) {
+				throw BadRequestException();
+			}
 			std::string key = this->_path.substr(andCarPos + 1, (equalCarPos - andCarPos) - 1);
 			andCarPos = this->_path.find("&", equalCarPos);
 			if (andCarPos == this->_path.npos) {
@@ -151,7 +161,11 @@ void HttpRequest::read_and_parse(std::istringstream& requestStream) {
 		std::string value;
 		size_t pos = line.find(seperator);
 		if (pos == line.npos)
+		{
+			if (line != "\r")
+				throw BadRequestException();
 			break;
+		}
 		key = line.substr(0, pos);
 		value = line.substr(pos + 2, line.length() - (pos + 3));
 		this->Headers.insert(std::make_pair(key, value));
@@ -176,21 +190,36 @@ void HttpRequest::fill_vars_from_headerContainer(void) {
 void HttpRequest::parser(std::string request) {
 	std::istringstream requestStream(request);
 	std::getline(requestStream, this->_RequestLine, '\n');
+	this->_RequestLine.pop_back();
 	size_t pos = this->_RequestLine.find(" ");
+	if (pos == this->_RequestLine.npos) 
+	{		
+		throw BadRequestException();
+	}
 	this->_method = this->_RequestLine.substr(0, pos);
 	pos++;
 	size_t endPos = this->_RequestLine.find(" ", pos);
+	if (endPos == this->_RequestLine.npos) {		
+		throw BadRequestException();
+	}
+	// pos++;
 	this->_path = this->_RequestLine.substr(pos, endPos - pos);
 	ckeckForQueryAndRequestedFile();
 	endPos++;
-	this->_HttpVersion = this->_RequestLine.substr(endPos, _RequestLine.length() - endPos);
+	this->_HttpVersion = this->_RequestLine.substr(endPos, (_RequestLine.length() - endPos));
 	read_and_parse(requestStream);
 	fill_vars_from_headerContainer();
 	pos = request.find("boundary");
 	if (pos != request.npos) {
 		this->bodyExist = true;
 		pos = request.find("=", pos);
+		if (pos == this->_RequestLine.npos) {			
+			throw BadRequestException();
+		}
 		endPos = request.find("\n", pos);
+		if (endPos == this->_RequestLine.npos) {			
+			throw BadRequestException();
+		}
 		this->_boundary = request.substr(pos + 1, (endPos - pos) - 1);
 	}
 	pos = request.find("\r\n\r\n");
@@ -212,6 +241,9 @@ void HttpRequest::parser(std::string request) {
 
 void HttpRequest::setPortAndServerName(void) {
 	size_t pos = this->_Host.find(":");
+	if (pos == this->_Host.npos) {
+		throw BadRequestException();
+	}
 	this->_serverName = this->_Host.substr(0, pos);
 	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
 }

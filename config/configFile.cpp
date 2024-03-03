@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/02/24 15:49:48 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/02 19:37:51 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,35 +121,53 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 				throw UndefinedValueException();
 		}
 		tmp->maxBodySize = std::atoi(value.c_str());
-	} else if (key == "autoIndex") {
-		if (value == "off")
-			tmp->autoIndex = false;
-		else if (value == "on")
-			tmp->autoIndex = true;
-		else
-			throw UndefinedValueException();
-	} else if (key == "rootDir") {
-		checkPath(value);
-		tmp->rootDir = value;
-	} else if (key == "indexFile") {
-		// checkPath(value);
-		tmp->indexFile = value;
-	} else if (key == "cgiPath") {
-		checkPath(value);
-		tmp->cgiPath = value;
+	// } else if (key == "autoIndex") {
+	// 	if (value == "off")
+	// 		tmp->autoIndex = false;
+	// 	else if (value == "on")
+	// 		tmp->autoIndex = true;
+	// 	else
+	// 		throw UndefinedValueException();
+	// } else if (key == "rootDir") {
+	// 	checkPath(value);
+	// 	tmp->rootDir = value;
+	// } else if (key == "indexFile") {
+	// 	// checkPath(value);
+	// 	tmp->indexFile = value;
+	// } else if (key == "cgiPath") {
+	// 	checkPath(value);
+	// 	tmp->cgiPath = value;
 	} else if (key == "port") {
 		for (size_t index = 0; index < value.length(); index++) {
 			if (!std::isdigit(value[index]))
 				throw UndefinedValueException();
 		}
 		tmp->port = std::atoi(value.c_str());
-	} else if (key == "acceptedMethods") {
-		tmp->acceptedMethods = parseIndexs(value);
-		checkforIncorrectMethod(tmp->acceptedMethods);
-	} else if (key == "accepted_extentions") {
-		tmp->accepted_extentions = parseIndexs(value);
-	} else if (key == "cgi_extentions") {
-		tmp->cgi_extentions = parseIndexs(value);
+	// } else if (key == "acceptedMethods") {
+	// 	tmp->acceptedMethods = parseIndexs(value);
+	// 	checkforIncorrectMethod(tmp->acceptedMethods);
+	// } else if (key == "accepted_extentions") {
+	// 	tmp->accepted_extentions = parseIndexs(value);
+	// } else if (key == "cgi_extentions") {
+	// 	tmp->cgi_extentions = parseIndexs(value);
+	} else if (key == "ERROR404") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(404,value));
+	} else if (key == "ERROR405") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(405,value));
+	} else if (key == "ERROR413") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(413,value));
+	} else if (key == "ERROR414") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(414,value));
+	} else if (key == "ERROR500") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(500,value));
+	} else if (key == "ERROR501") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(501,value));
 	} else 
 		throw UndefinedTokenException();
 }
@@ -162,7 +180,7 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	std::string key = line.substr(0, seperatorPos);
 	std::string value = line.substr(seperatorPos + 1, delimiterPos - (seperatorPos + 1));
 	if (key == "root") {
-		// checkPath(value);
+		checkPath(value);
 		tmp->root = value;
 	// } else if (key == "maxBodySize") {
 	// 	for (size_t i = 0; i < value.length(); i++) {
@@ -181,13 +199,13 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 		// checkPath(value);
 		tmp->index = value;
 	} else if (key == "redirection") {
-		// check Path
+		checkPath(value);
 		tmp->redirection = value;
 	} else if (key == "upload_path") {
-		// check Path
+		checkPath(value);
 		tmp->upload_path = value;
 	} else if (key == "cgi_path") {
-		// check Path
+		checkPath(value);
 		tmp->cgi_path = value;
 	} else if (key == "cgi_extentions") {
 		tmp->cgi_extentions = parseIndexs(value);
@@ -373,34 +391,34 @@ void printConfigs(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
 		std::cout << "host : " << configs[i].host << std::endl;
-		std::cout << "rootDir : " << configs[i].rootDir << std::endl;
+		// std::cout << "rootDir : " << configs[i].rootDir << std::endl;
 		std::cout << "port : " << configs[i].port << std::endl;
-		std::cout << "indexFile : " << configs[i].indexFile << std::endl;
+		// std::cout << "indexFile : " << configs[i].indexFile << std::endl;
 			
-		if (configs[i].autoIndex)
-			std::cout << "autoIndex : on" << std::endl;
-		else
-			std::cout << "autoIndex : off" << std::endl;
+		// if (configs[i].autoIndex)
+		// 	std::cout << "autoIndex : on" << std::endl;
+		// else
+		// 	std::cout << "autoIndex : off" << std::endl;
 
-		std::cout << "acceptedMethods : ";	
-		for (size_t j = 0; j < configs[i].acceptedMethods.size(); j++)
-			std::cout << configs[i].acceptedMethods[j] << "\t";
-		std::cout << std::endl;
+		// std::cout << "acceptedMethods : ";	
+		// for (size_t j = 0; j < configs[i].acceptedMethods.size(); j++)
+		// 	std::cout << configs[i].acceptedMethods[j] << "\t";
+		// std::cout << std::endl;
 		
-		std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
+		// std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
 		
-		std::cout << "cgi_extentions : ";
-		for (size_t j = 0; j < configs[i].cgi_extentions.size(); j++)
-			std::cout << configs[i].cgi_extentions[j] << "\t";
-		std::cout << std::endl;
+		// std::cout << "cgi_extentions : ";
+		// for (size_t j = 0; j < configs[i].cgi_extentions.size(); j++)
+		// 	std::cout << configs[i].cgi_extentions[j] << "\t";
+		// std::cout << std::endl;
 		
 		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
 		
 		int number = 1;
-		std::cout << "accepted_extentions : ";
-		for (size_t j = 0; j < configs[i].accepted_extentions.size(); j++)
-			std::cout << configs[i].accepted_extentions[j] << "\t";
-		std::cout << std::endl;
+		// std::cout << "accepted_extentions : ";
+		// for (size_t j = 0; j < configs[i].accepted_extentions.size(); j++)
+		// 	std::cout << configs[i].accepted_extentions[j] << "\t";
+		// std::cout << std::endl;
 		
 		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
 			printLocation(it->second, number);
@@ -440,13 +458,33 @@ void checkForDuplicatedPorts(std::vector<t_server_config> &configs) {
 void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
 	location tmp;
 
-	tmp.acceptedMethods = configs[i].acceptedMethods;
-	tmp.autoIndex = configs[i].autoIndex;
-	tmp.cgi_extentions = configs[i].cgi_extentions;
-	tmp.cgi_path = configs[i].cgiPath;
-	tmp.index = configs[i].indexFile;
-	tmp.root = configs[i].rootDir;
+	tmp.uri = "/";
+	tmp.root = "/Desktop/webserv/Sites-available/Server_1";
+	tmp.cgi_path = "/webserv/Sites-available/Server_1/cgi-bin";
+	tmp.cgi_extentions.push_back(".php");
+	tmp.cgi_extentions.push_back(".py");
+	tmp.index = "index.html";
+	tmp.autoIndex = false;
+	tmp.acceptedMethods.push_back("GET");
+	tmp.acceptedMethods.push_back("POST");
+	tmp.acceptedMethods.push_back("DELETE");
 	configs[i].locations.insert(std::make_pair("/", tmp));
+}
+
+void	setRootLocationToDefault(location &rootLocation) {
+	if (rootLocation.root.empty())
+		rootLocation.root = "/Desktop/webserv/Sites-available/Server_1";
+	if (rootLocation.cgi_path.empty())
+		rootLocation.cgi_path = "/webserv/Sites-available/Server_1/cgi-bin";
+	if (rootLocation.cgi_extentions.empty()) {
+		rootLocation.cgi_extentions.push_back(".php");
+		rootLocation.cgi_extentions.push_back(".py");	
+	}
+	if (rootLocation.acceptedMethods.empty()) {
+		rootLocation.acceptedMethods.push_back("GET");
+		rootLocation.acceptedMethods.push_back("POST");
+		rootLocation.acceptedMethods.push_back("DELETE");
+	}
 }
 
 void setToDefault(std::vector<t_server_config> &configs) {
@@ -459,17 +497,19 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].host = 16777343;
 		if (configs[i].maxBodySize == 0)
 			configs[i].maxBodySize = 1024;
-		if (configs[i].rootDir.empty())
-			configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Server_1";
+		// if (configs[i].rootDir.empty())
+		// 	configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Server_1";
 		// if (configs[i].indexFile.empty())
 		// 	configs[i].indexFile.push_back("index.html");
 		// if (configs[i].cgiPath.empty())
 		// 	configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/CGI";
-		if (configs[i].cgi_extentions.empty()) {
-			configs[i].cgi_extentions.push_back(".py");
-			configs[i].cgi_extentions.push_back(".php");
-		}
+		// if (configs[i].cgi_extentions.empty()) {
+		// 	configs[i].cgi_extentions.push_back(".py");
+		// 	configs[i].cgi_extentions.push_back(".php");
+		// }
 		if (configs[i].locations.find("/") == configs[i].locations.end())
-			setDefaultLocation(i, configs);	
+			setDefaultLocation(i, configs);
+		else
+			setRootLocationToDefault(configs[i].locations["/"]);
 	}
 }
