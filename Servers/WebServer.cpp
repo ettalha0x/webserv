@@ -107,10 +107,17 @@ bool WebServer::responder(int &fd) {
     if (clients[fd].getStringRes().empty()) {
        clients[fd].getStringRes().clear();
        clients[fd].getRequest().served = true;
-       Client tmp(fd);
-       clients[fd] = tmp;
-       std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
-       clients[fd].resGenerated = false;
+       if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
+         {
+            std::cout << RED << "Client: " << clients[fd].getPollfd().fd << " Connection closed" << RESET << std::endl;
+            close(clients[fd].getPollfd().fd);
+            clients.erase(fd);
+         } else {
+            Client tmp(fd);
+            clients[fd] = tmp;
+            clients[fd].resGenerated = false;
+         }
+        std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
        return true;
     }
     return false;

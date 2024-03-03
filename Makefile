@@ -10,7 +10,8 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		Servers/Client.cpp \
 		config/configFile.cpp \
 		cgi.cpp \
-		session/session.cpp
+		session/session.cpp \
+		upload.cpp
 OBJS = $(SRCS:.cpp=.o)
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 RM = rm -rf

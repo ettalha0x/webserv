@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/02 11:47:25 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/03 18:55:13 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,41 @@ bool HttpRequest::bodyExistOrNot(void) const{
 bool HttpRequest::ChunkedOrNot(void) const{
 	return this->isChunked;}
 
+std::string	remove_chanks_body(std::string body)
+{
+	std::string new_body;
+	size_t i;
+	std::string number;
+	int j;
+	long decimal_num;
+	char* endPtr;
+
+	i = body.find("\n");
+	number = body.substr(0, i);
+	decimal_num = std::strtol(number.c_str(), &endPtr, 16);
+	while (1)
+	{
+		i = body.find("\n");
+		if (i > body.length())
+			break ;
+		number = body.substr(0, i);
+		decimal_num = std::strtol(number.c_str(), &endPtr, 16);
+		std::cout << "{ " << number << " }" << std::endl;
+		if (decimal_num == 0)
+			break ;
+		body = body.substr(i+1, body.length());
+		j = 0;
+		while (decimal_num > 0)
+		{
+			decimal_num = decimal_num - sizeof(body[j]);
+			new_body.push_back(body[j]);
+			j++;
+		}
+		body = body.substr(j+2 , body.length());
+	}
+	std::cout  << "{" << new_body << "}" << std::endl;
+	return (new_body);
+}
 
 void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 	size_t pos;
@@ -197,6 +232,11 @@ void HttpRequest::parser(std::string request) {
 	setPortAndServerName();
 	if (this->bodyExist)
 		this->_bodySize = this->body.size();
+	if (this->isChunked == 1)
+	{
+		this->body =  remove_chanks_body(this->body);
+		this->_bodySize = this->body.size();
+	}
 }
 
 void HttpRequest::setPortAndServerName(void) {

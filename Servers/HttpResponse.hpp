@@ -3,6 +3,7 @@
 # include "Utils/Utils.hpp"
 # include "HttpRequest.hpp"
 #include  "../cgi.hpp"
+#include "../upload.hpp"
 #include <map>
 
 class HttpResponse {
