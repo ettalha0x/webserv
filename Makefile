@@ -12,7 +12,7 @@ SRCS = main.cpp Servers/Utils/Utils.cpp \
 		cgi.cpp \
 		session/session.cpp
 OBJS = $(SRCS:.cpp=.o)
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 RM = rm -rf
 
 %.o:%.cpp Webserv.hpp

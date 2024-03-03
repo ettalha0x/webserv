@@ -51,29 +51,47 @@ void WebServer::handler(int &fd) {
     }
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
-        clients[fd].getRequest().parser(clients[fd].getStringReq());
+        try {
+            clients[fd].getRequest().parser(clients[fd].getStringReq());
+        std::cout << GREEN << clients[fd].getRequest() << RESET << std::endl;
+        } catch (...) {
+            clients[fd].getRequest().badRequest = true;
+            std::cout << RED <<"error : bad request" << RESET << std::endl;
+            // exit(0);
+        }
         clients[fd].getRequest().completed = true;
-		HeaderContainer tmp = clients[fd].getRequest().GetHeaders();
-		if (tmp.find("Referer") == tmp.end())
-		{
-			session ss;
-			this->ID = ss.create_session(clients[fd].getRequest());
-			std::cout << this->ID << std::endl;
-		}
-		else
-		{
-			this->ID = tmp["cookie"];
-		}
-        std::cout << RED << clients[fd].getRequest().GetPath() << RESET << std::endl;
+        if (!clients[fd].getRequest().badRequest) {
+		    HeaderContainer tmp = clients[fd].getRequest().GetHeaders();
+		    if (tmp.find("Referer") == tmp.end())
+		    {
+		    	session ss;
+		    	this->ID = ss.create_session(clients[fd].getRequest());
+		    	std::cout << this->ID << std::endl;
+		    }
+		    else
+		    {
+		    	this->ID = tmp["cookie"];
+		    }
+        }
+        // std::cout << RED << clients[fd].getRequest() << RESET << std::endl;
         clients[fd].getStringReq().clear();
     }
 }
 
 bool WebServer::responder(int &fd) {
-    if (!clients[fd].resGenerated ){   
-        int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
-        HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
-        clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
+    if (!clients[fd].resGenerated ){ 
+        if (clients[fd].getRequest().badRequest)
+            clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+        else {
+            int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
+            if (configIndex == -1)
+                clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+            else {
+                HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
+                std::cout << RED << "haaaaaa" << RESET << std::endl;
+                clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();   
+            }
+        }
         clients[fd].resGenerated = true;
     }
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
