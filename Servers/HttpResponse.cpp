@@ -10,13 +10,12 @@ HttpResponse::HttpResponse() {
 HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request, std::string ID) :request(request), config(config), ID(ID) {
 	constructBody();
 	constructHeader();
-	std::string locationRoute;
-	std::string path;
-	path = request.GetPath();
-	locationRoute = getLocationRoute(path);
-	location location = getMatchedLocation(locationRoute);
-	std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
-	upload(request, location.upload_path);
+	// std::string locationRoute;
+	// std::string path;
+	// path = request.GetPath();
+	// locationRoute = getLocationRoute(path);
+	// location location = getMatchedLocation(locationRoute);
+	// std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
 }
 
 void	HttpResponse::setStatusCode(int statusCode) {
@@ -159,6 +158,7 @@ void	HttpResponse::constructBody() {
 	{
 		Location = getMatchedLocation(locationRoute);
 		check_method(Location);
+		upload(request, Location.upload_path);
 		if (!Location.redirection.empty()) {
 			setStatusCode(301);
 			addHeader("location", Location.redirection);
@@ -227,8 +227,11 @@ void	HttpResponse::constructBody() {
 		body = CGI.get_cgi_res();
 		std::cout << YELLOW << body << RESET << std::endl;
 	}
-	else
+	else if (finalPath == uploadPath && request.GetMethod() == "DELETE") {
+		std::remove(finalPath.c_str());
+	} else {
 		body = getFileContent(finalPath);
+	}
 }
 
 std::string HttpResponse::GetFileExtension(std::string path){
