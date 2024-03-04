@@ -180,12 +180,15 @@ void	HttpResponse::constructBody() {
 					return;
 				}
 				else {
-					setStatusCode(404);
 					addHeader("Content-Type", "text/html");
-					if (!config.Errors[404].empty())
-						body = getFileContent(config.Errors[404]);
-					else
+					if (!config.Errors[404].empty()) {
+						setStatusCode(301);
+						addHeader("location", config.Errors[404]);
+					}
+					else {
+						setStatusCode(404);
 						body = ERROR404;
+					}
 					return;
 					// finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 				}
