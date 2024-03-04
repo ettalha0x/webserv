@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/03 18:55:13 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:59:52 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,7 +283,7 @@ bool requestChecker(std::string requestData) {
     size_t pos;
 	// std::cout << "+++ " << requestData << " +++" << std::endl;
 	// size_t firstNLPos = requestData.find('\n');
-    if (requestData.find("GET") == 0) {
+    if (requestData.find("GET") == 0 || requestData.find("DELETE") == 0) {
         if (requestData.find("\r\n\r\n") != requestData.npos)
             return true;
         return false;
