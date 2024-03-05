@@ -12,10 +12,6 @@ Client::Client(int fd) {
 
 }
 
-// Client::Client( Client const & src ) {
-
-// }
-
 pollfd& 		Client::getPollfd() {
 	return socket;
 }
@@ -47,12 +43,6 @@ Client& Client::operator=(const Client& rhs) {
     }
     return *this;
 }
-
-// std::ostream &			operator<<( std::ostream & o, Client const & i )
-// {
-// 	//o << "Value = " << i.getValue();
-// 	return o;
-// }
 
 Client::~Client() {
 }

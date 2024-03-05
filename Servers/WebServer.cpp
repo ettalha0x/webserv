@@ -25,7 +25,6 @@ int WebServer::accepter(int    &serverIndex) {
 }
  
 void WebServer::handler(int &fd) {
-    // std::cout << "handling.. " << client_sockets[fdIndex].fd << std::endl;
     if (!clients[fd].getStringRes().empty())
         return;
     bzero(buffer, BUFFER_SIZE);
@@ -33,31 +32,21 @@ void WebServer::handler(int &fd) {
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
     clients[fd].getPollfd().events |= POLLOUT;
 
-    // if (bytesReceived == 0) {
-    //     std::cout << RED << "Client closed the connection " << RESET << std::endl;
-    //     close(client_sockets[fd].fd);
-    //     client_sockets.erase(client_sockets.begin() + fd);
-    //     return;
-    // } else 
     if (bytesReceived < 0) {
-        // std::cout << RED;
         perror("recv: ");
-        // std::cout << RESET << std::endl;
         return;
     }
-    // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
+
     if (bytesReceived > 0) {
         clients[fd].getStringReq().append(buffer, bytesReceived);
     }
+
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
             clients[fd].getRequest().parser(clients[fd].getStringReq());
-        // std::cout << GREEN << clients[fd].getRequest() << RESET << std::endl;
         } catch (...) {
             clients[fd].getRequest().badRequest = true;
-            // std::cout << RED <<"error : bad request" << RESET << std::endl;
-            // exit(0);
         }
         clients[fd].getRequest().completed = true;
         if (!clients[fd].getRequest().badRequest) {
@@ -66,14 +55,11 @@ void WebServer::handler(int &fd) {
 		    {
 		    	session ss;
 		    	this->ID = ss.create_session(clients[fd].getRequest());
-		    	// std::cout << this->ID << std::endl;
 		    }
-		    else
-		    {
+		    else {
 		    	this->ID = tmp["cookie"];
 		    }
         }
-        // std::cout << RED << clients[fd].getRequest() << RESET << std::endl;
         clients[fd].getStringReq().clear();
     }
 }
@@ -88,7 +74,6 @@ bool WebServer::responder(int &fd) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
-                // std::cout << RED << "haaaaaa" << RESET << std::endl;
                 clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
                  
             }
@@ -98,19 +83,15 @@ bool WebServer::responder(int &fd) {
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
     clients[fd].getPollfd().events |= POLLIN;
     if (bytesSent < 0) {
-        // std::cout << RED;
         perror("write()");
-        // std::cout << RESET << std::endl;
     } else if (bytesSent > 0){
         clients[fd].getStringRes().erase(0, (size_t)bytesSent);
-        // std::cout << GREEN << "byte sent: " << bytesSent << RESET << std::endl;
     }
     if (clients[fd].getStringRes().empty()) {
        clients[fd].getStringRes().clear();
        clients[fd].getRequest().served = true;
        if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
          {
-            // std::cout << RED << "Client: " << clients[fd].getPollfd().fd << " Connection closed" << RESET << std::endl;
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
@@ -118,7 +99,6 @@ bool WebServer::responder(int &fd) {
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
-        // std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
        return true;
     }
     return false;
@@ -136,10 +116,9 @@ void    WebServer::init_pollfd() {
     {
         pollfd server_pollfd;
         server_pollfd.fd = get_server_sock()[i].get_socket();
-        server_pollfd.events = POLLIN | POLLOUT; // Monitor for incoming/outcoming data
+        server_pollfd.events = POLLIN | POLLOUT;
         server_pollfd.revents = 0;
-        server_sockets.push_back(server_pollfd); // Add server socket to the list
-        // client_sockets.push_back(server_pollfd); 
+        server_sockets.push_back(server_pollfd);
         clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd)));
     }
 }
@@ -149,12 +128,10 @@ void WebServer::launch() {
     init_pollfd();
 
     while (true) {
-        // std::cout << "------- WAITING FOR INCOMING REQUESTS -------" << std::endl;
         getClientsPollfds();
-        int num_events = poll(client_sockets.data(), client_sockets.size(), -1);  // Wait indefinitely
+        int num_events = poll(client_sockets.data(), client_sockets.size(), -1);
         if (num_events == 0) {
-            // std::cout << "No events occurred" << std::endl;
-            continue;  // No events occurred, continue to the next iteration of the loop
+            continue;
         }
         if (num_events == -1) {
             perror("poll");
@@ -168,20 +145,13 @@ void WebServer::launch() {
                     if (client_sockets[i].fd == server_sockets[j].fd) {
                         isServerFd = true;
                         serverIndex = j;
-                        // std::cout << "***** request from server : " << serverIndex << " *****" << std::endl;
                         break;
                     }
                 }
 
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
-                    // client_sockets.push_back(client_pollfd); // add client to the client_sockets list
-                    // if (new_client > 0)
-                    // {
-                        clients.insert(std::make_pair(new_client, Client(new_client)));
-                        // std::cout << "accept new client " << clients[client_sockets[i].fd].getPollfd().fd << std::endl;
-
-                    // }
+                    clients.insert(std::make_pair(new_client, Client(new_client)));
                 } else {
                     handler(client_sockets[i].fd);
                 }
@@ -189,7 +159,7 @@ void WebServer::launch() {
             if (client_sockets[i].revents & POLLOUT) {
                 if (clients[client_sockets[i].fd].getRequest().completed && !clients[client_sockets[i].fd].getRequest().served){
                     if (!responder(client_sockets[i].fd)) {
-                        // std::cout << GREEN << "-------------- Response NOT completed YET ! -------------- " << RESET << std::endl;
+                        std::cout << GREEN << "Responding..." << RESET << std::endl;
                     }
                 }
             }
