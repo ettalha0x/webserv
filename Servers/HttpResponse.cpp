@@ -80,7 +80,11 @@ std::string HttpResponse::getHeaderString() const {
 
 
 std::string	HttpResponse::getLocationRoute(std::string &path) {
-    return (path.substr(0, path.find_last_of('/') + 1));
+	if (path == "/")
+		return path;
+	size_t lastSlash = path.find_last_of("/");
+	size_t beforLast = path.substr(0, lastSlash).find_last_of("/");
+    return (path.substr(beforLast, lastSlash + 1));
 }
 
 void	HttpResponse::constructHeader(void) {
@@ -116,13 +120,17 @@ void	HttpResponse::constructBody() {
 	struct stat st;
 
 	path = request.GetPath();
-	if (path.find_last_of('/') != path.size() - 1)
-		path += "/";
-	// std::cout << YELLOW << "Path: " << path << RESET << std::endl;
+	std::cout << RED << path << RESET << std::endl;
+	if (path.find_last_of('/') != path.size() - 1) {
+		setStatusCode(301);
+		addHeader("location", path + "/");
+		return;
+	}
+	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
 
 	locationRoute = getLocationRoute(path);
-
-	std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
+	std::cout << RED << locationRoute << RESET << std::endl;
+	// std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
 	if (request.GetRequestURI().size() > 2048) {
 		setStatusCode(414);
 		addHeader("Content-Type", "text/html");
@@ -131,9 +139,9 @@ void	HttpResponse::constructBody() {
 	}
 	// HeaderContainer::iterator it = request.GetHeaders().find("Transfer-Encoding");
 	if ((!(request.GetHeaders()["Transfer-Encoding"].empty()) && request.GetHeaders()["Transfer-Encoding"] != "chunked") || request.GetHttpVersion() != "HTTP/1.1") {
-		std::cout << RED << request << RESET << std::endl;
-		std::cout << "=" << request.GetHttpVersion() << "=" << std::endl;
-		std::cout << RED << "not implimented" << RESET << std::endl;
+		// std::cout << RED << request << RESET << std::endl;
+		// std::cout << "=" << request.GetHttpVersion() << "=" << std::endl;
+		// std::cout << RED << "not implimented" << RESET << std::endl;
 		setStatusCode(501);
 		addHeader("Content-Type", "text/html");
 		if (!config.Errors[501].empty())
@@ -144,7 +152,7 @@ void	HttpResponse::constructBody() {
 
 	}
 	if (request.GetBodySize() > config.maxBodySize * MILLION) {
-		std::cout << "body too large" << std::endl;
+		// std::cout << "body too large" << std::endl;
 		setStatusCode(413);
 		addHeader("Content-Type", "text/html");
 		if (!config.Errors[413].empty())
@@ -167,7 +175,8 @@ void	HttpResponse::constructBody() {
 		std::string file = request.GetRequestedFile();
 		if (file.empty())
 			file = Location.index;
-		finalPath =  Location.root + path + file;
+		finalPath =  Location.root + locationRoute + file;
+		std::cout << "+++++" << finalPath << std::endl;
 		setStatusCode(200);
 		if (stat(finalPath.c_str(), &st) || file.empty()) {
 			uploadPath =  Location.upload_path + "/" + file;
@@ -228,7 +237,7 @@ void	HttpResponse::constructBody() {
 	{
 		cgi CGI(request, finalPath, Location.cgi_path);
 		body = CGI.get_cgi_res();
-		std::cout << YELLOW << body << RESET << std::endl;
+		// std::cout << YELLOW << body << RESET << std::endl;
 	}
 	else if (finalPath == uploadPath && request.GetMethod() == "DELETE") {
 		std::remove(finalPath.c_str());
@@ -238,7 +247,7 @@ void	HttpResponse::constructBody() {
 }
 
 std::string HttpResponse::GetFileExtension(std::string path){
-	size_t pos = path.find(".");
+	size_t pos = path.find_last_of(".");
 	if (pos != path.npos)
 		return GetExtensionPrefix(path.substr(pos + 1, path.length() - (pos + 1)));
 	return  ("text/html");
