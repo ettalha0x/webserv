@@ -40,9 +40,9 @@ void WebServer::handler(int &fd) {
     //     return;
     // } else 
     if (bytesReceived < 0) {
-        std::cout << RED;
+        // std::cout << RED;
         perror("recv: ");
-        std::cout << RESET << std::endl;
+        // std::cout << RESET << std::endl;
         return;
     }
     // buffer[bytesReceived] = '\0'; // Null-terminate the buffer
@@ -53,10 +53,10 @@ void WebServer::handler(int &fd) {
         clients[fd].resGenerated = false;
         try {
             clients[fd].getRequest().parser(clients[fd].getStringReq());
-        std::cout << GREEN << clients[fd].getRequest() << RESET << std::endl;
+        // std::cout << GREEN << clients[fd].getRequest() << RESET << std::endl;
         } catch (...) {
             clients[fd].getRequest().badRequest = true;
-            std::cout << RED <<"error : bad request" << RESET << std::endl;
+            // std::cout << RED <<"error : bad request" << RESET << std::endl;
             // exit(0);
         }
         clients[fd].getRequest().completed = true;
@@ -66,7 +66,7 @@ void WebServer::handler(int &fd) {
 		    {
 		    	session ss;
 		    	this->ID = ss.create_session(clients[fd].getRequest());
-		    	std::cout << this->ID << std::endl;
+		    	// std::cout << this->ID << std::endl;
 		    }
 		    else
 		    {
@@ -88,8 +88,9 @@ bool WebServer::responder(int &fd) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
-                std::cout << RED << "haaaaaa" << RESET << std::endl;
-                clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();   
+                // std::cout << RED << "haaaaaa" << RESET << std::endl;
+                clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
+                 
             }
         }
         clients[fd].resGenerated = true;
@@ -97,19 +98,19 @@ bool WebServer::responder(int &fd) {
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
     clients[fd].getPollfd().events |= POLLIN;
     if (bytesSent < 0) {
-        std::cout << RED;
+        // std::cout << RED;
         perror("write()");
-        std::cout << RESET << std::endl;
+        // std::cout << RESET << std::endl;
     } else if (bytesSent > 0){
         clients[fd].getStringRes().erase(0, (size_t)bytesSent);
-        std::cout << GREEN << "byte sent: " << bytesSent << RESET << std::endl;
+        // std::cout << GREEN << "byte sent: " << bytesSent << RESET << std::endl;
     }
     if (clients[fd].getStringRes().empty()) {
        clients[fd].getStringRes().clear();
        clients[fd].getRequest().served = true;
        if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
          {
-            std::cout << RED << "Client: " << clients[fd].getPollfd().fd << " Connection closed" << RESET << std::endl;
+            // std::cout << RED << "Client: " << clients[fd].getPollfd().fd << " Connection closed" << RESET << std::endl;
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
@@ -117,7 +118,7 @@ bool WebServer::responder(int &fd) {
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
-        std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
+        // std::cout << GREEN << "-------------- Response sent successfully ! -------------- " << RESET << std::endl;
        return true;
     }
     return false;
@@ -152,7 +153,7 @@ void WebServer::launch() {
         getClientsPollfds();
         int num_events = poll(client_sockets.data(), client_sockets.size(), -1);  // Wait indefinitely
         if (num_events == 0) {
-            std::cout << "No events occurred" << std::endl;
+            // std::cout << "No events occurred" << std::endl;
             continue;  // No events occurred, continue to the next iteration of the loop
         }
         if (num_events == -1) {
@@ -167,7 +168,7 @@ void WebServer::launch() {
                     if (client_sockets[i].fd == server_sockets[j].fd) {
                         isServerFd = true;
                         serverIndex = j;
-                        std::cout << "***** request from server : " << serverIndex << " *****" << std::endl;
+                        // std::cout << "***** request from server : " << serverIndex << " *****" << std::endl;
                         break;
                     }
                 }
@@ -178,7 +179,7 @@ void WebServer::launch() {
                     // if (new_client > 0)
                     // {
                         clients.insert(std::make_pair(new_client, Client(new_client)));
-                        std::cout << "accept new client " << clients[client_sockets[i].fd].getPollfd().fd << std::endl;
+                        // std::cout << "accept new client " << clients[client_sockets[i].fd].getPollfd().fd << std::endl;
 
                     // }
                 } else {
@@ -188,7 +189,7 @@ void WebServer::launch() {
             if (client_sockets[i].revents & POLLOUT) {
                 if (clients[client_sockets[i].fd].getRequest().completed && !clients[client_sockets[i].fd].getRequest().served){
                     if (!responder(client_sockets[i].fd)) {
-                        std::cout << GREEN << "-------------- Response NOT completed YET ! -------------- " << RESET << std::endl;
+                        // std::cout << GREEN << "-------------- Response NOT completed YET ! -------------- " << RESET << std::endl;
                     }
                 }
             }
