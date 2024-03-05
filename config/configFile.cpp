@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/04 14:34:32 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/05 16:38:38 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,9 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 	// 	tmp->accepted_extentions = parseIndexs(value);
 	// } else if (key == "cgi_extentions") {
 	// 	tmp->cgi_extentions = parseIndexs(value);
+	} else if (key == "ERROR403") {
+		checkPath(value);
+		tmp->Errors.insert(std::make_pair(403,value));
 	} else if (key == "ERROR404") {
 		checkPath(value);
 		tmp->Errors.insert(std::make_pair(404,value));

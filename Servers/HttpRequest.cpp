@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/04 11:59:52 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/05 16:50:53 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,6 +237,8 @@ void HttpRequest::parser(std::string request) {
 		this->body =  remove_chanks_body(this->body);
 		this->_bodySize = this->body.size();
 	}
+	if (_method == "POST" && Headers["Transfer-Encoding"].empty() && Headers["Content-Length"].empty())
+		this->badRequest = true;
 }
 
 void HttpRequest::setPortAndServerName(void) {
