@@ -102,3 +102,24 @@ std::string getCgiExtension(std::string filename) {
     else
         return ("");
 }
+
+bool checkAllowedChars(const std::string uri) {
+    static const char allowedCharsArray[] = {
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '.', '_',
+        '~', ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(',
+        ')', '*', '+', ',', ';', '='
+    };
+
+    static const std::set<char> allowedChars(allowedCharsArray, allowedCharsArray + (sizeof(allowedCharsArray) / sizeof(allowedCharsArray[0]))); // add allowed chars to set by array with size
+
+    for (std::string::const_iterator it = uri.begin(); it != uri.end(); ++it) {
+        if (allowedChars.find(*it) == allowedChars.end()) {
+            return false;
+        }
+    }
+    return true;
+} 
