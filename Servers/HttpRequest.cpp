@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/05 16:50:53 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/06 13:20:01 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,10 @@ size_t HttpRequest::GetBodySize(void) const {
 	return this->_bodySize;
 }
 std::string HttpRequest::GetRequestURI(void) const {
+	size_t start = _RequestLine.find(" ");
 	size_t pos = _RequestLine.find_last_of(" ");
-	if (pos != _RequestLine.npos)
-		return _RequestLine.substr(0, pos);
+	if (start != _RequestLine.npos && pos != _RequestLine.npos)
+		return _RequestLine.substr(start+1, pos-(start+1));
 	return _RequestLine;
 }
 std::string HttpRequest::GetRequestedFile(void) const {

@@ -174,6 +174,13 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 	}
 }
 
+std::string aliasHundler(location Location, std::string requestPath) {
+	if (requestPath == "/")
+		return Location.alias;
+	requestPath.erase(0, Location.uri.size() - 1);
+	return Location.alias + requestPath;
+}
+
 void HttpResponse::PostHundler(location Location) {
 	if (!Location.upload_path.empty()) {
 		upload(request, Location.upload_path);
@@ -182,11 +189,14 @@ void HttpResponse::PostHundler(location Location) {
 	else {
 		struct stat st;
 		std::string extention;
-		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+		if (Location.alias.empty())
+			FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+		else
+			FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 		if (stat(FinalPath.c_str(), &st) == 0) {
 			if (S_ISDIR(st.st_mode)) {
 				FinalPath += Location.index;
-				if (stat(FinalPath.c_str(),0) == 0) {
+				if (stat(FinalPath.c_str(),&st) == 0) {
 					extention = GetFileExtension(FinalPath);
 					if (extention == "php" || extention == "py") {
 					runCGI(extention, Location);
@@ -217,11 +227,14 @@ void HttpResponse::PostHundler(location Location) {
 void HttpResponse::DeleteHundler(location Location) {
 	struct stat st;
 	std::string extention;
-	FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+	if (Location.alias.empty())
+			FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+		else
+			FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath += Location.index;
-			if (stat(FinalPath.c_str(),0) == 0) {
+			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = GetFileExtension(FinalPath);
 				if (extention == "php" || extention == "py") {
 				runCGI(extention, Location);
@@ -253,11 +266,14 @@ void HttpResponse::DeleteHundler(location Location) {
 void HttpResponse::GetHundler(location Location) {
 	struct stat st;
 	std::string extention;
-	FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+	if (Location.alias.empty())
+		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+	else
+		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
-			FinalPath += Location.index;
-			if (stat(FinalPath.c_str(),0) == 0) {
+			FinalPath = FinalPath + Location.index;
+			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = GetFileExtension(FinalPath);
 				if (extention == "php" || extention == "py") {
 				runCGI(extention, Location);
@@ -356,8 +372,8 @@ void	HttpResponse::constructBody() {
 		}
 		check_method(Location);
 
-
 		callHundlerBymethod(Location);
+
 
 		// upload(request, Location.upload_path);
 

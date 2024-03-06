@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/05 16:38:38 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:39:12 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,8 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	} else if (key == "upload_path") {
 		checkPath(value);
 		tmp->upload_path = value;
+	} else if (key == "alias") {
+		tmp->alias = value;
 	} else if (key == "cgi_path") {
 		checkPath(value);
 		tmp->cgi_path = value;
