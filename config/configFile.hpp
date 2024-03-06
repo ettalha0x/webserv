@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/03 18:56:51 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:34:21 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ typedef struct location {
 	std::string					index;//----
 	bool 						autoIndex;//----
 	std::vector<std::string> 	acceptedMethods;//----
+	std::string 				alias;
 	// int							maxBodySize;
 	
 } location;
