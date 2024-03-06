@@ -17,12 +17,6 @@
 
 class Client;
 
-// typedef std::map<int , HttpRequest> RequestContainer;
-// typedef std::map<int , HttpResponse> ResponseContainer;
-// typedef std::map<int , std::string> stringReqContainer;
-// typedef std::map<int , std::string> stringResContainer;
-// typedef std::map<int , bool>		resTracker;
-
 class WebServer {
 	private:
 		std::vector<ListeningSocket> 	server_listening_sockets;
@@ -30,11 +24,6 @@ class WebServer {
 		std::vector<pollfd> 			server_sockets;
 		std::vector<pollfd>				client_sockets;
 		std::map<int, Client>			clients;
-		// stringReqContainer				stringRequests;
-		// stringResContainer				stringResponses;
-		// RequestContainer				Requests;
-		// resTracker						resGenerated;
-		// ResponseContainer	responses;
 		int								accepter(int &serverIndex);
 		void							handler(int	&fd);
 		bool							responder(int &fd);

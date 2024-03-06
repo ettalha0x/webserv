@@ -16,7 +16,6 @@ class Client
 		bool			resGenerated;
 		Client();
 		Client(int fd);
-		// Client( Client const & src );
 		pollfd& 		getPollfd();
 		std::string&	getStringReq();
 		HttpRequest&	getRequest();
@@ -29,5 +28,3 @@ class Client
 	private:
 
 };
-
-// std::ostream &			operator<<( std::ostream & o, Client const & i );
