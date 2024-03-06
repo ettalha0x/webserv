@@ -11,7 +11,8 @@
 #define ERROR413 "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Request Body Too Large</title></head><body><h1>Request Body Too Large</h1></body></html>"
 #define ERROR414 "<!DOCTYPE html><html><head><title>414 URI Too Long</title></head><body><h1>414 URI Too Long</h1><p>The server cannot process the request because the request URI is too long.</p></body></html>"
 #define ERROR501 "<!DOCTYPE html><html><head><title>501 Not Implemented</title></head><body><h1>501 Not Implemented</h1><p>The server does not support the functionality required to fulfill the request.</p></body></html>"
-
+#define ERROR403 "<!DOCTYPE html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>403 Forbidden</title><style>body {font-family: Arial, sans-serif;background-color: #f5f5f5;margin: 0;padding: 0;}.container {text-align: center;margin-top: 100px;}h1 {color: #555;}p {color: #777;}</style></head><body><div class=\"container\"><h1>403 Forbidden</h1><p>Sorry, you don't have permission to access this resource.</p></div></body></html>"
+#define ERROR409 "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>409 Conflict</title><style>body{font-family:Arial,sans-serif;background-color:#f5f5f5;margin:0;padding:0;}.container{text-align:center;margin-top:100px;}h1{color:#555;}p{color:#777;}</style></head><body><div class=\"container\"><h1>409 Conflict</h1><p>Sorry, there was a conflict detected while processing your request. Please try again later or contact support for assistance.</p></div></body></html>"
 
 # include "Sockets/SocketLib.hpp"
 # include "Servers/WebServer.hpp"

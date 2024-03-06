@@ -13,6 +13,7 @@ class HttpResponse {
 		std::string 						statusMessage; // Default status message
 		std::string 						headerString; // Constructed header string
 		std::string 						body; // Body of the response
+		std::string							FinalPath;
 		t_server_config 					config;
 		std::map<std::string, std::string>	headers;
 		std::string 		ID;
@@ -37,6 +38,13 @@ class HttpResponse {
 		void	constructHeader(void);
 		void	constructBody(void);
 		void	check_method(location Location);
+		void 	setError(int errorNum, std::string error);
+		bool	extentionSuported(std::string, location Location);
+		void	callHundlerBymethod(location Location);
+		void	PostHundler(location Location);
+		void	GetHundler(location Location);
+		void	DeleteHundler(location Location);
+		void	runCGI(std::string extention, location Location);
 
 		
 	public:
