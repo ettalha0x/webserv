@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 11:34:21 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/06 19:04:07 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,36 +19,27 @@
 #include <sys/stat.h>
 
 typedef struct location {
-	std::string 				uri;//----
-	std::string 				root;//----
-	std::string					redirection;//----
-	std::string					upload_path;//----
-	std::string					cgi_path;//----
-	std::vector<std::string>	cgi_extentions;//----
-	std::string					index;//----
-	bool 						autoIndex;//----
-	std::vector<std::string> 	acceptedMethods;//----
+	std::string 				uri;
+	std::string 				root;
+	std::string					redirection;
+	std::string					upload_path;
+	std::string					cgi_path;
+	std::vector<std::string>	cgi_extentions;
+	std::string					index;
+	bool 						autoIndex;
+	std::vector<std::string> 	acceptedMethods;
 	std::string 				alias;
-	// int							maxBodySize;
 	
 } location;
 
 typedef struct s_config
 {
-	std::string 					serverName;//----
-	unsigned int 					host;//----
-	int								port;//----
-	size_t 							maxBodySize;//----
-	std::map<std::string, location> locations;//----
-	std::map<int, std::string> 		Errors;//----
-	// std::string 					rootDir;
-	// std::string						indexFile;
-	// bool 							autoIndex;
-	// std::vector<std::string> 		acceptedMethods;
-	// std::string 					cgiPath;
-	// std::vector<std::string> 		cgi_extentions;
-	// std::vector<std::string>		accepted_extentions;
-	
+	std::string 					serverName;
+	unsigned int 					host;
+	int								port;
+	size_t 							maxBodySize;
+	std::map<std::string, location> locations;
+	std::map<int, std::string> 		Errors;
 } t_server_config;
 
 

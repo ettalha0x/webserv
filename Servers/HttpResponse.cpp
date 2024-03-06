@@ -10,12 +10,6 @@ HttpResponse::HttpResponse() {
 HttpResponse::HttpResponse(t_server_config &config, HttpRequest &request, std::string ID) :request(request), config(config), ID(ID) {
 	constructBody();
 	constructHeader();
-	// std::string locationRoute;
-	// std::string path;
-	// path = request.GetPath();
-	// locationRoute = getLocationRoute(path);
-	// location location = getMatchedLocation(locationRoute);
-	// std::cout << "location.upload_path ==>>>   " << location.upload_path << std::endl;
 }
 
 void	HttpResponse::setStatusCode(int statusCode) {
@@ -82,15 +76,6 @@ std::string HttpResponse::getHeaderString() const {
 		headerString += "Set-cookie: sessionId=" + this->ID + "; Max-Age=120 \r\n";
 	}
 	return headerString + "\r\n";
-}
-
-
-std::string	HttpResponse::getLocationRoute(std::string &path) {
-	// if (path == "/")
-	// 	return path;
-	// size_t lastSlash = path.find_last_of("/");
-	// size_t beforLast = path.substr(0, lastSlash).find_last_of("/");
-    return (path.substr(0, path.find_last_of("/") + 1));
 }
 
 void	HttpResponse::constructHeader(void) {
@@ -170,7 +155,6 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 	{
 		cgi CGI(request, FinalPath, Location.cgi_path);
 		body = CGI.get_cgi_res();
-		// std::cout << YELLOW << body << RESET << std::endl;
 	}
 }
 
@@ -307,40 +291,20 @@ void HttpResponse::GetHundler(location Location) {
 
 void	HttpResponse::constructBody() {
 	std::string path;
-	std::string locationRoute;
 	std::string finalPath;
 	std::string	uploadPath;
 	std::cout << GREEN << "#####################" << RESET << std::endl;
 	if ((!(request.GetHeaders()["Transfer-Encoding"].empty()) && request.GetHeaders()["Transfer-Encoding"] != "chunked") || request.GetHttpVersion() != "HTTP/1.1") {
-		// std::cout << RED << request << RESET << std::endl;
-		// std::cout << "=" << request.GetHttpVersion() << "=" << std::endl;
-		// std::cout << RED << "not implimented" << RESET << std::endl;
 		setError(501, ERROR501);
-		// setStatusCode(501);
-		// addHeader("Content-Type", "text/html");
-		// if (!config.Errors[501].empty())
-		// 	body = getFileContent(config.Errors[501]);
-		// else
-		// 	body = ERROR501;
 		return;
 
 	}
 	if (request.GetRequestURI().size() > 2048) {
 		setError(414,ERROR414);
-		// setStatusCode(414);
-		// addHeader("Content-Type", "text/html");
-		// body = ERROR414;
 		return;
 	}
 	if (request.GetBodySize() > config.maxBodySize * MILLION) {
-		// std::cout << "body too large" << std::endl;
 		setError(413,ERROR413);
-		// setStatusCode(413);
-		// addHeader("Content-Type", "text/html");
-		// if (!config.Errors[413].empty())
-		// 	body = getFileContent(config.Errors[413]);
-		// else
-		// 	body = ERROR413;
 		return;
 	}
 	path = request.GetPath();
@@ -355,16 +319,10 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
-
-	// locationRoute = getLocationRoute(path);
-	locationRoute = path;
-	std::cout << RED << locationRoute << RESET << std::endl;
-	// std::cout << YELLOW << "Location Route: " <<locationRoute << RESET << std::endl;
-	// HeaderContainer::iterator it = request.GetHeaders().find("Transfer-Encoding");
 	location Location;
 	try
 	{
-		Location = getMatchedLocation(locationRoute);
+		Location = getMatchedLocation(path);
 		if (!Location.redirection.empty()) {
 			setStatusCode(301);
 			addHeader("location", Location.redirection);
@@ -373,98 +331,23 @@ void	HttpResponse::constructBody() {
 		check_method(Location);
 
 		callHundlerBymethod(Location);
-
-
-		// upload(request, Location.upload_path);
-
-
-
-		// std::string file = request.GetRequestedFile();
-		// if (file.empty())
-		// 	file = Location.index;
-		// finalPath =  Location.root + locationRoute + file;
-		// std::cout << "+++++" << finalPath << std::endl;
-		// setStatusCode(200);
-		// if (stat(finalPath.c_str(), &st) || file.empty()) {
-		// 	uploadPath =  Location.upload_path + "/" + file;
-		// 	if (stat(uploadPath.c_str(), &st) || file.empty()) {
-		// 		if (!stat(uploadPath.c_str(), &st) && file.empty() && Location.autoIndex) {
-		// 			std::cout << "AutoIndex" << std::endl;
-		// 			setStatusCode(200);
-		// 			addHeader("Content-Type", GetFileExtension(finalPath));
-		// 			body = list_dir(finalPath.substr(0, finalPath.find_last_of('/')));
-		// 			return;
-		// 		}
-		// 		else {
-		// 			// addHeader("Content-Type", "text/html");
-		// 			// if (!config.Errors[404].empty()) {
-		// 			// 	setStatusCode(301);
-		// 			// 	addHeader("location", config.Errors[404]);
-		// 			// }
-		// 			// else {
-		// 			// 	setStatusCode(404);
-		// 			// 	body = ERROR404;
-		// 			// }
-		// 			setError(404,ERROR404);
-		// 			return;
-		// 			// finalPath = "Sites-available/Error-pages/404-Not-Found.html";
-		// 		}
-		// 	} else {
-		// 		finalPath = uploadPath;
-		// 	}
-		// }
-
 	}
 	catch(const LocationNotFoundException& e)
 	{
 		std::cout << e.what() << std::endl;
-		// setStatusCode(404);
-		// addHeader("Content-Type", "text/html");
-		// if (!config.Errors[404].empty())
-		// 	body = getFileContent(config.Errors[404]);
-		// else
-		// 	body = ERROR404;
-		if (locationRoute == "Error-pages") {
+		if (path == "Error-pages") {
 			setStatusCode(404);
 			addHeader("Content-Type", "text/html");
 			body = ERROR404;
 		} else
 			setError(404,ERROR404);
 		return;
-		// finalPath = "Sites-available/Error-pages/404-Not-Found.html";
 	}
 	catch (const NotAllowedException& e) {
 		std::cout << e.what() << std::endl;
-		// setStatusCode(405);
-		// addHeader("Content-Type", "text/html");
-		// if (!config.Errors[405].empty())
-		// 	body = getFileContent(config.Errors[405]);
-		// else
-		// 	body = ERROR405;
 		setError(405,ERROR405);
 		return;
-		// finalPath = "Sites-available/Error-pages/405-Method-Not-Allowed.html";
 	}
-	// std::cout << "finalPath: " << finalPath << std::endl;
-	// addHeader("Content-Type", GetFileExtension(finalPath));
-	// std::string exe = getCgiExtension(finalPath);
-	// if (exe == "php" || exe == "py") {
-	// 	if (Location.cgi_path.empty() || !extentionSuported(exe, Location)) {
-	// 		setError(403, ERROR403);
-	// 		return;
-	// 	}
-	// 	if ((exe == "php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (exe == "py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
-	// 	{
-	// 		cgi CGI(request, finalPath, Location.cgi_path);
-	// 		body = CGI.get_cgi_res();
-	// 		// std::cout << YELLOW << body << RESET << std::endl;
-	// 	}
-	// }
-	// else if (finalPath == uploadPath && request.GetMethod() == "DELETE") {
-	// 	std::remove(finalPath.c_str());
-	// } else {
-	// 	body = getFileContent(finalPath);
-	// }
 }
 
 std::string HttpResponse::GetFileExtension(std::string path){

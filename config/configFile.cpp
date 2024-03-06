@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 11:39:12 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/06 19:03:28 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,26 +31,6 @@ void checkPath(std::string path) {
 	throw InvalidPathException();
 }
 
-// std::vector<int> parsePorts(std::string value) {
-// 	// check values and parse theme
-// 	std::vector<int> ports;
-// 	size_t startPos = 0;
-// 	size_t endPos;
-// 	for (size_t i = 0; i < value.length(); i++) {
-// 		if (!std::isdigit(value[i]) && value[i] != ',')
-// 			throw UndefinedValueException();
-// 		if (value[i] == ',' || i == value.length() - 1) {
-// 			endPos = i;
-// 			if (i == value.length() - 1)
-// 				endPos++;
-// 			ports.push_back(std::atoi(value.substr(startPos, endPos - startPos).c_str()));
-// 			startPos = endPos + 1;
-// 		}
-// 	}
-	
-	
-// // 	return ports;
-// // }
 std::vector<std::string> parseIndexs(std::string value) {
 	std::vector<std::string> indexs;
 	size_t startPos = 0;
@@ -64,8 +44,6 @@ std::vector<std::string> parseIndexs(std::string value) {
 			startPos = endPos + 1;
 		}
 	}
-	
-	
 	return indexs;
 }
 
@@ -121,35 +99,12 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 				throw UndefinedValueException();
 		}
 		tmp->maxBodySize = std::atoi(value.c_str());
-	// } else if (key == "autoIndex") {
-	// 	if (value == "off")
-	// 		tmp->autoIndex = false;
-	// 	else if (value == "on")
-	// 		tmp->autoIndex = true;
-	// 	else
-	// 		throw UndefinedValueException();
-	// } else if (key == "rootDir") {
-	// 	checkPath(value);
-	// 	tmp->rootDir = value;
-	// } else if (key == "indexFile") {
-	// 	// checkPath(value);
-	// 	tmp->indexFile = value;
-	// } else if (key == "cgiPath") {
-	// 	checkPath(value);
-	// 	tmp->cgiPath = value;
 	} else if (key == "port") {
 		for (size_t index = 0; index < value.length(); index++) {
 			if (!std::isdigit(value[index]))
 				throw UndefinedValueException();
 		}
 		tmp->port = std::atoi(value.c_str());
-	// } else if (key == "acceptedMethods") {
-	// 	tmp->acceptedMethods = parseIndexs(value);
-	// 	checkforIncorrectMethod(tmp->acceptedMethods);
-	// } else if (key == "accepted_extentions") {
-	// 	tmp->accepted_extentions = parseIndexs(value);
-	// } else if (key == "cgi_extentions") {
-	// 	tmp->cgi_extentions = parseIndexs(value);
 	} else if (key == "ERROR403") {
 		checkPath(value);
 		tmp->Errors.insert(std::make_pair(403,value));
@@ -185,12 +140,6 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	if (key == "root") {
 		checkPath(value);
 		tmp->root = value;
-	// } else if (key == "maxBodySize") {
-	// 	for (size_t i = 0; i < value.length(); i++) {
-	// 		if (!std::isdigit(value[i]))
-	// 			throw UndefinedValueException();
-	// 	}
-	// 	tmp->maxBodySize = std::atoi(value.c_str());
 	} else if (key == "autoIndex") {
 		if (value == "off")
 			tmp->autoIndex = false;
@@ -339,13 +288,10 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 					}
 					if (CloseAccolade && line.find('}') != line.npos)
 						throw SyntaxErrorException();
-					// std::cout << "--" << line << "--" << std::endl;
 					if ((line.substr(0,8) == "location")) {
 						location tmpLocation = locationHandler(line, configeFile);
-						// std::cout << "%%% " << tmpLocation.maxBodySize << " %%%" << std::endl;
 						if (!checkDuplicatLocation(tmp, tmpLocation.uri))
 							tmp.locations.insert(std::make_pair(tmpLocation.uri, tmpLocation));
-						// std::cout << "^^^^ " << tmp.locations[tmpLocation.name].maxBodySize << " ^^^^^" << std::endl;
 					} else
 						identifieANDfill(line, &tmp);
 					if (CloseAccolade)
@@ -502,16 +448,6 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].host = 16777343;
 		if (configs[i].maxBodySize == 0)
 			configs[i].maxBodySize = 1024;
-		// if (configs[i].rootDir.empty())
-		// 	configs[i].rootDir = "/Users/aouchaad/Desktop/webserv/Sites-available/Server_1";
-		// if (configs[i].indexFile.empty())
-		// 	configs[i].indexFile.push_back("index.html");
-		// if (configs[i].cgiPath.empty())
-		// 	configs[i].cgiPath = "/Users/aouchaad/Desktop/webserv/Sites-available/CGI";
-		// if (configs[i].cgi_extentions.empty()) {
-		// 	configs[i].cgi_extentions.push_back(".py");
-		// 	configs[i].cgi_extentions.push_back(".php");
-		// }
 		if (configs[i].locations.find("/") == configs[i].locations.end())
 			setDefaultLocation(i, configs);
 		else
