@@ -6,6 +6,7 @@
 # include <sstream>
 #include <dirent.h>
 # include <vector>
+# include <set>
 # include <ctime>
 
 #define GREEN "\033[1;32m"
@@ -20,6 +21,7 @@ std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);
 std::string getCgiExtension(std::string filename);
+bool        checkAllowedChars(std::string uri);
 
 template<typename T>
 std::string ft_to_string(const T& value) {
