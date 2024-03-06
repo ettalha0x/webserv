@@ -68,6 +68,9 @@ bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){ 
         if (clients[fd].getRequest().badRequest)
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+        else if (!checkAllowedChars(clients[fd].getRequest().GetRequestURI())) {
+            clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+        }
         else {
             int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
             if (configIndex == -1)
