@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 13:20:01 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/07 13:39:54 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ std::string	remove_chanks_body(std::string body)
 			break ;
 		number = body.substr(0, i);
 		decimal_num = std::strtol(number.c_str(), &endPtr, 16);
-		std::cout << "{ " << number << " }" << std::endl;
+		// std::cout << "{ " << number << " }" << std::endl;
 		if (decimal_num == 0)
 			break ;
 		body = body.substr(i+1, body.length());
@@ -118,7 +118,7 @@ std::string	remove_chanks_body(std::string body)
 		}
 		body = body.substr(j+2 , body.length());
 	}
-	std::cout  << "{" << new_body << "}" << std::endl;
+	// std::cout  << "{" << new_body << "}" << std::endl;
 	return (new_body);
 }
 
@@ -151,7 +151,6 @@ void HttpRequest::ckeckForQueryAndRequestedFile(void) {
 			this->_requestedFile = _path.substr(slashPos + 1, _path.size() - (slashPos + 1));
 			_path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 	}
-	// _path.erase(slashPos + 1, _path.size() - (slashPos + 1));
 }
 
 void HttpRequest::read_and_parse(std::istringstream& requestStream) {
@@ -203,7 +202,6 @@ void HttpRequest::parser(std::string request) {
 	if (endPos == this->_RequestLine.npos) {		
 		throw BadRequestException();
 	}
-	// pos++;
 	this->_path = this->_RequestLine.substr(pos, endPos - pos);
 	ckeckForQueryAndRequestedFile();
 	endPos++;
@@ -225,7 +223,6 @@ void HttpRequest::parser(std::string request) {
 	}
 	pos = request.find("\r\n\r\n");
 	if (pos != request.npos) {
-		// this->bodyExist = true;
 		this->body = request.substr(pos + 4, request.length() - (pos + 4));
 		if (!this->body.empty())
 			this->bodyExist = true;
@@ -284,8 +281,6 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 
 bool requestChecker(std::string requestData) {
     size_t pos;
-	// std::cout << "+++ " << requestData << " +++" << std::endl;
-	// size_t firstNLPos = requestData.find('\n');
     if (requestData.find("GET") == 0 || requestData.find("DELETE") == 0) {
         if (requestData.find("\r\n\r\n") != requestData.npos)
             return true;

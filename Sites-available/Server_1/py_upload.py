@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 print("Content-Type: text/html")
-# print("Content-Lenght: 50")
+# print("Content-Lenght: 4")
 print("\r\n\r\n")
-print()
+# print()
 
 import cgi
 import cgitb
