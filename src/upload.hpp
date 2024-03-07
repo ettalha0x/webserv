@@ -2,8 +2,8 @@
 #define UPLOAD_HPP
 
 
-#include "Servers/WebServer.hpp"
-#include "Servers/HttpRequest.hpp"
+#include "WebServer.hpp"
+#include "HttpRequest.hpp"
 #include "cgi.hpp"
 
 

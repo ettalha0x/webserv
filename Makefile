@@ -1,17 +1,18 @@
 NAME = webserv
-SRCS = main.cpp Servers/Utils/Utils.cpp \
-		Sockets/Socket.cpp \
-        Sockets/BindingSocket.cpp \
-        Sockets/ListeningSocket.cpp \
-		Servers/HttpRequest.cpp \
-		Servers/HttpResponse.cpp \
-		Servers/HttpRequest.cpp \
-		Servers/WebServer.cpp \
-		Servers/Client.cpp \
-		config/configFile.cpp \
-		cgi.cpp \
-		session/session.cpp \
-		upload.cpp
+SRCS = 	src/main.cpp \
+		src/Utils/Utils.cpp \
+		src/Sockets/Socket.cpp \
+        src/Sockets/BindingSocket.cpp \
+        src/Sockets/ListeningSocket.cpp \
+		src/HttpRequest.cpp \
+		src/HttpResponse.cpp \
+		src/HttpRequest.cpp \
+		src/WebServer.cpp \
+		src/Client.cpp \
+		src/configFile.cpp \
+		src/cgi.cpp \
+		src/upload.cpp \
+		src/session.cpp 
 OBJS = $(SRCS:.cpp=.o)
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 RM = rm -rf

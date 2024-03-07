@@ -6,9 +6,9 @@
 # include <sys/stat.h>
 # include <vector>
 # include <map>
-# include "../Sockets/SocketLib.hpp"
-# include "../config/configFile.hpp"
-# include "../session/session.hpp"
+# include "Sockets/SocketLib.hpp"
+# include "configFile.hpp"
+# include "session.hpp"
 # include "Client.hpp"
 
 

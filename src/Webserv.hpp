@@ -17,5 +17,5 @@
 #define ERROR504 "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>504 Gateway Timeout</title></head><body><h1>504 Gateway Timeout</h1><p>Sorry, the server didn't receive a timely response from the upstream server it accessed to complete your request.</p></body></html>"
 
 # include "Sockets/SocketLib.hpp"
-# include "Servers/WebServer.hpp"
-# include "config/configFile.hpp"
+# include "WebServer.hpp"
+# include "configFile.hpp"
