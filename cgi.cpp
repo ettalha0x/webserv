@@ -167,26 +167,26 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 	{
 		tmp = header.substr(i, header.length());
 		int	x=0;
-		size_t k = tmp.find("\n");
+		size_t k = tmp.find(";");
 		if (k < header.length())
 		{
 			x = 1;
 			key_value.first = key;
 			key_value.second = copy(tmp, key.length(), k-1);
-			// std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+			// std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
 		}
-		k = tmp.find(";");
+		k = tmp.find("\n");
 		if (k < header.length() && x!= 1)
 		{
 			key_value.first = key;
 			key_value.second = copy(tmp, key.length(), k-1);
-			// std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+			// std::cout << "second 2==>> {" << key_value.second << "}" <<  std::endl;
 		}
-		else if ( x!= 1)
+		else if (x!= 1)
 		{
 			key_value.first = key;
 			key_value.second = tmp.substr(key.length(), header.length());
-			// std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+			// std::cout << "second 3==>> {" << key_value.second << "}" <<  std::endl;
 		}
 	}
 	return (key_value);
@@ -217,7 +217,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
 	std::map<std::string , std::string> header_map;
 
-	
+
 	size_t i = res_cgi.find("\r\n\r\n");
 	if (i < res_cgi.length())
 	{
@@ -225,12 +225,12 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 		std::string body;
 		int len = res_cgi.length();
 		
-		header = res_cgi.substr(0, i-1);
+		header = res_cgi.substr(0, i);
 		header_map = fill_container_map(header);
-		std::cout << "SIZE_MAP " << header_map.size() << std::endl;
-		body = copy(res_cgi, i+5, len - 1);
+		body = copy(res_cgi, i+4, len);
+		// std::cout << "BODY ==={" << body << "}"<<  std::endl;
 		size_t j = header.find("Content-Length:");
-		double	lent = 0;
+		double	lent=0;
 		if (j < header.length())
 		{
 			header = copy(header, j + 16, header.length());
@@ -239,20 +239,24 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 				x = header.length();
 			std::string number = copy(header, 0, x-1);
 			char *end = NULL;
-			double	lent;
 			lent = std::strtod(number.c_str(), &end);
 		}
+		// std::cout << "LENT==>>" << lent << std::endl;
 		if (lent > 0 && (size_t)lent < body.length())
 			resp.second.first = body.substr(0, lent);
 		else
 		{
-			resp.second.first = body;
-			// std::map<std::string , std::string>::iterator it;
-			// it = header_map.find("Content-Length:");
-			if (!header_map["Content-Length:"].empty())
+			// body.push_back('\0');
+			resp.second.first = body.substr(0, body.length() - 2);
+			// std::cout << "body==>>" << body.length() << std::endl;
+			// std::cout << "body==>>" <<resp.second.first.length() << std::endl;
+			// std::cout << YELLOW << "SIZE_BODY ===" << body.length() << RESET << std::endl;
+			std::map<std::string , std::string>::iterator it;
+			it = header_map.find("Content-Length:");
+			if (it != header_map.end())
 			{
-				std::string len = std::to_string(body.length());
-				std::cout << "LEN +++ " << len << std::endl;
+				std::string len = std::to_string(resp.second.first.length());
+				// std::cout << RED << "len ==={" << len << "}"<< RESET <<  std::endl;
 				header_map["Content-Length:"] = len;
 			}
 		}
@@ -388,7 +392,10 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 		}
 		// std::cout << "here" << std::endl;
 		if (WIFEXITED(status))
+		{
             exitStatus = WEXITSTATUS(status);
+			// std::cout << "exitstatus == >>" << exitStatus << std::endl;
+		}
         char buffer[4096];
         ssize_t bytesRead;
         close(_fd[1]);
@@ -397,9 +404,10 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
-	std::cout << RED << "resut={" << result << "}" << result.length() << RESET << std::endl; 
+	// std::cout << RED << "resut={" << result << "}" << result.length() << RESET << std::endl; 
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
+	// std::cout << "SIZE_MAP " << resp.first.size() << std::endl;
 	return (resp);
 }
 std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::get_cgi_res()
