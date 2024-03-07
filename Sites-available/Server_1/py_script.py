@@ -21,8 +21,9 @@ custom_headers = {
 for header_name, header_value in custom_headers.items():
     print(f"{header_name}: {header_value}")
 
+
 # print("Content-Length: " + str(content_length))
-print("\r\n\r\n") # Blank line to indicate the end of headers
+print("\r\n\r\n", end='') # Blank line to indicate the end of headers
 
 # Print the response body
 print(body_content)

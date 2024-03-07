@@ -36,6 +36,8 @@ std::string	HttpResponse::getStatusMessage(int	statusCode) {
 	switch (statusCode) {
 		case 200:
 			return "OK";
+		case 201:
+			return "Created";
 		case 204:
 			return "No Content";
 		case 301:
@@ -159,22 +161,22 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
 	{
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
-		std::cout << "RU~N CGI >>>>>>\n";
+		// std::cout << "RU~N CGI >>>>>>\n";
 		cgi CGI(request, FinalPath, Location.cgi_path);
 		// body = CGI.get_cgi_res();
 		resp = CGI.get_cgi_res();
-		std::map<std::string , std::string>::iterator ite = resp.first.begin();
-		std::cout << YELLOW << "first == {" << std::endl;
-		while (ite != resp.first.end())
-		{
-			std::cout << "key = " << ite->first << " value == " << ite->second << std::endl;
-			ite++;
-		}
-		std::cout << "}" << RESET << std::endl;
+		// std::map<std::string , std::string>::iterator ite = resp.first.begin();
+		// std::cout << YELLOW << "first == {" << std::endl;
+		// while (ite != resp.first.end())
+		// {
+		// 	std::cout << "key = " << ite->first << " value == " << ite->second << std::endl;
+		// 	ite++;
+		// }
+		// std::cout << "}" << RESET << std::endl;
 		
-		std::cout << YELLOW << "second.first == {" <<  resp.second.first << "}" << RESET << std::endl;
-		std::cout << YELLOW << "second.second == {" <<  resp.second.second << "}" << RESET << std::endl;
-		std::cout << YELLOW << body << RESET << std::endl;
+		// std::cout << YELLOW << "second.first == {" <<  resp.second.first << "}" << RESET << std::endl;
+		// std::cout << YELLOW << "second.second == {" <<  resp.second.second << "}" << RESET << std::endl;
+		// std::cout << YELLOW << body << RESET << std::endl;
 		if (resp.second.second == 500)
 			setError(resp.second.second, ERROR500);
 		if (resp.second.second == 504)
@@ -198,10 +200,7 @@ std::string aliasHundler(location Location, std::string requestPath) {
 }
 
 void HttpResponse::PostHundler(location Location) {
-	// if (!Location.upload_path.empty()) {
-	// 	// upload(request, Location.upload_path);
-	// 	// check response status code
-	// }
+
 	// else {
 		struct stat st;
 		std::string extention;
@@ -239,6 +238,24 @@ void HttpResponse::PostHundler(location Location) {
 			}
 		} else
 			setError(404,ERROR404);
+
+	if (!Location.upload_path.empty()) {
+		if (!request.GetRequestedFile().empty()) {
+			extention = getCgiExtension(FinalPath);
+			if (extention == ".php" && extention == ".py")
+				return;
+		}
+		int exitstatus;
+		exitstatus = upload(request, Location.upload_path);
+		if (exitstatus == 201)
+		{
+			setStatusCode(201);
+			std::cout << YELLOW << "Upload ########\n" << RESET ;
+		}
+		else
+			setError(500,ERROR500);
+		// check response status code
+	}
 	// }
 }
 void HttpResponse::DeleteHundler(location Location) {
@@ -255,7 +272,6 @@ void HttpResponse::DeleteHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				// check of errors in cgi
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
 						setStatusCode(204);
@@ -268,7 +284,6 @@ void HttpResponse::DeleteHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				// check of errors in cgi
 			}
 			else {
 				if (std::remove(FinalPath.c_str()) == 0)

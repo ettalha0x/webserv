@@ -5,7 +5,7 @@ bool fileExists(const char* filename) {
     return file.good();
 }
 
-void	create_upload_file(std::string body, std::string path)
+int	create_upload_file(std::string body, std::string path)
 {
 	std::string filename;
 	size_t i = body.find("filename=");
@@ -18,13 +18,12 @@ void	create_upload_file(std::string body, std::string path)
 			i++;
 		}
 	}
-	std::cout << "PATH ====>>>>>    " << path << std::endl;
-	if (filename.length() == 0)
-		return ;
 	if (fileExists(filename.c_str()))
 	{
-		std::remove(filename.c_str());
+		if (std::remove(filename.c_str()) != 0)
+			return (500);
 	}
+	
 	i = body.find("Content-Type");
 	body = body.substr(i, body.length());
 	i = body.find("\n");
@@ -35,22 +34,24 @@ void	create_upload_file(std::string body, std::string path)
 		file << body;
 		file.close();
 	}
-	
-	// i = 
-
+	else
+		return (500);
+	return (201);
 }
 
 
 
-void	check_upload(std::string body, std::string path)
+int		check_upload(std::string body, std::string path)
 {
+	std::cout << "body ==>>{" << body << "}" << std::endl;
 	size_t i = body.find("Content-Type");
-	if (i < body.length())
+	size_t j = body.find("\n");
+	if (i < body.length() && j < body.length() && body[j-1] == '\r')
 	{
-		create_upload_file(body, path);
+		return (create_upload_file(body, path));
 	}
 	else
-		return ;
+		return (201);
 }
 
 
@@ -74,7 +75,6 @@ std::vector<std::string>	parse_body(HttpRequest request)
 			}
 			else
 			{
-				// std::cout << "{" << YELLOW << body << RESET << "}" <<  std::endl;
 				vec_body.push_back(body.substr(1, body.length()- len_boudry - 9));
 				body = body.substr(0, body.length());
 			}
@@ -85,23 +85,18 @@ std::vector<std::string>	parse_body(HttpRequest request)
 	return (vec_body);
 }
 
-void	upload(HttpRequest request, std::string path)
+int		upload(HttpRequest request, std::string path)
 {
 	std::string body = request.GetBody();
 	std::vector<std::string> vec_body = parse_body(request);
-	(void)path;
 	std::vector<std::string>::iterator ite = vec_body.begin();
+	int exitstatus;
 	while (ite != vec_body.end())
 	{
-		// std::cout << "###################################\n";
-		// std::cout << "{" << *ite <<  "}" << std::endl;
-		check_upload(*ite, path);
+		exitstatus = check_upload(*ite, path);
+		if (exitstatus == 500)
+			break ;
 		ite++;
 	}
-	
-	
-
-	
-    // if (file.is_open())
-	// std::cout << "\n";
+	return (exitstatus);
 }
