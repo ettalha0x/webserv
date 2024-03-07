@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 19:05:05 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/07 13:39:54 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ std::string	remove_chanks_body(std::string body)
 			break ;
 		number = body.substr(0, i);
 		decimal_num = std::strtol(number.c_str(), &endPtr, 16);
-		std::cout << "{ " << number << " }" << std::endl;
+		// std::cout << "{ " << number << " }" << std::endl;
 		if (decimal_num == 0)
 			break ;
 		body = body.substr(i+1, body.length());
@@ -118,7 +118,7 @@ std::string	remove_chanks_body(std::string body)
 		}
 		body = body.substr(j+2 , body.length());
 	}
-	std::cout  << "{" << new_body << "}" << std::endl;
+	// std::cout  << "{" << new_body << "}" << std::endl;
 	return (new_body);
 }
 

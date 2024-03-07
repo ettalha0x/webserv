@@ -96,7 +96,7 @@ std::string getCgiExtension(std::string filename) {
     if (i < filename.length())
     {
         std::string exe;
-        exe = filename.substr(i+1, filename.length());
+        exe = filename.substr(i, filename.length());
         return (exe);
     }
     else
