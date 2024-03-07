@@ -162,14 +162,31 @@ void HttpResponse::callHundlerBymethod(location Location) {
 }
 
 void HttpResponse::runCGI(std::string extention, location Location) {
-	if (Location.cgi_path.empty() || !extentionSuported(extention, Location)) {
+		// std::cout << "RUN CGI 1>>>>>>\n";
+	struct stat st;
+	if (Location.cgi_path.empty() || !extentionSuported(extention, Location))
+	{
 		setError(403, ERROR403);
 		return;
 	}
-	if ((extention == "php" && !stat((Location.cgi_path + "/php-cgi").c_str(), 0)) || (extention == "py" && !stat((Location.cgi_path + "/python3").c_str(), 0)))
+	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
 	{
+		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
+		std::cout << "RUN CGI >>>>>>\n";
 		cgi CGI(request, FinalPath, Location.cgi_path);
-		body = CGI.get_cgi_res();
+		// body = CGI.get_cgi_res();
+		resp = CGI.get_cgi_res();
+		std::map<std::string , std::string>::iterator ite = resp.first.begin();
+		std::cout << YELLOW << "first == {" << std::endl;
+		while (ite != resp.first.end())
+		{
+			std::cout << "key = " << ite->first << " value == " << ite->second << std::endl;
+			ite++;
+		}
+		std::cout << "}" << RESET << std::endl;
+		
+		std::cout << YELLOW << "second.first == {" <<  resp.second.first << "}" << RESET << std::endl;
+		std::cout << YELLOW << "second.second == {" <<  resp.second.second << "}" << RESET << std::endl;
 		// std::cout << YELLOW << body << RESET << std::endl;
 	}
 }
@@ -182,11 +199,11 @@ std::string aliasHundler(location Location, std::string requestPath) {
 }
 
 void HttpResponse::PostHundler(location Location) {
-	if (!Location.upload_path.empty()) {
-		upload(request, Location.upload_path);
-		// check response status code
-	}
-	else {
+	// if (!Location.upload_path.empty()) {
+	// 	// upload(request, Location.upload_path);
+	// 	// check response status code
+	// }
+	// else {
 		struct stat st;
 		std::string extention;
 		if (Location.alias.empty())
@@ -197,8 +214,8 @@ void HttpResponse::PostHundler(location Location) {
 			if (S_ISDIR(st.st_mode)) {
 				FinalPath += Location.index;
 				if (stat(FinalPath.c_str(),&st) == 0) {
-					extention = GetFileExtension(FinalPath);
-					if (extention == "php" || extention == "py") {
+					extention = getCgiExtension(FinalPath);
+					if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
 					// check of errors in cgi
 					} else {
@@ -209,8 +226,9 @@ void HttpResponse::PostHundler(location Location) {
 				} else
 					setError(403,ERROR403);
 			} else if (S_ISREG(st.st_mode)) {
-				extention = GetFileExtension(FinalPath);
-				if (extention == "php" || extention == "py") {
+				extention = getCgiExtension(FinalPath);
+					std::cout << extention << std::endl;
+				if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
 					// check of errors in cgi
 				}
@@ -222,7 +240,7 @@ void HttpResponse::PostHundler(location Location) {
 			}
 		} else
 			setError(404,ERROR404);
-	}
+	// }
 }
 void HttpResponse::DeleteHundler(location Location) {
 	struct stat st;
@@ -235,8 +253,8 @@ void HttpResponse::DeleteHundler(location Location) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath += Location.index;
 			if (stat(FinalPath.c_str(),&st) == 0) {
-				extention = GetFileExtension(FinalPath);
-				if (extention == "php" || extention == "py") {
+				extention = getCgiExtension(FinalPath);
+				if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
 				// check of errors in cgi
 				} else {
@@ -248,8 +266,8 @@ void HttpResponse::DeleteHundler(location Location) {
 			} else
 				setError(403,ERROR403);
 		} else if (S_ISREG(st.st_mode)) {
-			extention = GetFileExtension(FinalPath);
-			if (extention == "php" || extention == "py") {
+			extention = getCgiExtension(FinalPath);
+			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
 				// check of errors in cgi
 			}
@@ -274,9 +292,9 @@ void HttpResponse::GetHundler(location Location) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath = FinalPath + Location.index;
 			if (stat(FinalPath.c_str(),&st) == 0) {
-				extention = GetFileExtension(FinalPath);
-				if (extention == "php" || extention == "py") {
-				runCGI(extention, Location);
+				extention = getCgiExtension(FinalPath);
+				if (extention == ".php" || extention == ".py") {
+					runCGI(extention, Location);
 				// check of errors in cgi
 				} else {
 					setStatusCode(200);
@@ -290,8 +308,8 @@ void HttpResponse::GetHundler(location Location) {
 			} else
 				setError(403,ERROR403);
 		} else if (S_ISREG(st.st_mode)) {
-			extention = GetFileExtension(FinalPath);
-			if (extention == "php" || extention == "py") {
+			extention = getCgiExtension(FinalPath);
+			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
 				// check of errors in cgi
 			}

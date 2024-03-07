@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +7,7 @@
 /*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:12 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/03 18:45:04 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/06 16:20:59 by esekouni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +29,7 @@ std::string copy(std::string input, size_t i, size_t j)
     std::string new_str;
     for (size_t index = i; index <= j; ++index)
         new_str.push_back(input[index]);
+    new_str.push_back('\0');
     return new_str;
 }
 
@@ -102,23 +104,8 @@ std::string	 content_type(std::string content, std::string boundry)
 
 cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :finalPath(finalPath), cgiPath(cgiPath)
 {
-	// std::cout <<"####################################################" << std::endl;
-	// std::cout << "Request Line : " << new_request.GetRequestLine() << std::endl;
-	// std::cout << "method : " << new_request.GetMethod() << std::endl;
-	// std::cout << "path : " << new_request.GetPath() << std::endl;
-	// std::cout << "http version : " << new_request.GetHttpVersion() << std::endl;
-	// std::cout << "HOST : " << new_request.GetHost() << std::endl;
-	// std::cout << "boundary : " << new_request.GetBoundary() << std::endl;
 	std::vector<std::pair<std::string, std::string > > b = new_request.GetQuerty() ;
-	std::vector<std::pair<std::string, std::string > >::iterator it_body = b.begin();
-	// std::cout << "           Querty          "  << std::endl;
-	// while (it_body != b.end())
-	// {
-	// 	std::cout << it_body->first << " = " << it_body->second << std::endl;
-	// 	it_body++;
-	// }
-	// std::cout <<"####################################################" << std::endl;
-
+	std::vector<std::pair<std::string, std::string > >::iterator it_Querty = b.begin();
 	this->REQUEST_METHOD = new_request.GetMethod();
 	this->env.push_back("REQUEST_METHOD=" + new_request.GetMethod());
 	this->PATH = new_request.GetPath();
@@ -126,39 +113,18 @@ cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :f
 	this->env.push_back("SCRIPT_NAME=" + new_request.GetRequestedFile());
 	this->env.push_back("SCRIPT_FILENAME=" + finalPath);
 	this->env.push_back("REDIRECT_STATUS=200");
-	// int i;
-	// i = this->PATH.rfind('/');
-	// this->SCRIPT_NAME = this->PATH.substr(i , this->PATH.length());
-	// std::cout << "    HERRRRRRRRR    ==  " << this->SCRIPT_NAME << std::endl;
-	// if (new_request.GetBoundary().length() > 0)
-	// {
-		// this->CONTENT_TYPE = content_type(new_request.GetBody(), new_request.GetBoundary());
-		// this->env.push_back("CONTENT_TYPE=" + this->CONTENT_TYPE);
-		
 	this->body = new_request.GetBody();
-	// 	std::cout << "ContentType2 == " <<  this->CONTENT_TYPE << std::endl;
-	// 	// exit(0);
-	// 	// this->CONTENT_TYPE = new_request.GetContentType();
-	// }
-	// else
-	// {
-	// 	std::cout << "bodi =={" << new_request.GetBody()<< "}" << std::endl;
-	// 	this->CONTENT_TYPE = new_request.GetBody();
-	// 	this->env.push_back("CONTENT_TYPE=" + this->CONTENT_TYPE);
-	// 	std::cout << "ContentType1 == " <<  this->CONTENT_TYPE << std::endl;
-	// }
-
 	this->env.push_back("CONTENT_TYPE=" + new_request.GetContentType());
 	this->env.push_back("CONTENT_LENGTH=" + intToString(new_request.GetContentLength()) );
 
 	if (b.size() > 0)
 	{
-		it_body = b.begin();
-		while (it_body != b.end())
+		it_Querty = b.begin();
+		while (it_Querty != b.end())
 		{
-			this->QUERY_STRING += it_body->first + "=" + it_body->second;
-			it_body++;
-			if (it_body != b.end())
+			this->QUERY_STRING += it_Querty->first + "=" + it_Querty->second;
+			it_Querty++;
+			if (it_Querty != b.end())
 				this->QUERY_STRING += "&";
 		}
 	}
@@ -166,8 +132,6 @@ cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :f
 		this->env.push_back("QUERY_STRING=" + this->QUERY_STRING);
 	else
 		this->QUERY_STRING_POST = this->QUERY_STRING;
-	
-	// std::cout << "     CCCCGGGGGGIIIII        "  << this->execute(this->REQUEST_METHOD);
 	this->cgi_res =  this->execute(this->REQUEST_METHOD,new_request);
 }
 
@@ -193,14 +157,142 @@ char **cgi::convert_to_char_double()
 	return envp;
 }
 
-std::string	cgi::execute(std::string req_method, HttpRequest new_request)
+std::pair<std::string , std::string> func(std::string header, std::string key)
+{
+	std::pair<std::string , std::string> key_value;
+	size_t i = header.find(key);
+	std::string tmp;
+	
+	if (i < header.length())
+	{
+		tmp = header.substr(i, header.length());
+		int	x=0;
+		size_t k = tmp.find("\n");
+		if (k < header.length())
+		{
+			x = 1;
+			key_value.first = key;
+			key_value.second = copy(tmp, key.length(), k-1);
+			std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+		}
+		k = tmp.find(";");
+		if (k < header.length() && x!= 1)
+		{
+			key_value.first = key;
+			key_value.second = copy(tmp, key.length(), k-1);
+			std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+		}
+		else if ( x!= 1)
+		{
+			key_value.first = key;
+			key_value.second = tmp.substr(key.length(), header.length());
+			std::cout << "second ==>> {" << key_value.second << "}" <<  std::endl;
+		}
+	}
+	return (key_value);
+}
+
+std::map<std::string , std::string> fill_container_map(std::string header)
+{
+	std::map<std::string , std::string> header_map;
+	std::pair<std::string , std::string> key_value;
+	
+	size_t i = header.find("Content-Length:");
+	if (i < header.length())
+	{
+		key_value = func(header, "Content-Length:");
+		header_map[key_value.first] = key_value.second;
+	}
+	i = header.find("Content-Type:");
+	if (i < header.length())
+	{
+		key_value = func(header, "Content-Type:");
+		header_map[key_value.first] = key_value.second;
+	}
+	return (header_map);
+}
+
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::check_resp_cgi(std::string res_cgi, int exitStatus)
+{
+	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
+	std::map<std::string , std::string> header_map;
+
+	
+	size_t i = res_cgi.find("\r\n\r\n");
+	if (i < res_cgi.length())
+	{
+		std::string header;
+		std::string body;
+		int len = res_cgi.length();
+		
+		header = res_cgi.substr(0, i-1);
+		header_map = fill_container_map(header);
+		body = copy(res_cgi, i+4, len - 1);
+		size_t j = header.find("Content-Length:");
+		header = copy(header, j + 16, header.length());
+		int x =  header.find("\n");
+		if (x == -1)
+			x = header.length();
+		std::string number = copy(header, 0, x-1);
+		char *end = NULL;
+		double	lent;
+		lent = std::strtod(number.c_str(), &end);
+		if (lent > 0 && (size_t)lent < body.length())
+			resp.second.first = body.substr(0, lent);
+		else
+		{
+			resp.second.first = body;
+			std::map<std::string , std::string>::iterator it;
+			it = header_map.find("Content-Length:");
+			if (it != header_map.end())
+			{
+				std::string len = std::to_string(body.length());
+				header_map["Content-Length:"] = len;
+			}
+		}
+	}
+	else
+		resp.second.first = res_cgi;
+	if (exitStatus == 0)
+		resp.second.second = 200;
+	else
+		resp.second.second = 500;
+	resp.first = header_map;
+	return resp;
+}
+
+void deleteCharArray(char** arr)
+{
+    int i = 0;
+	while (arr[i])
+	{
+		delete [] arr[i];
+		i++;
+	}
+    delete [] arr;
+}
+
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > retern_error(int exitstatus)
+{
+	std::map<std::string , std::string> map;
+	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
+	resp.first = map;
+	resp.second.first = "";
+	resp.second.second = exitstatus;
+	return (resp);
+}
+
+
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::execute(std::string req_method, HttpRequest new_request)
 {
 	int fd[2];
+	int _fd[2];
+	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
 	std::string result;
 	std::string	file_name;
 	std::string	type_script;
+	int exitStatus = 0;
 	char **envp = convert_to_char_double();
-	// type_script = "python3";
 	file_name = new_request.GetRequestedFile();
 	int i = file_name.find('.');
 	std::string ext;
@@ -228,68 +320,84 @@ std::string	cgi::execute(std::string req_method, HttpRequest new_request)
 
 	status = 0;
 	is_pipe = 1;
-	if (pipe(fd) == -1)
-		return ("ERROR\n");
+	if (pipe(fd) == -1 || pipe(_fd) == -1)
+	{
+		deleteCharArray(envp);
+		return (retern_error(500));
+	}
 	std::time_t currentTime = std::time(nullptr);
-	std::cout << "begin ===>>> " <<  currentTime << std::endl;
+
 	pid = fork();
 	if (pid == -1)
-		return ("ERROR\n");
+	{
+		return (retern_error(500));
+	}
 	if (pid == 0)
 	{
 		if (this->REQUEST_METHOD == "POST")
 		{
-			if (dup2(fd[0], 0) == -1)
+			if (dup2(fd[0], 0) == -1 || close(fd[1]) == -1)
 			{
-				return ("ERROR\n");
+				deleteCharArray(envp);
+				return (retern_error(500));
 			}
 		}
-		if (is_pipe && (dup2(fd[1], 1) == -1 || close(fd[0]) == -1 || close (fd[1]) == -1))
-			return ("ERROR\n");
-		if (execve(cmd.c_str(), args , envp))
-			return ("ERROR\n");
+		if (close(_fd[0]) == -1|| dup2(_fd[1], 1) == -1)
+		{
+			deleteCharArray(envp);
+			return (retern_error(500));
+		}
+		if (execve(cmd.c_str(), args , envp) == -1)
+		{
+			deleteCharArray(envp);
+			return (retern_error(500));
+		}
 	}
 	else
 	{
 		int N = 0;
 		time_t time;
+
+		// close(fd[1]);
+		// close(_fd[1]);
+		std::cout << "########################1\n";
+		close (fd[0]);
 		if (req_method == "POST")
 		{
 			write(fd[1], this->body.c_str(), this->body.length());
 		}
+		std::cout << "########################2\n";
 		while (1)
 		{
 			N = waitpid(pid, &status, WNOHANG);
 			time = std::time(nullptr);
-			// std::cout << "time == " << time << " currentTime + 5 == " << currentTime + 5 << "  N == " << N << std::endl
 			if (time > currentTime + 5 && N == 0)
 			{
+				deleteCharArray(envp);
 				kill(pid, SIGKILL);
-				break ;
+				return (retern_error(504));
 			}
 			else if (N != 0)
 				break;
 		}
-		 
-		
-		currentTime = std::time(nullptr);
-		std::cout << "end ===>>>    " << currentTime << std::endl;
-		close(fd[1]);
-		// if (WIFEXITED(status))
-		// {
-        //     int exitStatus = WEXITSTATUS(status);
-        //     std::cout << "Child process exited with status: " << exitStatus << std::endl;
-        // }
+		// std::cout << "here" << std::endl;
+		if (WIFEXITED(status))
+            exitStatus = WEXITSTATUS(status);
         char buffer[4096];
         ssize_t bytesRead;
-        while ((bytesRead = read(fd[0], buffer, sizeof(buffer))) > 0)
+        close(_fd[1]);
+        while ((bytesRead = read(_fd[0], buffer, sizeof(buffer))) > 0)
 			result.append(buffer, bytesRead);
-        close(fd[0]);
+        close(fd[1]);
+        close(_fd[0]);
 	}
-	
-	return (result);
+	std::cout << RED << "resut={" << result << "}" << RESET << std::endl; 
+	deleteCharArray(envp);
+	resp = check_resp_cgi(result, exitStatus);
+	return (resp);
 }
-std::string cgi::get_cgi_res()
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::get_cgi_res()
 {
 	return (this->cgi_res);
 }
+
