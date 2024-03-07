@@ -272,7 +272,6 @@ void HttpResponse::DeleteHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				// check of errors in cgi
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
 						setStatusCode(204);
@@ -285,7 +284,6 @@ void HttpResponse::DeleteHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				// check of errors in cgi
 			}
 			else {
 				if (std::remove(FinalPath.c_str()) == 0)

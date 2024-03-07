@@ -19,6 +19,7 @@ if fileitem.filename:
     filename = os.path.basename(fileitem.filename)
     upload_dir = './Sites-available/Uploads'  # Make sure this directory exists and has write permissions
     
+	
     # Clean filename
     clean_filename = filename
     file_path = os.path.join(upload_dir, clean_filename)

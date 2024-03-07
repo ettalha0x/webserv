@@ -23,6 +23,7 @@ int	create_upload_file(std::string body, std::string path)
 		if (std::remove(filename.c_str()) != 0)
 			return (500);
 	}
+	
 	i = body.find("Content-Type");
 	body = body.substr(i, body.length());
 	i = body.find("\n");

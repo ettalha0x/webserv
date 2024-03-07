@@ -34,7 +34,6 @@ std::string copy(std::string input, size_t i, size_t j)
 }
 
 
-
 std::string content_name_value(std::string tmp)
 {
 	std::string content;
