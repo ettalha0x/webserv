@@ -1,8 +1,8 @@
 #ifndef SESSION_HPP
 #define SESSION_HPP
 
-#include "../Servers/HttpRequest.hpp"
-#include "../Servers/Utils/Utils.hpp"
+#include "HttpRequest.hpp"
+#include "Utils/Utils.hpp"
 #include <iostream>
 
 

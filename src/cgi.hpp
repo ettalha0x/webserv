@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/07 20:14:36 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/07 21:26:39 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <iostream>
 #include <map>
 
-#include "Servers/HttpRequest.hpp"
+#include "HttpRequest.hpp"
 
 class cgi
 {
