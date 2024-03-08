@@ -185,8 +185,8 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 			setStatusCode(200);
 			if (!resp.first["Content-Type:"].empty())
 				addHeader("Content-Type",resp.first["Content-Type:"]);
-			if (!resp.first["Content-Length:"].empty())
-				addHeader("Content-Length",resp.first["Content-Length:"]);
+			// if (!resp.first["Content-Length:"].empty())
+			// 	addHeader("Content-Length",resp.first["Content-Length:"]);
 			body = resp.second.first;
 		}
 	}
@@ -341,7 +341,7 @@ void	HttpResponse::constructBody() {
 	std::string path;
 	std::string finalPath;
 	std::string	uploadPath;
-	std::cout << GREEN << "#####################" << RESET << std::endl;
+	// std::cout << GREEN << "#####################" << RESET << std::endl;
 	if ((!(request.GetHeaders()["Transfer-Encoding"].empty()) && request.GetHeaders()["Transfer-Encoding"] != "chunked") || request.GetHttpVersion() != "HTTP/1.1") {
 		setError(501, ERROR501);
 		return;
@@ -356,7 +356,7 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	path = request.GetPath();
-	std::cout << RED << path << RESET << std::endl;
+	// std::cout << RED << path << RESET << std::endl;
 	if (path.find_last_of('/') != path.size() - 1) {
 		if (request.GetMethod() == "DELETE")
 			setError(409,ERROR409);
@@ -366,7 +366,7 @@ void	HttpResponse::constructBody() {
 		}
 		return;
 	}
-	std::cout << YELLOW << "Path: " << path << RESET << std::endl;
+	// std::cout << YELLOW << "Path: " << path << RESET << std::endl;
 	location Location;
 	try
 	{
