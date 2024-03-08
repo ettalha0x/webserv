@@ -37,7 +37,7 @@ int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) 
 }
 
 std::string GetExtensionPrefix(std::string extension) {
-    std::ifstream file("./Servers/Utils/contentTypes.txt");
+    std::ifstream file("./src/Utils/contentTypes.txt");
     if (!file)
         return "text/" + extension;
     std::string line;

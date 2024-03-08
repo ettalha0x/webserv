@@ -29,7 +29,7 @@ std::string copy(std::string input, size_t i, size_t j)
     std::string new_str;
     for (size_t index = i; index <= j; ++index)
         new_str.push_back(input[index]);
-    new_str.push_back('\0');
+    // new_str.push_back('\0');
     return new_str;
 }
 
@@ -171,20 +171,21 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 		{
 			x = 1;
 			key_value.first = key;
-			key_value.second = copy(tmp, key.length(), k-1);
-			// std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
+			key_value.second = copy(tmp, key.length()+1, k-1);
+			
+			std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
 		}
 		k = tmp.find("\n");
 		if (k < header.length() && x!= 1)
 		{
 			key_value.first = key;
-			key_value.second = copy(tmp, key.length(), k-1);
+			key_value.second = copy(tmp, key.length()+1, k-1);
 			// std::cout << "second 2==>> {" << key_value.second << "}" <<  std::endl;
 		}
 		else if (x!= 1)
 		{
 			key_value.first = key;
-			key_value.second = tmp.substr(key.length(), header.length());
+			key_value.second = tmp.substr(key.length()+1, header.length());
 			// std::cout << "second 3==>> {" << key_value.second << "}" <<  std::endl;
 		}
 	}

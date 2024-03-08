@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 19:03:28 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/08 15:50:05 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,8 +410,8 @@ void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
 	location tmp;
 
 	tmp.uri = "/";
-	tmp.root = "/Desktop/webserv/Sites-available/Server_1";
-	tmp.cgi_path = "/webserv/Sites-available/Server_1/cgi-bin";
+	tmp.root = "Sites-available/Server_1";
+	tmp.cgi_path = "cgi-bin";
 	tmp.cgi_extentions.push_back(".php");
 	tmp.cgi_extentions.push_back(".py");
 	tmp.index = "index.html";
@@ -424,9 +424,9 @@ void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
 
 void	setRootLocationToDefault(location &rootLocation) {
 	if (rootLocation.root.empty())
-		rootLocation.root = "/Desktop/webserv/Sites-available/Server_1";
+		rootLocation.root = "Sites-available/Server_1";
 	if (rootLocation.cgi_path.empty())
-		rootLocation.cgi_path = "/webserv/Sites-available/Server_1/cgi-bin";
+		rootLocation.cgi_path = "cgi-bin";
 	if (rootLocation.cgi_extentions.empty()) {
 		rootLocation.cgi_extentions.push_back(".php");
 		rootLocation.cgi_extentions.push_back(".py");	
