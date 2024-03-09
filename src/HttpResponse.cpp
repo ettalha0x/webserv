@@ -95,12 +95,18 @@ void removeBlock(std::string &tmp) {
 		tmp.clear();
 	else {
 		size_t lastSlash = tmp.find_last_of("/");
-		size_t beforLast = tmp.substr(0, lastSlash).find_last_of("/");
+		size_t beforLast = 0;
+		if (lastSlash == tmp.npos)
+			lastSlash = tmp.size() - 1;
+		beforLast = tmp.substr(0, lastSlash).find_last_of("/");
+		if (beforLast == tmp.npos)
+			beforLast = 0;
 		tmp.erase(beforLast, lastSlash + 1);
 	}
 }
 
 location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
+
 	std::string tmp = locationRoute;
 	while (!tmp.empty()) {
 		for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); ++it) {
