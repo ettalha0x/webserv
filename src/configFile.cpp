@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/08 15:50:05 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/09 14:55:42 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,20 +422,25 @@ void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
 	configs[i].locations.insert(std::make_pair("/", tmp));
 }
 
-void	setRootLocationToDefault(location &rootLocation) {
-	if (rootLocation.root.empty())
-		rootLocation.root = "Sites-available/Server_1";
-	if (rootLocation.cgi_path.empty())
-		rootLocation.cgi_path = "cgi-bin";
-	if (rootLocation.cgi_extentions.empty()) {
-		rootLocation.cgi_extentions.push_back(".php");
-		rootLocation.cgi_extentions.push_back(".py");	
+void	setLocationsToDefault(t_server_config &config) {
+	for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); it++) {
+		if (it->second.root.empty())
+			it->second.root = "Sites-available/Server_1";
+		if (it->second.cgi_path.empty())
+			it->second.cgi_path = "cgi-bin";
+		if (it->second.cgi_extentions.empty()) {
+			it->second.cgi_extentions.push_back(".php");
+			it->second.cgi_extentions.push_back(".py");	
+		}
+		if (it->second.acceptedMethods.empty()) {
+			it->second.acceptedMethods.push_back("GET");
+			it->second.acceptedMethods.push_back("POST");
+			it->second.acceptedMethods.push_back("DELETE");
+		}
+		if (it->second.index.empty())
+			it->second.index = "index.html";
 	}
-	if (rootLocation.acceptedMethods.empty()) {
-		rootLocation.acceptedMethods.push_back("GET");
-		rootLocation.acceptedMethods.push_back("POST");
-		rootLocation.acceptedMethods.push_back("DELETE");
-	}
+	
 }
 
 void setToDefault(std::vector<t_server_config> &configs) {
@@ -450,7 +455,6 @@ void setToDefault(std::vector<t_server_config> &configs) {
 			configs[i].maxBodySize = 1024;
 		if (configs[i].locations.find("/") == configs[i].locations.end())
 			setDefaultLocation(i, configs);
-		else
-			setRootLocationToDefault(configs[i].locations["/"]);
+		setLocationsToDefault(configs[i]);
 	}
 }
