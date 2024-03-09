@@ -317,7 +317,8 @@ void HttpResponse::GetHundler(location Location) {
 				}
 			} else if (Location.autoIndex) {
 				setStatusCode(200);
-				addHeader("Content-Type", GetFileExtension(FinalPath));
+				addHeader("Content-Type", "text/html");
+				std::cout << "autoindex" << std::endl;
 				body = list_dir(FinalPath.substr(0, FinalPath.find_last_of('/')));
 			} else
 				setError(403,ERROR403);
