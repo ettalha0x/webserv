@@ -52,31 +52,41 @@
         <h1>Form Examples</h1>
 
         <h2>GET Method</h2>
-        <form action="login.html" method="get">
+        <form action="../scripts/php_script.php" method="get">
             <label for="name">Name:</label><br>
             <input type="text" id="name" name="name"><br>
             <input type="submit" value="Submit">
         </form>
 
-        <h2>POST Method</h2>
-        <form action="../scripts/php_script.php" method="post">
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name"><br>
+        <h2>DELETE Method</h2>
+        <div id="deleteForm">
+            <label for="filename">Filename:</label><br>
+            <input type="text" id="filename" name="filename"><br>
+            <button id="submitBtn">Submit</button>
+        </div>
 
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email"><br>
+        <script>
+            document.getElementById("submitBtn").addEventListener("click", function(event) {
+                event.preventDefault(); // Prevent default button action
 
-            <label for="phone">Phone:</label><br>
-            <input type="tel" id="phone" name="phone"><br>
+                var filename = document.getElementById("filename").value;
 
-            <label for="ETC">ETC:</label><br>
-            <input type="tel" id="ETC" name="ETC"><br>
+                // Send delete request using Fetch API
+                fetch("../scripts/php_script.php?filename=" + filename, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log("Delete request successful.");
+                })
+                .catch(error => {
+                    console.error("Error deleting file:", error);
+                });
+            });
+        </script>
 
-            <label for="ELSE">ELSE:</label><br>
-            <input type="tel" id="ELSE" name="ELSE"><br>
-
-            <input type="submit" value="Submit">
-        </form>
     </div>
 </body>
 </html>

@@ -210,6 +210,7 @@ void HttpResponse::PostHundler(location Location) {
 	// else {
 		struct stat st;
 		std::string extention;
+		bool _do = true;
 		if (Location.alias.empty())
 			FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
 		else
@@ -220,6 +221,7 @@ void HttpResponse::PostHundler(location Location) {
 				if (stat(FinalPath.c_str(),&st) == 0) {
 					extention = getCgiExtension(FinalPath);
 					if (extention == ".php" || extention == ".py") {
+					_do = false;
 					runCGI(extention, Location);
 					// check of errors in cgi
 					} else {
@@ -233,6 +235,7 @@ void HttpResponse::PostHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 					std::cout << extention << std::endl;
 				if (extention == ".php" || extention == ".py") {
+					_do = false;
 					runCGI(extention, Location);
 					// check of errors in cgi
 				}
@@ -245,7 +248,7 @@ void HttpResponse::PostHundler(location Location) {
 		} else
 			setError(404,ERROR404);
 
-	if (!Location.upload_path.empty()) {
+	if (!Location.upload_path.empty() && _do) {
 		if (!request.GetRequestedFile().empty()) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" && extention == ".py")

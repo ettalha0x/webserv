@@ -404,7 +404,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
-	// std::cout << RED << "resut={" << result << "}" << result.length() << RESET << std::endl; 
+	std::cout << RED << "resut={" << result << "}" << result.length() << RESET << std::endl; 
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
 	// std::cout << "SIZE_MAP " << resp.first.size() << std::endl;

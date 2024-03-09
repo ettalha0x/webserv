@@ -64,7 +64,7 @@ std::vector<std::string>	parse_body(HttpRequest request)
 	while (1)
 	{
 		v = body.find(request.GetBoundary());
-		if (v < body.length())
+		if (v < body.length() && !request.GetBoundary().empty())
 		{
 			body = body.substr(v + len_boudry, body.length());
 			v = body.find(request.GetBoundary());
