@@ -44,7 +44,7 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			std::cout << RED << clients[fd].getStringReq() << std::endl;
+			// std::cout << RED << clients[fd].getStringReq() << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq());
         } catch (...) {
             clients[fd].getRequest().badRequest = true;
