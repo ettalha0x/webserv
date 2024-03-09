@@ -95,12 +95,18 @@ void removeBlock(std::string &tmp) {
 		tmp.clear();
 	else {
 		size_t lastSlash = tmp.find_last_of("/");
-		size_t beforLast = tmp.substr(0, lastSlash).find_last_of("/");
+		size_t beforLast = 0;
+		if (lastSlash == tmp.npos)
+			lastSlash = tmp.size() - 1;
+		beforLast = tmp.substr(0, lastSlash).find_last_of("/");
+		if (beforLast == tmp.npos)
+			beforLast = 0;
 		tmp.erase(beforLast, lastSlash + 1);
 	}
 }
 
 location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
+
 	std::string tmp = locationRoute;
 	while (!tmp.empty()) {
 		for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); ++it) {
@@ -318,7 +324,7 @@ void HttpResponse::GetHundler(location Location) {
 			} else if (Location.autoIndex) {
 				setStatusCode(200);
 				addHeader("Content-Type", "text/html");
-				std::cout << "autoindex" << std::endl;
+				std::cout << "auto indexing" << std::endl;
 				body = list_dir(FinalPath.substr(0, FinalPath.find_last_of('/')));
 			} else
 				setError(403,ERROR403);

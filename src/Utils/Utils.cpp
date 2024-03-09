@@ -20,7 +20,6 @@ std::string getFileContent(std::string fileName) {
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
         return "";
-        throw std::runtime_error("Failed to open file: " + fileName);
     }
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();

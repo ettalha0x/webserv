@@ -9,7 +9,7 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
 	setNonBlocking(sock);
 	int reuseaddr = 1;
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr)))
-        throw std::runtime_error("Error of binding by reusing address");
+        perror("Error of binding by reusing address");
 }
 
 void	Socket::setNonBlocking(int sock) {
