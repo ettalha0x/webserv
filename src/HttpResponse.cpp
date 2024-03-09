@@ -211,7 +211,7 @@ void HttpResponse::PostHundler(location Location) {
 		if (stat(FinalPath.c_str(), &st) == 0) {
 			if (S_ISDIR(st.st_mode)) {
 				FinalPath += Location.index;
-				if (stat(FinalPath.c_str(),&st) == 0) {
+				if (stat(FinalPath.c_str(),&st) == 0 && !Location.index.empty()) {
 					extention = getCgiExtension(FinalPath);
 					if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
@@ -305,7 +305,7 @@ void HttpResponse::GetHundler(location Location) {
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath = FinalPath + Location.index;
-			if (stat(FinalPath.c_str(),&st) == 0) {
+			if (stat(FinalPath.c_str(),&st) == 0 && !Location.index.empty()) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
