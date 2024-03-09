@@ -90,7 +90,7 @@ int		upload(HttpRequest request, std::string path)
 	std::string body = request.GetBody();
 	std::vector<std::string> vec_body = parse_body(request);
 	std::vector<std::string>::iterator ite = vec_body.begin();
-	int exitstatus;
+	int exitstatus = 201;
 	while (ite != vec_body.end())
 	{
 		exitstatus = check_upload(*ite, path);
