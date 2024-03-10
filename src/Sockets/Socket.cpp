@@ -14,10 +14,14 @@ Socket::Socket(int domain, int service, int protocol, int port, u_long interface
 
 void	Socket::setNonBlocking(int sock) {
 	int flags = fcntl(sock, F_GETFL, 0);
-	if (flags < 0)
+	if (flags < 0) {
 		perror("get flags error");
-	if (fcntl(sock, F_SETFL, flags | O_NONBLOCK | O_CLOEXEC))
+        close(sock);
+    }
+	if (fcntl(sock, F_SETFL, flags | O_NONBLOCK | O_CLOEXEC)) {
 		perror("set to non-blocking error");
+        close(sock);
+    }
 }
 
 void	Socket::test_connection(int item_to_test) {

@@ -44,12 +44,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET" 
     exit;
 }
 ?>
-
-<!-- <?php
-	// header("Content-Type: text/html; charset=UTF-8");
-	// header("Content-Length: 100");
-
-    $name = $_POST["name"];
-    echo "Hello $name from php script !";
-?>
- -->
