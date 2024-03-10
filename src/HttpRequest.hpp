@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/07 21:42:58 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/10 19:58:25 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,11 +81,11 @@ class HttpRequest {
 		void 			read_and_parse(std::istringstream &requestStream);
 		void 			fill_vars_from_headerContainer(void);
 		void 			ckeckForQueryAndRequestedFile(void);
-		void 			parser(std::string request);
+		void 			parser(std::string &request);
 };
 
 std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);
-bool 			requestChecker(std::string requestData);
+bool 			requestChecker(std::string &requestData);
 
 
 class BadRequestException : public std::exception {

@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/07 13:39:54 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/10 20:05:37 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,7 @@ void HttpRequest::fill_vars_from_headerContainer(void) {
 		this->isChunked = true;
 }
 
-void HttpRequest::parser(std::string request) {
+void HttpRequest::parser(std::string &request) {
 	std::istringstream requestStream(request);
 	std::getline(requestStream, this->_RequestLine, '\n');
 	this->_RequestLine.pop_back();
@@ -279,7 +279,7 @@ std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	return os;
 }
 
-bool requestChecker(std::string requestData) {
+bool requestChecker(std::string &requestData) {
     size_t pos;
     if (requestData.find("GET") == 0 || requestData.find("DELETE") == 0) {
         if (requestData.find("\r\n\r\n") != requestData.npos)

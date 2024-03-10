@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/09 14:55:42 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/10 23:47:19 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,23 @@ void cleanLine(std::string &line) {
 			it++;
 	}
 }
+
+void checkForDuplicatedPorts(t_server_config configs, int value) {
+	for (size_t i = 0 ; i < configs.port.size(); i++) {
+		if (configs.port[i] == value)
+			throw DuplicatedPortException(); 
+	}
+}
+
+void checkPortsConflicts(std::vector<t_server_config> &configs) {
+	for(size_t i = 0; i < configs.size() - 1; i++) {
+		for (size_t j = 0; j < configs[i].port.size(); j++) {
+			checkForDuplicatedPorts(configs[i+1], configs[i].port[j]);
+		}
+	}
+}
+
+
 
 void checkPath(std::string path) {
 	struct stat buffer;
@@ -100,11 +117,16 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		}
 		tmp->maxBodySize = std::atoi(value.c_str());
 	} else if (key == "port") {
-		for (size_t index = 0; index < value.length(); index++) {
-			if (!std::isdigit(value[index]))
-				throw UndefinedValueException();
+		std::vector<std::string> valueParts = parseIndexs(value);
+		for (size_t i = 0; i < valueParts.size(); i++) {
+			for (size_t index = 0; index < valueParts[i].length(); index++) {
+				if (!std::isdigit(valueParts[i][index]))
+					throw UndefinedValueException();
+			}
+			int tmpPort = std::atoi(valueParts[i].c_str());
+			checkForDuplicatedPorts(*tmp,tmpPort);
+			tmp->port.push_back(tmpPort);
 		}
-		tmp->port = std::atoi(value.c_str());
 	} else if (key == "ERROR403") {
 		checkPath(value);
 		tmp->Errors.insert(std::make_pair(403,value));
@@ -243,7 +265,7 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 	while (1) {
 		t_server_config tmp;
 		tmp.host = 0;
-		tmp.port = -1;
+		// tmp.port = -1;
 		header = OpenAccolade = CloseAccolade = false;
 		while (std::getline(configeFile, line, '\n')) {
 			lineCount++;
@@ -343,7 +365,8 @@ void printConfigs(std::vector<t_server_config> &configs) {
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
 		std::cout << "host : " << configs[i].host << std::endl;
 		// std::cout << "rootDir : " << configs[i].rootDir << std::endl;
-		std::cout << "port : " << configs[i].port << std::endl;
+		for (size_t j = 0; j < configs[i].port.size(); j++)
+			std::cout << "port : " << configs[i].port[j] << std::endl;
 		// std::cout << "indexFile : " << configs[i].indexFile << std::endl;
 			
 		// if (configs[i].autoIndex)
@@ -381,8 +404,10 @@ void printConfigs(std::vector<t_server_config> &configs) {
 
 bool portExist(std::vector<t_server_config> &configs, int port) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		if (configs[i].port == port)
+		for (size_t j = 0; j < configs[i].port.size(); j++) {
+			if (configs[i].port[j] == port)
 			return true;
+		}
 	}
 	return false;
 }
@@ -395,15 +420,6 @@ int unusedPort(std::vector<t_server_config> &configs) {
 		port++;
 	}
 	return port;
-}
-
-void checkForDuplicatedPorts(std::vector<t_server_config> &configs) {
-	for (size_t i = 0; i < configs.size(); i++) {
-		for (size_t j = i + 1; j < configs.size(); j++) {
-			if (configs[i].port == configs[j].port)
-				throw DuplicatedPortException(); 
-		}
-	}
 }
 
 void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
@@ -445,8 +461,8 @@ void	setLocationsToDefault(t_server_config &config) {
 
 void setToDefault(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		if (configs[i].port == -1)
-			configs[i].port = unusedPort(configs);
+		if (configs[i].port.empty())
+			configs[i].port.push_back(unusedPort(configs));
 		if (configs[i].serverName.empty())
 			configs[i].serverName = "localhost";
 		if (configs[i].host == 0)

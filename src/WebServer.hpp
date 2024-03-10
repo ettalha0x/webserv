@@ -12,7 +12,7 @@
 # include "Client.hpp"
 
 
-# define BUFFER_SIZE 1024 * 4
+# define BUFFER_SIZE 1024 * 400
 # define MILLION 1000000
 
 class Client;
