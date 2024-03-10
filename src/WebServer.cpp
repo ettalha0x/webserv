@@ -19,11 +19,24 @@ int WebServer::accepter(int    &serverIndex) {
 	struct sockaddr_in address = get_server_sock()[serverIndex].get_address();
 	int		addrlen = sizeof(address);
 	int new_client_socket = accept(get_server_sock()[serverIndex].get_socket(), (struct sockaddr *)&address, (socklen_t *)&addrlen);
+    setNonBlocking(new_client_socket);
     if (new_client_socket < 0)
         perror("accept()");
     return new_client_socket;
 }
- 
+
+void	WebServer::setNonBlocking(int sock) {
+	int flags = fcntl(sock, F_GETFL, 0);
+	if (flags < 0) {
+		perror("get flags error");
+        close(sock);
+    }
+	if (fcntl(sock, F_SETFL, flags | O_NONBLOCK | O_CLOEXEC)) {
+		perror("set to non-blocking error");
+        close(sock);
+    }
+}
+
 void WebServer::handler(int &fd) {
     if (!clients[fd].getStringRes().empty())
         return;
@@ -34,6 +47,8 @@ void WebServer::handler(int &fd) {
     clients[fd].getPollfd().events |= POLLOUT;
 
     if (bytesReceived < 0) {
+        // delete client
+        clients.erase(fd);
         perror("recv: ");
         return;
     }
@@ -158,7 +173,8 @@ void WebServer::launch() {
 
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
-                    clients.insert(std::make_pair(new_client, Client(new_client)));
+                    if (new_client > 0)
+                        clients.insert(std::make_pair(new_client, Client(new_client)));
                 } else {
                     handler(client_sockets[i].fd);
                 }

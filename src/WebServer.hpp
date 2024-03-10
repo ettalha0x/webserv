@@ -33,6 +33,7 @@ class WebServer {
 		WebServer(std::vector<t_server_config>	&configs);
 		std::vector<ListeningSocket> 	get_server_sock();
 		void							getClientsPollfds();
+		void							setNonBlocking(int sock);
 		void							init_pollfd();
 		void							launch();
 		~WebServer();
