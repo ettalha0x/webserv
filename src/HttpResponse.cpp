@@ -74,11 +74,11 @@ std::string HttpResponse::getHeaderString() const {
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		headerString += it->first + ": " + it->second + "\r\n";
 	}
-	HeaderContainer tmp = request.GetHeaders();
-	if (tmp.find("Referer") == tmp.end())
-	{
-		headerString += "Set-cookie: sessionId=" + this->ID + "; Max-Age=120 \r\n";
-	}
+	// HeaderContainer tmp = request.GetHeaders();
+	// if (tmp.find("Referer") == tmp.end())
+	// {
+	// 	headerString += "Set-cookie: sessionId=" + this->ID + "; Max-Age=120 \r\n";
+	// }
 	return headerString + "\r\n";
 }
 
@@ -88,6 +88,7 @@ void	HttpResponse::constructHeader(void) {
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
+	// std::cout << "headerString ==>>>   {" << headerString<< "}";
 }
 
 void removeBlock(std::string &tmp) {
@@ -167,7 +168,7 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
 	{
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
-		// std::cout << "RU~N CGI >>>>>>\n";
+		std::cout << "RUN CGI >>>>>>\n";
 		cgi CGI(request, FinalPath, Location.cgi_path);
 		// body = CGI.get_cgi_res();
 		resp = CGI.get_cgi_res();
@@ -175,7 +176,7 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 		// std::cout << YELLOW << "first == {" << std::endl;
 		// while (ite != resp.first.end())
 		// {
-		// 	std::cout << "key = " << ite->first << " value == " << ite->second << std::endl;
+		// 	std::cout << "key = " << ite->first << " value == " << "{" << ite->second << "}" <<  std::endl;
 		// 	ite++;
 		// }
 		// std::cout << "}" << RESET << std::endl;
@@ -191,8 +192,19 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 			setStatusCode(200);
 			if (!resp.first["Content-Type:"].empty())
 				addHeader("Content-Type",resp.first["Content-Type:"]);
-			// if (!resp.first["Content-Length:"].empty())
-			// 	addHeader("Content-Length",resp.first["Content-Length:"]);
+			if (!resp.first["Content-Length:"].empty())
+				addHeader("Content-Length",resp.first["Content-Length:"]);
+			if (!resp.first["Set-Cookie:"].empty())
+			{
+				addHeader("Set-Cookie",resp.first["Set-Cookie:"]);
+				std::cout << "cookie in resp\n";
+			}
+			if (!resp.first["Location:"].empty())
+			{
+				std::cout << "location in resp\n";
+				addHeader("Location",resp.first["Location:"]);
+				setStatusCode(301);
+			}
 			body = resp.second.first;
 		}
 	}
@@ -210,6 +222,7 @@ void HttpResponse::PostHundler(location Location) {
 	// else {
 		struct stat st;
 		std::string extention;
+		bool _do = true;
 		if (Location.alias.empty())
 			FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
 		else
@@ -220,6 +233,7 @@ void HttpResponse::PostHundler(location Location) {
 				if (stat(FinalPath.c_str(),&st) == 0) {
 					extention = getCgiExtension(FinalPath);
 					if (extention == ".php" || extention == ".py") {
+						_do = false;
 					runCGI(extention, Location);
 					// check of errors in cgi
 					} else {
@@ -233,6 +247,7 @@ void HttpResponse::PostHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 					std::cout << extention << std::endl;
 				if (extention == ".php" || extention == ".py") {
+					_do = false;
 					runCGI(extention, Location);
 					// check of errors in cgi
 				}
@@ -245,24 +260,23 @@ void HttpResponse::PostHundler(location Location) {
 		} else
 			setError(404,ERROR404);
 
-	if (!Location.upload_path.empty()) {
+	if (!Location.upload_path.empty() && _do) {
 		if (!request.GetRequestedFile().empty()) {
 			extention = getCgiExtension(FinalPath);
-			if (extention == ".php" && extention == ".py")
+			if (extention == ".php" && extention == ".py") {
 				return;
+			}
 		}
 		int exitstatus;
 		exitstatus = upload(request, Location.upload_path);
 		if (exitstatus == 201)
 		{
 			setStatusCode(201);
-			std::cout << YELLOW << "Upload ########\n" << RESET ;
 		}
 		else
 			setError(500,ERROR500);
 		// check response status code
 	}
-	// }
 }
 void HttpResponse::DeleteHundler(location Location) {
 	struct stat st;
@@ -385,7 +399,9 @@ void	HttpResponse::constructBody() {
 		}
 		check_method(Location);
 
+		// std::cout << "here" << std::endl;
 		callHundlerBymethod(Location);
+		// std::cout << "here2222" << std::endl;
 	}
 	catch(const LocationNotFoundException& e)
 	{

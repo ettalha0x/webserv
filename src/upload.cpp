@@ -43,7 +43,7 @@ int	create_upload_file(std::string body, std::string path)
 
 int		check_upload(std::string body, std::string path)
 {
-	std::cout << "body ==>>{" << body << "}" << std::endl;
+	// std::cout << "body ==>>{" << body << "}" << std::endl;
 	size_t i = body.find("Content-Type");
 	size_t j = body.find("\n");
 	if (i < body.length() && j < body.length() && body[j-1] == '\r')
@@ -58,13 +58,14 @@ int		check_upload(std::string body, std::string path)
 std::vector<std::string>	parse_body(HttpRequest request)
 {
 	std::string body = request.GetBody();
+	// std::cout << YELLOW << "body=={" << body << "}" << RESET << std::endl;
 	std::vector<std::string> vec_body;
 	size_t v;
 	int len_boudry = request.GetBoundary().length();
 	while (1)
 	{
 		v = body.find(request.GetBoundary());
-		if (v < body.length())
+		if (v < body.length() && !request.GetBoundary().empty())
 		{
 			body = body.substr(v + len_boudry, body.length());
 			v = body.find(request.GetBoundary());
@@ -81,6 +82,7 @@ std::vector<std::string>	parse_body(HttpRequest request)
 		}
 		else
 			break;
+		// std::cout << "parse body" << std::endl;
 	}
 	return (vec_body);
 }
@@ -90,7 +92,7 @@ int		upload(HttpRequest request, std::string path)
 	std::string body = request.GetBody();
 	std::vector<std::string> vec_body = parse_body(request);
 	std::vector<std::string>::iterator ite = vec_body.begin();
-	int exitstatus;
+	int exitstatus = 201;
 	while (ite != vec_body.end())
 	{
 		exitstatus = check_upload(*ite, path);
