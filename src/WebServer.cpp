@@ -30,6 +30,7 @@ void WebServer::handler(int &fd) {
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
+	std::cout << "still receiving" << std::endl;
     clients[fd].getPollfd().events |= POLLOUT;
 
     if (bytesReceived < 0) {
@@ -44,7 +45,7 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			// std::cout << RED << clients[fd].getStringReq() << std::endl;
+			std::cout << RED << "HERE PARSER" << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq());
         } catch (...) {
             clients[fd].getRequest().badRequest = true;
@@ -52,14 +53,14 @@ void WebServer::handler(int &fd) {
         clients[fd].getRequest().completed = true;
         if (!clients[fd].getRequest().badRequest) {
 		    HeaderContainer tmp = clients[fd].getRequest().GetHeaders();
-		    if (tmp.find("Referer") == tmp.end())
-		    {
-		    	session ss;
-		    	this->ID = ss.create_session(clients[fd].getRequest());
-		    }
-		    else {
-		    	this->ID = tmp["cookie"];
-		    }
+		    // if (tmp.find("Referer") == tmp.end())
+		    // {
+		    // 	session ss;
+		    // 	this->ID = ss.create_session(clients[fd].getRequest());
+		    // }
+		    // else {
+		    // 	this->ID = tmp["cookie"];
+		    // }
         }
         clients[fd].getStringReq().clear();
     }
@@ -78,6 +79,7 @@ bool WebServer::responder(int &fd) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
+				std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;
                 clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
                 // std::cout << YELLOW << clients[fd].getStringRes() << RESET << std::endl;
                  

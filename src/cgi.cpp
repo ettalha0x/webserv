@@ -114,8 +114,14 @@ cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :f
 	this->env.push_back("REDIRECT_STATUS=200");
 	this->body = new_request.GetBody();
 	this->env.push_back("CONTENT_TYPE=" + new_request.GetContentType());
-	this->env.push_back("CONTENT_LENGTH=" + intToString(new_request.GetContentLength()) );
+	this->env.push_back("CONTENT_LENGTH=" + intToString(new_request.GetContentLength()));
+	HeaderContainer header_request = new_request.GetHeaders();
 
+	if (!header_request["Cookie"].empty())
+	{
+		std::cout << "cookie ==>> {" <<  header_request["Cookie"] << "}" << std::endl;
+		this->env.push_back("HTTP_COOKIE=" + header_request["Cookie"]);
+	}
 	if (b.size() > 0)
 	{
 		it_Querty = b.begin();
@@ -167,18 +173,19 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 		tmp = header.substr(i, header.length());
 		int	x=0;
 		size_t k = tmp.find(";");
-		if (k < header.length())
+		if (k < header.length() && key != "Set-Cookie:" && key != "Location:")
 		{
 			x = 1;
 			key_value.first = key;
 			key_value.second = copy(tmp, key.length()+1, k-1);
-			
-			std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
+			// std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
 		}
 		k = tmp.find("\n");
 		if (k < header.length() && x!= 1)
 		{
 			key_value.first = key;
+			if (tmp[k-1] == '\r')
+				k--;
 			key_value.second = copy(tmp, key.length()+1, k-1);
 			// std::cout << "second 2==>> {" << key_value.second << "}" <<  std::endl;
 		}
@@ -192,10 +199,98 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 	return (key_value);
 }
 
+std::pair< std::string, std::string> key_value_cookie(std::string tmp)
+{
+	std::pair< std::string, std::string> key_value;
+	size_t i = tmp.find("=");
+	if (i < tmp.length())
+	{
+		key_value.first = tmp.substr(0, i);
+		key_value.second = tmp.substr(i+1, tmp.length());
+	}
+	return (key_value);
+}
+
+vector_cookies  parse_set_cookie(std::string value)
+{
+	std::vector<std::pair< std::string, std::string> > vector_pair;
+	std::pair< std::string, std::string> key_value;
+	std::string tmp;
+	size_t i;
+	i = value.find(";");
+	while (1)
+	{
+		i = value.find(";");
+		if (i == std::string::npos)
+			break;
+		tmp = value.substr(0, i);
+		key_value = key_value_cookie(tmp);
+		vector_pair.push_back(key_value);
+		value = value.substr(i+2, value.length());
+	}
+	tmp = value.substr(0, tmp.length());
+	key_value = key_value_cookie(tmp);
+	vector_pair.push_back(key_value);
+	
+	return (vector_pair);
+}
+
+
+vector_cookies check_attributes_set_cookies(vector_cookies vector_pair, vector_cookies tmp)
+{
+	if (vector_pair.size())
+	{
+		for (size_t i = 0; i < tmp.size(); i++)
+		{
+			for (size_t j = 0; j < vector_pair.size(); j++)
+			{
+				if (tmp[i].first == vector_pair[j].first)
+					break;
+				else if (j == vector_pair.size()-1)
+				{
+					vector_pair.push_back(tmp[i]);
+				}
+			}
+		}
+		for (size_t i = 0; i < vector_pair.size(); i++)
+		{
+			for (size_t j = 0; j < tmp.size(); j++)
+			{
+				if (vector_pair[i].first == tmp[j].first)
+					vector_pair[i].second = tmp[j].second;
+			}
+		}
+	}
+	else
+	{
+		return (tmp);
+	}
+	return (vector_pair);
+}
+
+std::string vector_cookies_to_string(vector_cookies vec)
+{
+	std::string cookie;
+	std::vector<std::pair< std::string, std::string> >::iterator ite ;
+
+	ite = vec.begin();
+	while (ite != vec.end())
+	{
+		cookie += ite->first + "=" + ite->second;
+		ite++;
+		if (ite != vec.end())
+			cookie += "; ";
+	}
+	return (cookie);
+}
+
+
 std::map<std::string , std::string> fill_container_map(std::string header)
 {
 	std::map<std::string , std::string> header_map;
 	std::pair<std::string , std::string> key_value;
+	vector_cookies vector_pair;
+	vector_cookies tmp_vector_pair;
 	
 	size_t i = header.find("Content-Length:");
 	if (i < header.length())
@@ -209,6 +304,37 @@ std::map<std::string , std::string> fill_container_map(std::string header)
 		key_value = func(header, "Content-Type:");
 		header_map[key_value.first] = key_value.second;
 	}
+	i = header.find("Location:");
+	if (i < header.length())
+	{
+		key_value = func(header, "Location:");
+		header_map[key_value.first] = key_value.second;
+	}
+	i = header.find("Set-Cookie:");
+	// std::vector<std::pair< std::string, std::string> >::iterator ite ;
+	if (i != std::string::npos)
+	{
+		while (i < header.length())
+		{
+			key_value = func(header, "Set-Cookie:");
+			// std::cout << "value ==>>{" << key_value.second << "}" << std::endl;
+			tmp_vector_pair = parse_set_cookie(key_value.second);
+			vector_pair = check_attributes_set_cookies(vector_pair, tmp_vector_pair);
+			header_map[key_value.first] = key_value.second;
+			header = header.substr(i+12 , header.length());
+			tmp_vector_pair.clear();
+			i = header.find("Set-Cookie:");
+		}
+		// key_value = func(header, "Set-Cookie:");
+
+		header_map["Set-Cookie:"] = vector_cookies_to_string(vector_pair);
+	}
+	// ite = vector_pair.begin();
+	// while (ite != vector_pair.end())
+	// {
+	// 	std::cout << "first = {" << ite->first << "}"  << "    second = {" << ite->second << "}" << std::endl;
+	// 	ite++;
+	// }
 	return (header_map);
 }
 
@@ -404,7 +530,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
-	std::cout << RED << "resut={" << result << "}" << result.length() << RESET << std::endl; 
+	std::cout << YELLOW << "resut={" << result << "}" << result.length() << RESET << std::endl; 
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
 	// std::cout << "SIZE_MAP " << resp.first.size() << std::endl;
