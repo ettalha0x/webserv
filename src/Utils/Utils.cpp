@@ -28,7 +28,7 @@ std::string getFileContent(std::string fileName) {
 
 int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) {
     for (int i = 0; i < (int)configs.size(); i++) {
-        if (configs[i].port == port) {
+        if (configs[i].port[0] == port) {
             return i;
         }
     }

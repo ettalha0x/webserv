@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/06 19:04:07 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/10 23:49:00 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_config
 {
 	std::string 					serverName;
 	unsigned int 					host;
-	int								port;
+	std::vector<int>				port;
 	size_t 							maxBodySize;
 	std::map<std::string, location> locations;
 	std::map<int, std::string> 		Errors;
@@ -76,7 +76,7 @@ class CantOpenConfFileException : public std::exception {
 class DuplicatedPortException : public std::exception {
 	public:
 		const char * what() const throw() {
-			return "the same port used in different servers";
+			return "Duplicated port";
 	}
 };
 class DuplicatedLocationException : public std::exception {
@@ -90,4 +90,4 @@ class DuplicatedLocationException : public std::exception {
 std::vector<t_server_config> readConfigeFile(char *path);
 void setToDefault(std::vector<t_server_config> &configs);
 void printConfigs(std::vector<t_server_config> &configs);
-void checkForDuplicatedPorts(std::vector<t_server_config> &configs);
+void checkPortsConflicts(std::vector<t_server_config> &configs);

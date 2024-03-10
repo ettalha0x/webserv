@@ -6,7 +6,7 @@
 
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
     for (size_t i = 0; i < configs.size(); i++) {
-		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port, INADDR_ANY, 100));
+		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[0], INADDR_ANY, 100));
 	}
     launch();
 }
@@ -30,7 +30,7 @@ void WebServer::handler(int &fd) {
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
-	std::cout << "still receiving" << std::endl;
+	// std::cout << "still receiving" << std::endl;
     clients[fd].getPollfd().events |= POLLOUT;
 
     if (bytesReceived < 0) {
