@@ -6,7 +6,9 @@
 
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
     for (size_t i = 0; i < configs.size(); i++) {
-		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[0], INADDR_ANY, 100));
+        for (size_t j = 0; j < configs[i].port.size(); j++) {
+		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], INADDR_ANY, 100));
+        }
 	}
     launch();
 }
