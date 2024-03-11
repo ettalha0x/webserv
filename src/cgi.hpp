@@ -6,7 +6,7 @@
 /*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/11 15:33:54 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:22:41 by esekouni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 
 #include <iostream>
 #include <map>
-
+#include "WebServer.hpp"
 #include "HttpRequest.hpp"
+
 
 typedef std::vector<std::pair< std::string, std::string> > vector_cookies;
 
