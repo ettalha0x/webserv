@@ -11,8 +11,8 @@ SRCS = 	src/main.cpp \
 		src/Client.cpp \
 		src/configFile.cpp \
 		src/cgi.cpp \
-		src/upload.cpp \
-		src/session.cpp 
+		src/upload.cpp 
+
 OBJS = $(SRCS:.cpp=.o)
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 RM = rm -rf
