@@ -1,7 +1,7 @@
 #!/usr/bin/php-cgi
 <?php
-header("Content-Type: text/html; charset=UTF-8");
-header("Content-Length: 136");
+// header("Content-Type: text/html; charset=UTF-8");
+// header("Content-Length: 136");
 
 // Check if the form was submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {

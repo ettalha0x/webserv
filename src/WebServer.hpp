@@ -11,9 +11,11 @@
 # include "session.hpp"
 # include "Client.hpp"
 
+// extern std::vector<std::pair<std::string, std::string> > cookie_exep;
 
 # define BUFFER_SIZE 1024 * 400
 # define MILLION 1000000
+
 
 class Client;
 
