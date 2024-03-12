@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 23:47:19 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:47:38 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ std::vector<std::string> mySplite(std::string value) {
 	return strs;
 }
 
-unsigned int extructHost(std::string value) {
+unsigned long extructHost(std::string value) {
 	std::vector<std::string> strs = mySplite(value);
 	unsigned int result = 0;
 	char *endPtr;
