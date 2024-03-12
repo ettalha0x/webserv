@@ -1,13 +1,12 @@
 #include "ListeningSocket.hpp"
 
-ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long interface, int backlog) : BindingSocket(domain, service, protocol, port, interface) {
+ListeningSocket::ListeningSocket(int domain, int service, int protocol, int port, u_long host, int backlog) : BindingSocket(domain, service, protocol, port, host) {
 	_backlog = backlog;
-	start_listening();
-	test_connection(listening);
-}
-
-void ListeningSocket::start_listening() {
 	listening = listen(get_socket(), _backlog);
+	if (listening < 0) {
+		perror("listen");
+		exit(EXIT_FAILURE);
+	}
 }
 
 ListeningSocket::~ListeningSocket() {

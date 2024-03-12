@@ -4,10 +4,12 @@
 #include <cstring>
 #include <signal.h>
 
+std::vector<std::pair<std::string, long> > cookie_vector_expe ;
+
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
     for (size_t i = 0; i < configs.size(); i++) {
         for (size_t j = 0; j < configs[i].port.size(); j++) {
-		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], INADDR_ANY, 100));
+		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
         }
 	}
     launch();
@@ -137,7 +139,7 @@ void				WebServer::getClientsPollfds() {
 };
 
 void    WebServer::init_pollfd() {
-    for (size_t i = 0; i < configs.size(); i++)
+    for (size_t i = 0; i < server_listening_sockets.size(); i++)
     {
         pollfd server_pollfd;
         server_pollfd.fd = get_server_sock()[i].get_socket();
@@ -148,12 +150,37 @@ void    WebServer::init_pollfd() {
     }
 }
 
+void	WebServer::check_delete_session()
+{
+	if (cookie_vector_expe.size() > 0)
+	{
+		std::vector<std::pair<std::string, long> >::iterator it = cookie_vector_expe.begin();
+		std::string path = "Sites-available/Server_1/session/";
+		std::string file_name;
+		int i = 0;
+		while (it != cookie_vector_expe.end())
+		{
+			if ((it->second) < std::time(nullptr))
+			{
+				file_name = path + it->first;
+				cookie_vector_expe.erase(cookie_vector_expe.begin() + i);
+				it = cookie_vector_expe.begin() + i;
+				continue ;
+			}
+			i++;
+			it++;
+		}
+	}
+}
+
 void WebServer::launch() {
     
     init_pollfd();
 
     while (true) {
+		// std::cout << "size ==>> " << cookie_vector_expe.size() << std::endl;
         getClientsPollfds();
+		check_delete_session();
         int num_events = poll(client_sockets.data(), client_sockets.size(), -1);
         if (num_events == 0) {
             continue;

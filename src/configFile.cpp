@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/12 17:29:38 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/12 18:07:28 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ std::vector<std::string> mySplite(std::string value) {
 	return strs;
 }
 
-unsigned int extructHost(std::string value) {
+unsigned long extructHost(std::string value) {
 	std::vector<std::string> strs = mySplite(value);
 	unsigned int result = 0;
 	char *endPtr;

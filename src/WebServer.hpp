@@ -8,12 +8,13 @@
 # include <map>
 # include "Sockets/SocketLib.hpp"
 # include "configFile.hpp"
-# include "session.hpp"
 # include "Client.hpp"
 
+extern std::vector<std::pair<std::string, long> > cookie_vector_expe ;
 
 # define BUFFER_SIZE 1024 * 400
 # define MILLION 1000000
+
 
 class Client;
 
@@ -32,6 +33,7 @@ class WebServer {
 	public:
 		WebServer(std::vector<t_server_config>	&configs);
 		std::vector<ListeningSocket> 	get_server_sock();
+		void							check_delete_session();
 		void							getClientsPollfds();
 		void							setNonBlocking(int sock);
 		void							init_pollfd();

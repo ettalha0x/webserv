@@ -6,7 +6,7 @@
 /*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/10 10:31:50 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:22:41 by esekouni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 
 #include <iostream>
 #include <map>
-
+#include "WebServer.hpp"
 #include "HttpRequest.hpp"
+
 
 typedef std::vector<std::pair< std::string, std::string> > vector_cookies;
 
@@ -41,6 +42,7 @@ class cgi
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> >	cgi_res;
 		std::string 	finalPath;
 		std::string 	cgiPath;
+		std::vector<std::pair<std::string, std::string> > cookies_experation;
 	public:
 		// void	set_data_request();
 		cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath);
