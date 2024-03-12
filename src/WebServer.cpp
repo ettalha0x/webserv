@@ -64,8 +64,9 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			std::cout << RED << "HERE PARSER" << RESET << std::endl;
+			// std::cout << RED << "HERE PARSER" << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq());
+			// std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
         } catch (...) {
             clients[fd].getRequest().badRequest = true;
         }
@@ -98,7 +99,7 @@ bool WebServer::responder(int &fd) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
-				std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;
+				// std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;
                 clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
                 // std::cout << YELLOW << clients[fd].getStringRes() << RESET << std::endl;
                  
