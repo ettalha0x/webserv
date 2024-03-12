@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/12 18:07:28 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/12 18:09:50 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,13 @@ void checkForDuplicatedPorts(t_server_config configs, int value) {
 	}
 }
 
-void checkPortsConflicts(std::vector<t_server_config> &configs) {
-	for(size_t i = 0; i < configs.size() - 1; i++) {
-		for (size_t j = 0; j < configs[i].port.size(); j++) {
-			checkForDuplicatedPorts(configs[i+1], configs[i].port[j]);
-		}
-	}
-}
+// void checkPortsConflicts(std::vector<t_server_config> &configs) {
+// 	for(size_t i = 0; i < configs.size() - 1; i++) {
+// 		for (size_t j = 0; j < configs[i].port.size(); j++) {
+// 			checkForDuplicatedPorts(configs[i+1], configs[i].port[j]);
+// 		}
+// 	}
+// }
 
 
 
