@@ -3,7 +3,7 @@
 Socket::Socket(int domain, int service, int protocol, int port, u_long host) {
 	address.sin_family = domain;
 	address.sin_port = htons(port);
-	address.sin_addr.s_addr = htonl(host);
+	address.sin_addr.s_addr = host;
 	sock = socket(domain, service, protocol);
 	if (sock < 0) {
 		perror("socket");
