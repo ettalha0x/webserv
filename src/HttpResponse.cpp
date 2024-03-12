@@ -117,7 +117,8 @@ location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
 		}
 		removeBlock(tmp);
 	}
-	throw LocationNotFoundException();
+	return config.locations.begin()->second;
+	// throw LocationNotFoundException();
 }
 
 void HttpResponse::check_method(location Location) {
@@ -132,7 +133,7 @@ void HttpResponse::setError(int errorNum, std::string error) {
 	addHeader("Content-Type", "text/html");
 	if (!config.Errors[errorNum].empty()) {
 		setStatusCode(301);
-		addHeader("location", config.Errors[errorNum]);
+		addHeader("location", "/" + config.Errors[errorNum]);
 	}
 	else {
 		setStatusCode(errorNum);
@@ -190,8 +191,9 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 			setError(resp.second.second, ERROR504);
 		if (resp.second.second == 200) {
 			setStatusCode(200);
-			if (!resp.first["Content-Type:"].empty())
+			if (!resp.first["Content-Type:"].empty()) {
 				addHeader("Content-Type",resp.first["Content-Type:"]);
+			}
 			if (!resp.first["Content-Length:"].empty())
 				addHeader("Content-Length",resp.first["Content-Length:"]);
 			if (!resp.first["Set-Cookie:"].empty())
@@ -332,7 +334,7 @@ void HttpResponse::GetHundler(location Location) {
 				// check of errors in cgi
 				} else {
 					setStatusCode(200);
-					addHeader("Content-Type", "text/html");
+					addHeader("Content-Type", GetFileExtension(FinalPath));
 					body = getFileContent(FinalPath);
 				}
 			} else if (Location.autoIndex) {

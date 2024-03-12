@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 23:47:19 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:29:38 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		checkPath(value);
 		tmp->Errors.insert(std::make_pair(403,value));
 	} else if (key == "ERROR404") {
-		checkPath(value);
+		// checkPath(value);
 		tmp->Errors.insert(std::make_pair(404,value));
 	} else if (key == "ERROR405") {
 		checkPath(value);
@@ -170,10 +170,9 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 		else
 			throw UndefinedValueException();
 	} else if (key == "index") {
-		// checkPath(value);
 		tmp->index = value;
 	} else if (key == "redirection") {
-		checkPath(value);
+		// checkPath(value);
 		tmp->redirection = value;
 	} else if (key == "upload_path") {
 		checkPath(value);
@@ -188,7 +187,7 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	} else if (key == "acceptedMethods") {
 		tmp->acceptedMethods = parseIndexs(value);
 		checkforIncorrectMethod(tmp->acceptedMethods);
-	}else
+	} else
 		throw UndefinedTokenException();
 }
 
@@ -265,7 +264,6 @@ std::vector<t_server_config> readConfigeFile(char *path) {
 	while (1) {
 		t_server_config tmp;
 		tmp.host = 0;
-		// tmp.port = -1;
 		header = OpenAccolade = CloseAccolade = false;
 		while (std::getline(configeFile, line, '\n')) {
 			lineCount++;
@@ -442,17 +440,17 @@ void	setLocationsToDefault(t_server_config &config) {
 	for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); it++) {
 		if (it->second.root.empty())
 			it->second.root = "Sites-available/Server_1";
-		if (it->second.cgi_path.empty())
-			it->second.cgi_path = "cgi-bin";
-		if (it->second.cgi_extentions.empty()) {
-			it->second.cgi_extentions.push_back(".php");
-			it->second.cgi_extentions.push_back(".py");	
-		}
-		if (it->second.acceptedMethods.empty()) {
-			it->second.acceptedMethods.push_back("GET");
-			it->second.acceptedMethods.push_back("POST");
-			it->second.acceptedMethods.push_back("DELETE");
-		}
+		// if (it->second.cgi_path.empty())
+		// 	it->second.cgi_path = "cgi-bin";
+		// if (it->second.cgi_extentions.empty()) {
+		// 	it->second.cgi_extentions.push_back(".php");
+		// 	it->second.cgi_extentions.push_back(".py");	
+		// }
+		// if (it->second.acceptedMethods.empty()) {
+		// 	it->second.acceptedMethods.push_back("GET");
+		// 	it->second.acceptedMethods.push_back("POST");
+		// 	it->second.acceptedMethods.push_back("DELETE");
+		// }
 		if (it->second.index.empty())
 			it->second.index = "index.html";
 	}
