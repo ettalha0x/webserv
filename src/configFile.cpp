@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 23:47:19 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/12 15:01:13 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configFile.hpp"
+#include <arpa/inet.h>
 
 int lineCount;
 
@@ -79,15 +80,18 @@ std::vector<std::string> mySplite(std::string value) {
 	return strs;
 }
 
-unsigned int extructHost(std::string value) {
-	std::vector<std::string> strs = mySplite(value);
-	unsigned int result = 0;
-	char *endPtr;
-	for (size_t i = 0; i < strs.size(); i++) {
-		result += std::strtol(strs[i].c_str(), &endPtr, 10) << i * 8;
-		if (endPtr && endPtr[0])
-			throw UndefinedValueException();
-	}
+unsigned long extructHost(std::string value) {
+	// std::vector<std::string> strs = mySplite(value);
+	unsigned int result = inet_addr(value.c_str());
+	// unsigned int result = 0;
+	// char *endPtr;
+	// for (size_t i = 0; i < strs.size(); i++) {
+	// 	result += std::strtol(strs[i].c_str(), &endPtr, 10) << i * 8;
+	// 	if (endPtr && endPtr[0])
+	// 		throw UndefinedValueException();
+	// }
+	if (result == INADDR_NONE)
+		throw UndefinedValueException();
 	return result;
 }
 

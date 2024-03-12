@@ -17,15 +17,12 @@ class Socket
 
 	public:
 
-		Socket(int domain, int service, int protocol, int port, u_long interface);
+		Socket(int domain, int service, int protocol, int port, u_long host);
 	
-		virtual int  connect_to_network(int sock, struct sockaddr_in address) = 0;
-
 		void	setNonBlocking(int sock);
 
-		void	test_connection(int item_to_test);
-
 		struct	sockaddr_in get_address();
+
 		int		get_socket();
 		
 		virtual ~Socket();

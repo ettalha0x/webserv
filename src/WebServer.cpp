@@ -9,7 +9,7 @@ std::vector<std::pair<std::string, long> > cookie_vector_expe ;
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
     for (size_t i = 0; i < configs.size(); i++) {
         for (size_t j = 0; j < configs[i].port.size(); j++) {
-		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], INADDR_ANY, 100));
+		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
         }
 	}
     launch();
@@ -138,7 +138,7 @@ void				WebServer::getClientsPollfds() {
 };
 
 void    WebServer::init_pollfd() {
-    for (size_t i = 0; i < configs.size(); i++)
+    for (size_t i = 0; i < server_listening_sockets.size(); i++)
     {
         pollfd server_pollfd;
         server_pollfd.fd = get_server_sock()[i].get_socket();

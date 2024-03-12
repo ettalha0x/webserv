@@ -1,11 +1,14 @@
 #include "Socket.hpp"
 
-Socket::Socket(int domain, int service, int protocol, int port, u_long interface) {
+Socket::Socket(int domain, int service, int protocol, int port, u_long host) {
 	address.sin_family = domain;
 	address.sin_port = htons(port);
-	address.sin_addr.s_addr = htonl(interface);
+	address.sin_addr.s_addr = htonl(host);
 	sock = socket(domain, service, protocol);
-	test_connection(sock);
+	if (sock < 0) {
+		perror("socket");
+		exit(EXIT_FAILURE);
+	}
 	setNonBlocking(sock);
 	int reuseaddr = 1;
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr)))
@@ -22,13 +25,6 @@ void	Socket::setNonBlocking(int sock) {
 		perror("set to non-blocking error");
         close(sock);
     }
-}
-
-void	Socket::test_connection(int item_to_test) {
-	if (item_to_test < 0) {
-		perror("Failed to connect!");
-		exit(EXIT_FAILURE);
-	}
 }
 
 struct	sockaddr_in Socket::get_address() {
