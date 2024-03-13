@@ -4,14 +4,19 @@
 #include <cstring>
 #include <signal.h>
 
-std::vector<std::pair<std::string, long> > cookie_vector_expe ;
+std::vector<std::pair<std::string, long> > cookie_vector_expe;
 
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
     for (size_t i = 0; i < configs.size(); i++) {
         for (size_t j = 0; j < configs[i].port.size(); j++) {
-		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
+		    // server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
+            final_configs.insert(std::make_pair(configs[i].host, configs[i].port[j]));
+            ipAndPort.push_back(std::make_pair(configs[i].host, configs[i].port[j]));
         }
 	}
+    for (std::map<u_long, int>::iterator it = final_configs.begin(); it != final_configs.end(); it++) {
+		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, it->second, it->first, 100));
+    }
     launch();
 }
 
@@ -125,7 +130,7 @@ bool WebServer::responder(int &fd) {
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
-            Client tmp(fd);
+            Client tmp(fd, ipAndPort[fd].first, ipAndPort[fd].second);
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
@@ -149,7 +154,7 @@ void    WebServer::init_pollfd() {
         server_pollfd.events = POLLIN | POLLOUT;
         server_pollfd.revents = 0;
         server_sockets.push_back(server_pollfd);
-        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd)));
+        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd, ipAndPort[server_pollfd.fd].first, ipAndPort[server_pollfd.fd].second)));
     }
 }
 
@@ -207,7 +212,7 @@ void WebServer::launch() {
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0)
-                        clients.insert(std::make_pair(new_client, Client(new_client)));
+                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[new_client].first, ipAndPort[new_client].second)));
                 } else {
                     handler(client_sockets[i].fd);
                 }

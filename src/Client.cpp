@@ -3,13 +3,14 @@
 Client::Client() {
 }
 
-Client::Client(int fd) {
+Client::Client(int fd, u_long ip, int port) {
     stringReq = "";
     stringRes = "";
 	socket.fd = fd;
 	socket.events = POLLIN | POLLOUT;
 	socket.revents = 0;
-
+    this->ip = ip;
+    this->port = port;
 }
 
 pollfd& 		Client::getPollfd() {
@@ -40,6 +41,8 @@ Client& Client::operator=(const Client& rhs) {
         this->stringRes = rhs.stringRes;
         this->response = rhs.response;
         this->resGenerated = rhs.resGenerated;
+        this->ip = rhs.ip;
+        this->port = rhs.port;
     }
     return *this;
 }

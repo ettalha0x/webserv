@@ -8,7 +8,7 @@ BindingSocket::BindingSocket(int domain, int service, int protocol, int port, u_
 		perror("bind");
 		std::cout << "host : " << host << std::endl;
 		std::cout << "port: " << port << std::endl;
-		// exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 }
 
