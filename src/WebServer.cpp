@@ -66,8 +66,7 @@ void WebServer::handler(int &fd) {
         try {
 			// std::cout << RED << "HERE PARSER" << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq());
-			// std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
-        } catch (...) {
+        } catch (const BadRequestException &e) {
             clients[fd].getRequest().badRequest = true;
         }
         clients[fd].getRequest().completed = true;
@@ -88,17 +87,19 @@ void WebServer::handler(int &fd) {
 
 bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){ 
-        if (clients[fd].getRequest().badRequest)
+        if (clients[fd].getRequest().badRequest) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+        }
         else if (!checkAllowedChars(clients[fd].getRequest().GetRequestURI())) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
         else {
             std::cout <<  RED << "error here\n" << RESET;
-            std::cout << RED << "host: " << clients[fd].getRequest().GetHost().substr(0, clients[fd].getRequest().GetHost().find(":")) << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
-            int configIndex = getConfigIndex(extractHost(clients[fd].getRequest().GetHost().substr(0, clients[fd].getRequest().GetHost().find(":"))), clients[fd].getRequest().GetPort(), clients[fd].getRequest().GetServerName(), configs);
-            if (configIndex == -1)
+            std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
+            int configIndex = getConfigIndex(extractHost(clients[fd].getRequest().GetHost()), clients[fd].getRequest().GetPort(), clients[fd].getRequest().GetServerName(), configs);
+            if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+            }
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
 				// std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;

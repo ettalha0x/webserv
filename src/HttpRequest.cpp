@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 20:05:37 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:59:03 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ std::string HttpRequest::GetMethod(void) const {
 std::string HttpRequest::GetHttpVersion(void) const {
 	return this->_HttpVersion;}
 std::string HttpRequest::GetHost(void) const {
+	if (_Host == "localhost")
+		return "127.0.0.1";
 	return this->_Host;}
 HeaderContainer HttpRequest::GetHeaders(void) const {
 	return this->Headers;}
@@ -246,6 +248,7 @@ void HttpRequest::setPortAndServerName(void) {
 	}
 	this->_serverName = this->_Host.substr(0, pos);
 	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
+	this->_Host = this->_Host.substr(0, pos);
 }
 std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "####################################################" << std::endl;
