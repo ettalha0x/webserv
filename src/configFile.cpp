@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/12 18:09:50 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:45:50 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ std::vector<std::string> mySplite(std::string value) {
 	return strs;
 }
 
-unsigned long extructHost(std::string value) {
+unsigned long extractHost(std::string value) {
 	std::vector<std::string> strs = mySplite(value);
 	unsigned int result = 0;
 	char *endPtr;
@@ -109,7 +109,7 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		// check errors in value
 		tmp->serverName = value;
 	} else if (key == "host") {
-		tmp->host = extructHost(value);
+		tmp->host = extractHost(value);
 	} else if (key == "maxBodySize") {
 		for (size_t i = 0; i < value.length(); i++) {
 			if (!std::isdigit(value[i]))

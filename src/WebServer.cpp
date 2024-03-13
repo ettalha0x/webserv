@@ -94,7 +94,9 @@ bool WebServer::responder(int &fd) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
         else {
-            int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
+            std::cout <<  RED << "error here\n" << RESET;
+            std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
+            int configIndex = getConfigIndex(extractHost(clients[fd].getRequest().GetHost()), clients[fd].getRequest().GetPort(), clients[fd].getRequest().GetServerName(), configs);
             if (configIndex == -1)
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             else {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 23:49:00 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:45:32 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ class DuplicatedLocationException : public std::exception {
 
 
 std::vector<t_server_config> readConfigeFile(char *path);
-void setToDefault(std::vector<t_server_config> &configs);
-void printConfigs(std::vector<t_server_config> &configs);
-void checkPortsConflicts(std::vector<t_server_config> &configs);
+void 	setToDefault(std::vector<t_server_config> &configs);
+void 	printConfigs(std::vector<t_server_config> &configs);
+void 	checkPortsConflicts(std::vector<t_server_config> &configs);
+u_long 	extractHost(std::string value);
