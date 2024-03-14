@@ -31,11 +31,11 @@ int getMatchedConfig(Client client, const std::vector<t_server_config>& configs)
     for (size_t i = 0; i < configs.size(); i++) {
         // Match host
         if (configs[i].host == client.getIp()) {
-            // Match port
             for (size_t j = 0; j < configs[i].port.size(); j++) {
+                // Match port
                 if (configs[i].port[j] == client.getPort()) {
-                    std::cout << YELLOW << "index: " << i << " host: " << configs[i].host << " port: " << configs[i].port[j] << RESET << std::endl;
                     matched_configs.push_back(std::make_pair(i, configs[i]));
+                    std::cout << YELLOW << "index: " << i << " host: " << configs[i].host << " port: " << configs[i].port[j] << RESET << std::endl;
                 }
             }
         }
@@ -44,9 +44,7 @@ int getMatchedConfig(Client client, const std::vector<t_server_config>& configs)
         if (matched_configs[i].second.serverName == client.getRequest().GetServerName())
             return matched_configs[i].first;
     }
-    if (matched_configs.size() != 0)
-        return matched_configs[0].first;
-    return -1;
+    return matched_configs[0].first;
 }
 
 
