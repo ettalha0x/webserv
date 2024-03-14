@@ -7,16 +7,17 @@
 std::vector<std::pair<std::string, long> > cookie_vector_expe;
 
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
+    std::pair<u_long, int> pair;
     for (size_t i = 0; i < configs.size(); i++) {
+        pair.first = configs[i].host;
         for (size_t j = 0; j < configs[i].port.size(); j++) {
-		    // server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
-            final_configs.insert(std::make_pair(configs[i].host, configs[i].port[j]));
-            ipAndPort.push_back(std::make_pair(configs[i].host, configs[i].port[j]));
+            pair.second = configs[i].port[j];
+            if (std::find(ipAndPort.begin(), ipAndPort.end(), pair) != ipAndPort.end()) 
+                continue;
+            ipAndPort.push_back(pair);
+            server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, pair.second, pair.first, 100));
         }
 	}
-    for (std::map<u_long, int>::iterator it = final_configs.begin(); it != final_configs.end(); it++) {
-		server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, it->second, it->first, 100));
-    }
     launch();
 }
 
@@ -99,9 +100,9 @@ bool WebServer::responder(int &fd) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
         else {
-            std::cout <<  RED << "error here\n" << RESET;
-            std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
-            int configIndex = getConfigIndex(extractHost(clients[fd].getRequest().GetHost()), clients[fd].getRequest().GetPort(), clients[fd].getRequest().GetServerName(), configs);
+            // std::cout <<  RED << "error here\n" << RESET;
+            // std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
+            int configIndex = getConfigIndex(clients[fd], configs);
             if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             }
@@ -186,7 +187,6 @@ void WebServer::launch() {
     init_pollfd();
 
     while (true) {
-		// std::cout << "size ==>> " << cookie_vector_expe.size() << std::endl;
         getClientsPollfds();
 		check_delete_session();
         int num_events = poll(client_sockets.data(), client_sockets.size(), -1);
@@ -211,8 +211,10 @@ void WebServer::launch() {
 
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
-                    if (new_client > 0)
-                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[new_client].first, ipAndPort[new_client].second)));
+                    if (new_client > 0) {
+                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex].first, ipAndPort[serverIndex].second)));
+                        std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
+                    }
                 } else {
                     handler(client_sockets[i].fd);
                 }

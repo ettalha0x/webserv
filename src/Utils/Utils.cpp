@@ -26,21 +26,25 @@ std::string getFileContent(std::string fileName) {
     return content;
 }
 
-int getConfigIndex(unsigned int host, int port, std::string servername, const std::vector<t_server_config>& configs) {
+int getMatchedConfig(Client client, const std::vector<t_server_config>& configs) {
+    std::map<int, t_server_config> matched_configs;
     for (size_t i = 0; i < configs.size(); i++) {
         // Match host
-        if (configs[i].host == host) {
+        if (configs[i].host == client.getIp()) {
             // Match port
             for (size_t j = 0; j < configs[i].port.size(); j++) {
-                if (configs[i].port[j] == port) {
-                    // Match server name
-                    if (configs[i].serverName == servername) {
-                        return static_cast<int>(i);
-                    }
+                if (configs[i].port[j] == client.getPort()) {
+                    matched_configs.insert(std::make_pair(i, configs[i]));
                 }
             }
         }
     }
+    for (std::map<int, t_server_config>::iterator it = matched_configs.begin(); it != matched_configs.end(); it++) {
+        if (it->second.serverName == client.getRequest().GetServerName())
+            return it->first;
+    }
+    if (matched_configs.size() != 0)
+        return matched_configs.begin()->first;
     return -1;
 }
 

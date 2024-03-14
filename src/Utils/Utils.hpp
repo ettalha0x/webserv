@@ -16,7 +16,7 @@
 
 std::string getCurrentTimeInGMT();
 std::string getFileContent(std::string fileName);
-int         getConfigIndex(u_int host, int port, std::string servername, const std::vector<t_server_config>& configs);
+int getMatchedConfig(Client client, const std::vector<t_server_config>& configs);
 std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);

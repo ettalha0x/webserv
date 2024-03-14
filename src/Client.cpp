@@ -33,6 +33,14 @@ HttpResponse&	Client::getResponse() {
 	return response;
 }
 
+u_long			Client::getIp() const  {
+    return ip;
+}
+
+int				Client::getPort() const {
+    return port;
+}
+
 Client& Client::operator=(const Client& rhs) {
     if (this != &rhs) { 
         this->socket = rhs.socket;

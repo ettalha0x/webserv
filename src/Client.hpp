@@ -23,6 +23,8 @@ class Client
 		HttpRequest&	getRequest();
 		std::string&	getStringRes();
 		HttpResponse&	getResponse();
+		u_long			getIp() const ;
+		int				getPort() const;
 		~Client();
 
 		Client &		operator=( const Client& rhs );

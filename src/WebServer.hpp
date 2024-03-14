@@ -32,7 +32,6 @@ class WebServer {
 		std::string						ID;
 	public:
 		std::vector<std::pair<u_long, int> > ipAndPort;
-		std::map<u_long, int>				final_configs;
 		WebServer(std::vector<t_server_config>	&configs);
 		std::vector<ListeningSocket> 	get_server_sock();
 		void							check_delete_session();
