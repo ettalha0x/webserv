@@ -27,24 +27,9 @@ std::string getFileContent(std::string fileName) {
 }
 
 int getMatchedConfig(Client client, const std::vector<t_server_config>& configs) {
-    std::vector<std::pair<int, t_server_config> > matched_configs;
-    for (size_t i = 0; i < configs.size(); i++) {
-        // Match host
-        if (configs[i].host == client.getIp()) {
-            for (size_t j = 0; j < configs[i].port.size(); j++) {
-                // Match port
-                if (configs[i].port[j] == client.getPort()) {
-                    matched_configs.push_back(std::make_pair(i, configs[i]));
-                    std::cout << YELLOW << "index: " << i << " host: " << configs[i].host << " port: " << configs[i].port[j] << RESET << std::endl;
-                }
-            }
-        }
-    }
-    for (size_t i = 0; i < matched_configs.size(); i++) {
-        if (matched_configs[i].second.serverName == client.getRequest().GetServerName())
-            return matched_configs[i].first;
-    }
-    return matched_configs[0].first;
+    (void)client;
+    (void)configs;
+    return 0;
 }
 
 
