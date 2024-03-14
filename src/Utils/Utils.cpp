@@ -27,7 +27,7 @@ std::string getFileContent(std::string fileName) {
 }
 
 int getMatchedConfig(Client client, const std::vector<t_server_config>& configs) {
-    std::map<int, t_server_config> matched_configs;
+    std::vector<std::pair<int, t_server_config> > matched_configs;
     for (size_t i = 0; i < configs.size(); i++) {
         // Match host
         if (configs[i].host == client.getIp()) {
@@ -35,17 +35,17 @@ int getMatchedConfig(Client client, const std::vector<t_server_config>& configs)
             for (size_t j = 0; j < configs[i].port.size(); j++) {
                 if (configs[i].port[j] == client.getPort()) {
                     std::cout << YELLOW << "index: " << i << " host: " << configs[i].host << " port: " << configs[i].port[j] << RESET << std::endl;
-                    matched_configs.insert(std::make_pair(i, configs[i]));
+                    matched_configs.push_back(std::make_pair(i, configs[i]));
                 }
             }
         }
     }
-    for (std::map<int, t_server_config>::iterator it = matched_configs.begin(); it != matched_configs.end(); it++) {
-        if (it->second.serverName == client.getRequest().GetServerName())
-            return it->first;
+    for (size_t i = 0; i < matched_configs.size(); i++) {
+        if (matched_configs[i].second.serverName == client.getRequest().GetServerName())
+            return matched_configs[i].first;
     }
     if (matched_configs.size() != 0)
-        return matched_configs.begin()->first;
+        return matched_configs[0].first;
     return -1;
 }
 
