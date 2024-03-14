@@ -14,6 +14,7 @@
 #define YELLOW "\033[1;33m"
 #define RESET "\033[0m"
 
+class Client;
 std::string getCurrentTimeInGMT();
 std::string getFileContent(std::string fileName);
 int getMatchedConfig(Client client, const std::vector<t_server_config>& configs);

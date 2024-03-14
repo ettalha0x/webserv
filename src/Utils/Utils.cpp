@@ -34,6 +34,7 @@ int getMatchedConfig(Client client, const std::vector<t_server_config>& configs)
             // Match port
             for (size_t j = 0; j < configs[i].port.size(); j++) {
                 if (configs[i].port[j] == client.getPort()) {
+                    std::cout << YELLOW << "index: " << i << " host: " << configs[i].host << " port: " << configs[i].port[j] << RESET << std::endl;
                     matched_configs.insert(std::make_pair(i, configs[i]));
                 }
             }

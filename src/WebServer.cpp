@@ -102,7 +102,7 @@ bool WebServer::responder(int &fd) {
         else {
             // std::cout <<  RED << "error here\n" << RESET;
             // std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
-            int configIndex = getConfigIndex(clients[fd], configs);
+            int configIndex = getMatchedConfig(clients[fd], configs);
             if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             }
@@ -213,7 +213,7 @@ void WebServer::launch() {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0) {
                         clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex].first, ipAndPort[serverIndex].second)));
-                        std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
+                        // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
                     }
                 } else {
                     handler(client_sockets[i].fd);
