@@ -70,9 +70,10 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			// std::cout << RED << "HERE PARSER" << RESET << std::endl;
-            clients[fd].getRequest().parser(clients[fd].getStringReq());
+			std::cout << GREEN << clients[fd].getStringReq() << RESET << std::endl;
+            clients[fd].getRequest().parser(clients[fd].getStringReq(), clients[fd].ipAndPort);
         } catch (const BadRequestException &e) {
+            std::cout << RED << e.what() << RESET << std::endl;
             clients[fd].getRequest().badRequest = true;
         }
         clients[fd].getRequest().completed = true;
@@ -131,7 +132,7 @@ bool WebServer::responder(int &fd) {
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
-            Client tmp(fd);
+            Client tmp(fd, clients[fd].ipAndPort);
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
@@ -155,7 +156,7 @@ void    WebServer::init_pollfd() {
         server_pollfd.events = POLLIN | POLLOUT;
         server_pollfd.revents = 0;
         server_sockets.push_back(server_pollfd);
-        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd)));
+        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd, ipAndPort[i])));
     }
 }
 
@@ -212,7 +213,7 @@ void WebServer::launch() {
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0) {
-                        clients.insert(std::make_pair(new_client, Client(new_client)));
+                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex])));
                         // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
                     }
                 } else {

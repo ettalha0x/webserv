@@ -13,9 +13,10 @@ class Client
 		std::string		stringRes;
 		HttpResponse	response;
 	public:
+		std::pair<u_long, int> ipAndPort;
 		bool			resGenerated;
 		Client();
-		Client(int fd);
+		Client(int fd, std::pair<u_long, int> ipAndPort);
 		pollfd& 		getPollfd();
 		std::string&	getStringReq();
 		HttpRequest&	getRequest();
