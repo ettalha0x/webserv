@@ -5,7 +5,7 @@ import sys
 # Set custom headers
 body_content = "This is the response body content."
 # content_length = len(body_content)
-content_length = 10
+content_length = 100
 
 custom_headers = {
     "Content-Type": "text/plain",

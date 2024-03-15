@@ -173,6 +173,7 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 		cgi CGI(request, FinalPath, Location.cgi_path);
 		// body = CGI.get_cgi_res();
 		resp = CGI.get_cgi_res();
+		std::cout << "CGI finish  >>>>>>\n";
 		// std::map<std::string , std::string>::iterator ite = resp.first.begin();
 		// std::cout << YELLOW << "first == {" << std::endl;
 		// while (ite != resp.first.end())

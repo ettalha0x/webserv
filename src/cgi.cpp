@@ -16,10 +16,11 @@
 #include "cgi.hpp"
 #include <signal.h>
 
-std::string intToString(int value) {
-    std::stringstream ss;
-    ss << value;
-    return ss.str();
+std::string int_to_string(int value)
+{
+    std::stringstream str;
+    str << value;
+    return str.str();
 }
 
 std::string copy(std::string input, size_t i, size_t j)
@@ -29,7 +30,6 @@ std::string copy(std::string input, size_t i, size_t j)
     std::string new_str;
     for (size_t index = i; index <= j; ++index)
         new_str.push_back(input[index]);
-    // new_str.push_back('\0');
     return new_str;
 }
 
@@ -46,61 +46,6 @@ std::string content_name_value(std::string tmp)
 	return (content);
 }
 
-std::string	 content_type(std::string content, std::string boundry)
-{
-	size_t i;
-	std::string content_type;
-	std::string tmp;
-	std::string new_boun;
-	std::string new_cont;
-
-	size_t j;
-	i = 0;
-	while (i < boundry.length())
-	{
-		if (boundry[i] == '\r')
-			i++;
-		else
-		{
-			new_boun.push_back(boundry[i]);
-			i++;
-		}
-	}
-	new_boun[i] = '\0';
-	i = 0;
-	while (i < content.length())
-	{
-		if (content[i] == '\r')
-			i++;
-		else
-		{
-			new_cont.push_back(content[i]);
-			i++;
-		}
-	}
-	new_cont[i] = '\0';
-	i = new_cont.find(new_boun);
-	while (1)
-	{
-		i = new_cont.find(new_boun);
-		new_cont = copy(new_cont, i + new_boun.length()+1, new_cont.length());
-		j = new_cont.find("name");
-		j = new_cont.find(new_boun);
-		tmp = copy(new_cont, 1, j-4);
-		content_type += content_name_value(tmp);
-		new_cont = copy(new_cont, j, new_cont.length());
-		i = new_cont.find("name");
-		if (i == std::string::npos)
-			break;
-		else
-			content_type += "&";
-	}
-	// std::cout << "cont   ===   " << content_type ;
-	// exit(0);
-	return (content_type);
-}
-
-
 cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :finalPath(finalPath), cgiPath(cgiPath)
 {
 	std::vector<std::pair<std::string, std::string > > b = new_request.GetQuerty() ;
@@ -111,15 +56,15 @@ cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :f
 	this->env.push_back("HttpVersion=" + new_request.GetHttpVersion());
 	this->env.push_back("SCRIPT_NAME=" + new_request.GetRequestedFile());
 	this->env.push_back("SCRIPT_FILENAME=" + finalPath);
+	this->env.push_back("PATH_INFO=" + finalPath);
 	this->env.push_back("REDIRECT_STATUS=200");
 	this->body = new_request.GetBody();
 	this->env.push_back("CONTENT_TYPE=" + new_request.GetContentType());
-	this->env.push_back("CONTENT_LENGTH=" + intToString(new_request.GetContentLength()));
+	this->env.push_back("CONTENT_LENGTH=" + int_to_string(new_request.GetContentLength()));
 	HeaderContainer header_request = new_request.GetHeaders();
 
 	if (!header_request["Cookie"].empty())
 	{
-		std::cout << "cookie ==>> {" <<  header_request["Cookie"] << "}" << std::endl;
 		this->env.push_back("HTTP_COOKIE=" + header_request["Cookie"]);
 	}
 	if (b.size() > 0)
@@ -135,8 +80,6 @@ cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :f
 	}
 	if (new_request.GetMethod() == "GET")
 		this->env.push_back("QUERY_STRING=" + this->QUERY_STRING);
-	else
-		this->QUERY_STRING_POST = this->QUERY_STRING;
 	this->cgi_res =  this->execute(this->REQUEST_METHOD,new_request);
 }
 
@@ -178,7 +121,6 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 			x = 1;
 			key_value.first = key;
 			key_value.second = copy(tmp, key.length()+1, k-1);
-			// std::cout << "second 1==>> {" << key_value.second << "}" <<  std::endl;
 		}
 		k = tmp.find("\n");
 		if (k < header.length() && x!= 1)
@@ -187,13 +129,11 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 			if (tmp[k-1] == '\r')
 				k--;
 			key_value.second = copy(tmp, key.length()+1, k-1);
-			// std::cout << "second 2==>> {" << key_value.second << "}" <<  std::endl;
 		}
 		else if (x!= 1)
 		{
 			key_value.first = key;
 			key_value.second = tmp.substr(key.length()+1, header.length()-key.length()+1);
-			// std::cout << "second 3==>> {" << key_value.second << "}" <<  std::endl;
 		}
 	}
 	return (key_value);
@@ -289,6 +229,7 @@ std::map<std::string , std::string> fill_container_map(std::string header)
 {
 	std::map<std::string , std::string> header_map;
 	std::pair<std::string , std::string> key_value;
+	std::pair<std::string, long> cookie;
 	vector_cookies vector_pair;
 	vector_cookies tmp_vector_pair;
 	
@@ -311,30 +252,33 @@ std::map<std::string , std::string> fill_container_map(std::string header)
 		header_map[key_value.first] = key_value.second;
 	}
 	i = header.find("Set-Cookie:");
-	// std::vector<std::pair< std::string, std::string> >::iterator ite ;
 	if (i != std::string::npos)
 	{
 		while (i < header.length())
 		{
 			key_value = func(header, "Set-Cookie:");
-			// std::cout << "value ==>>{" << key_value.second << "}" << std::endl;
 			tmp_vector_pair = parse_set_cookie(key_value.second);
 			vector_pair = check_attributes_set_cookies(vector_pair, tmp_vector_pair);
-			header_map[key_value.first] = key_value.second;
 			header = header.substr(i+12 , header.length()-i-12);
 			tmp_vector_pair.clear();
 			i = header.find("Set-Cookie:");
 		}
-		// key_value = func(header, "Set-Cookie:");
-
+		std::string name_seeeion;
+		for (size_t i = 0; i < vector_pair.size(); i++)
+		{
+			if (vector_pair[i].first == "PHPSESSID")
+				name_seeeion = "sess_" + vector_pair[i].second;
+			if (vector_pair[i].first == "Max-Age")
+			{
+				cookie.first = name_seeeion;
+				cookie.second = std::time(nullptr) + std::atoi(vector_pair[i].second.c_str());
+				cookie_vector_expe.push_back(cookie);
+			}
+				
+		}
+		
 		header_map["Set-Cookie:"] = vector_cookies_to_string(vector_pair);
 	}
-	// ite = vector_pair.begin();
-	// while (ite != vector_pair.end())
-	// {
-	// 	std::cout << "first = {" << ite->first << "}"  << "    second = {" << ite->second << "}" << std::endl;
-	// 	ite++;
-	// }
 	return (header_map);
 }
 
@@ -343,18 +287,15 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
 	std::map<std::string , std::string> header_map;
 
-
 	size_t i = res_cgi.find("\r\n\r\n");
 	if (i < res_cgi.length())
 	{
 		std::string header;
 		std::string body;
-		int len = res_cgi.length();
-		
+
 		header = res_cgi.substr(0, i);
+		body = copy(res_cgi, header.length()+4, res_cgi.length());
 		header_map = fill_container_map(header);
-		body = copy(res_cgi, i+4, len);
-		// std::cout << "BODY ==={" << body << "}"<<  std::endl;
 		size_t j = header.find("Content-Length:");
 		double	lent=0;
 		if (j < header.length())
@@ -367,22 +308,16 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 			char *end = NULL;
 			lent = std::strtod(number.c_str(), &end);
 		}
-		// std::cout << "LENT==>>" << lent << std::endl;
 		if (lent > 0 && (size_t)lent < body.length())
 			resp.second.first = body.substr(0, lent);
 		else
 		{
-			// body.push_back('\0');
 			resp.second.first = body.substr(0, body.length() - 2);
-			// std::cout << "body==>>" << body.length() << std::endl;
-			// std::cout << "body==>>" <<resp.second.first.length() << std::endl;
-			// std::cout << YELLOW << "SIZE_BODY ===" << body.length() << RESET << std::endl;
 			std::map<std::string , std::string>::iterator it;
 			it = header_map.find("Content-Length:");
 			if (it != header_map.end())
 			{
-				std::string len = std::to_string(resp.second.first.length());
-				// std::cout << RED << "len ==={" << len << "}"<< RESET <<  std::endl;
+				std::string len = int_to_string(resp.second.first.length());
 				header_map["Content-Length:"] = len;
 			}
 		}
@@ -493,16 +428,11 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 	{
 		int N = 0;
 		time_t time;
-
-		// close(fd[1]);
-		// close(_fd[1]);
-		// std::cout << "########################1\n";
 		close (fd[0]);
 		if (req_method == "POST")
 		{
 			write(fd[1], this->body.c_str(), this->body.length());
 		}
-		// std::cout << "########################2\n";
 		while (1)
 		{
 			N = waitpid(pid, &status, WNOHANG);
@@ -516,11 +446,9 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 			else if (N != 0)
 				break;
 		}
-		// std::cout << "here" << std::endl;
 		if (WIFEXITED(status))
 		{
             exitStatus = WEXITSTATUS(status);
-			// std::cout << "exitstatus == >>" << exitStatus << std::endl;
 		}
         char buffer[4096];
         ssize_t bytesRead;
@@ -530,10 +458,8 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
-	std::cout << YELLOW << "resut={" << result << "}" << result.length() << RESET << std::endl; 
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
-	// std::cout << "SIZE_MAP " << resp.first.size() << std::endl;
 	return (resp);
 }
 std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::get_cgi_res()

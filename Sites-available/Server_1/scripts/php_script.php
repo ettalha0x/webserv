@@ -1,4 +1,5 @@
 <?php
+header("Content-Type: text/html; charset=UTF-8");
 if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET" || $_SERVER["REQUEST_METHOD"] == "DELETE") {
     // Collect form data
     $oops = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Oops! Something Went Wrong</title><style>body {font-family: Arial, sans-serif;text-align: center;margin-top: 50px;}h1 {color: #dc3545;}p {font-size: 18px;margin-top: 20px;}</style></head><body><h1>Oops! Something Went Wrong</h1><p>Sorry, something went wrong while processing your request. Please try again later.</p></body></html>";

@@ -6,7 +6,7 @@
 /*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/11 18:22:41 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/15 20:58:33 by esekouni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,27 +24,16 @@ typedef std::vector<std::pair< std::string, std::string> > vector_cookies;
 class cgi
 {
 	private:
-		std::string 	PATH;//y
-		std::string		SCRIPT_NAME;
-		std::string		SCRIPT_FILENAME;
-		std::string		REQUEST_METHOD;//y
-		std::string		CONTENT_LENGTH;//y 
-		std::string		CONTENT_TYPE;//y
-		std::string		QUERY_STRING;//y
-		std::string		QUERY_STRING_POST;//y
-		std::string		HttpVersion;//y
-		std::string		SERVER_SOFTWARE;
-		std::string		SERVER_NAME;
+		std::string 	PATH;
+		std::string		REQUEST_METHOD;
+		std::string		QUERY_STRING;
 		std::string		body;
-		std::string		GATEWAY_INTERFACE;
-		std::string		REDIRECT_STATUS;
 		std::vector< std::string > env;
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> >	cgi_res;
 		std::string 	finalPath;
 		std::string 	cgiPath;
 		std::vector<std::pair<std::string, std::string> > cookies_experation;
 	public:
-		// void	set_data_request();
 		cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath);
 		char **convert_to_char_double();
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > execute(std::string req_method, HttpRequest new_request);

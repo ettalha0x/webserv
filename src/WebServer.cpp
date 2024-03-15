@@ -70,11 +70,11 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			std::cout << GREEN << clients[fd].getStringReq() << RESET << std::endl;
+			// std::cout << GREEN << clients[fd].getStringReq() << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq(), clients[fd].ipAndPort);
         } catch (const BadRequestException &e) {
             std::cout << RED << e.what() << RESET << std::endl;
-            clients[fd].getRequest().badRequest = true;
+            // clients[fd].getRequest().badRequest = true;
         }
         clients[fd].getRequest().completed = true;
         if (!clients[fd].getRequest().badRequest) {
@@ -162,6 +162,7 @@ void    WebServer::init_pollfd() {
 
 void	WebServer::check_delete_session()
 {
+	// std::cout << "size ===  " << cookie_vector_expe.size() << std::endl;
 	if (cookie_vector_expe.size() > 0)
 	{
 		std::vector<std::pair<std::string, long> >::iterator it = cookie_vector_expe.begin();
@@ -174,6 +175,8 @@ void	WebServer::check_delete_session()
 			{
 				file_name = path + it->first;
 				cookie_vector_expe.erase(cookie_vector_expe.begin() + i);
+				std::cout << file_name << std::endl;
+				std::remove(file_name.c_str());
 				it = cookie_vector_expe.begin() + i;
 				continue ;
 			}

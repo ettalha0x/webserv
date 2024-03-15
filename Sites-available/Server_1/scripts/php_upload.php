@@ -26,18 +26,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 echo "File '" . $filename . "' uploaded successfully!";
             } else {
                 echo "Failed to move uploaded file.";
-				exit();
+				exit(-1);
             }
         } else
 		{
             echo "Error occurred during file upload: " . $file["error"];
+			exit(-1);
         }
     } else
 	{
         echo "No file uploaded.";
+		exit(-1);
     }
 } else {
     echo "No POST request received.";
+	exit(-1);
 }
 
 ?>
