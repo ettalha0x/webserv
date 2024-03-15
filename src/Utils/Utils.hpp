@@ -14,9 +14,10 @@
 #define YELLOW "\033[1;33m"
 #define RESET "\033[0m"
 
+class Client;
 std::string getCurrentTimeInGMT();
 std::string getFileContent(std::string fileName);
-int         getConfigIndexByPort(int port, const std::vector<t_server_config>& configs);
+int         getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs);
 std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 19:58:25 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/15 16:30:28 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class HttpRequest {
 		std::string 	_path;
 		std::string 	_method;
 		std::string 	_HttpVersion;
-		std::string 	_Host;
+		u_long		 	_Host;
 		std::string 	_boundary;
 		std::string		_contentType;
 		std::string		_requestedFile;
@@ -41,7 +41,6 @@ class HttpRequest {
 		int				_port;
 		size_t			_bodySize;
 		std::string		_serverName;
-
 		HeaderContainer Headers;
 		std::string		body;
 		QueryContainer  Query;
@@ -63,7 +62,7 @@ class HttpRequest {
 		std::string 	GetPath(void) const;
 		std::string 	GetMethod(void) const;
 		std::string 	GetHttpVersion(void) const;
-		std::string 	GetHost(void) const;
+		u_long		 	GetHost(void) const;
 		std::string 	GetBoundary(void) const;
 		HeaderContainer GetHeaders(void) const;
 		std::string 	GetBody(void) const;
@@ -81,7 +80,7 @@ class HttpRequest {
 		void 			read_and_parse(std::istringstream &requestStream);
 		void 			fill_vars_from_headerContainer(void);
 		void 			ckeckForQueryAndRequestedFile(void);
-		void 			parser(std::string &request);
+		void 			parser(std::string &request, std::pair<u_long, int> ipAndPort);
 };
 
 std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);

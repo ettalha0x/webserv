@@ -4,12 +4,18 @@
 #include <cstring>
 #include <signal.h>
 
-std::vector<std::pair<std::string, long> > cookie_vector_expe ;
+std::vector<std::pair<std::string, long> > cookie_vector_expe;
 
 WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
+    std::pair<u_long, int> pair;
     for (size_t i = 0; i < configs.size(); i++) {
+        pair.first = configs[i].host;
         for (size_t j = 0; j < configs[i].port.size(); j++) {
-		    server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, configs[i].port[j], configs[i].host, 100));
+            pair.second = configs[i].port[j];
+            if (std::find(ipAndPort.begin(), ipAndPort.end(), pair) != ipAndPort.end()) 
+                continue;
+            ipAndPort.push_back(pair);
+            server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, pair.second, pair.first, 100));
         }
 	}
     launch();
@@ -64,10 +70,10 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			// std::cout << RED << "HERE PARSER" << RESET << std::endl;
-            clients[fd].getRequest().parser(clients[fd].getStringReq());
-			// std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
-        } catch (...) {
+			std::cout << GREEN << clients[fd].getStringReq() << RESET << std::endl;
+            clients[fd].getRequest().parser(clients[fd].getStringReq(), clients[fd].ipAndPort);
+        } catch (const BadRequestException &e) {
+            std::cout << RED << e.what() << RESET << std::endl;
             clients[fd].getRequest().badRequest = true;
         }
         clients[fd].getRequest().completed = true;
@@ -88,15 +94,19 @@ void WebServer::handler(int &fd) {
 
 bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){ 
-        if (clients[fd].getRequest().badRequest)
+        if (clients[fd].getRequest().badRequest) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+        }
         else if (!checkAllowedChars(clients[fd].getRequest().GetRequestURI())) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
         else {
-            int configIndex = getConfigIndexByPort(clients[fd].getRequest().GetPort(), configs);
-            if (configIndex == -1)
+            // std::cout <<  RED << "error here\n" << RESET;
+            // std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
+            int configIndex = getMatchedConfig(clients[fd].getRequest(), configs);
+            if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
+            }
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
 				// std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;
@@ -122,7 +132,7 @@ bool WebServer::responder(int &fd) {
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
-            Client tmp(fd);
+            Client tmp(fd, clients[fd].ipAndPort);
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
@@ -146,7 +156,7 @@ void    WebServer::init_pollfd() {
         server_pollfd.events = POLLIN | POLLOUT;
         server_pollfd.revents = 0;
         server_sockets.push_back(server_pollfd);
-        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd)));
+        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd, ipAndPort[i])));
     }
 }
 
@@ -178,7 +188,6 @@ void WebServer::launch() {
     init_pollfd();
 
     while (true) {
-		// std::cout << "size ==>> " << cookie_vector_expe.size() << std::endl;
         getClientsPollfds();
 		check_delete_session();
         int num_events = poll(client_sockets.data(), client_sockets.size(), -1);
@@ -203,8 +212,10 @@ void WebServer::launch() {
 
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
-                    if (new_client > 0)
-                        clients.insert(std::make_pair(new_client, Client(new_client)));
+                    if (new_client > 0) {
+                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex])));
+                        // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
+                    }
                 } else {
                     handler(client_sockets[i].fd);
                 }

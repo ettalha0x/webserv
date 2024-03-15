@@ -3,17 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/10 20:05:37 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/15 16:36:57 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 #include <unistd.h>
 
-HttpRequest::HttpRequest() : _contentLength(0), _bodySize(0), bodyExist(false), isChunked(false), completed(false), served(false), badRequest(false){}
+HttpRequest::HttpRequest() : _contentLength(0), _bodySize(0), bodyExist(false), isChunked(false), completed(false), served(false), badRequest(false){
+}
 
 HttpRequest::~HttpRequest() {}
 
@@ -50,8 +51,9 @@ std::string HttpRequest::GetMethod(void) const {
 	return this->_method;}
 std::string HttpRequest::GetHttpVersion(void) const {
 	return this->_HttpVersion;}
-std::string HttpRequest::GetHost(void) const {
-	return this->_Host;}
+u_long HttpRequest::GetHost(void) const {
+	return _Host;
+}
 HeaderContainer HttpRequest::GetHeaders(void) const {
 	return this->Headers;}
 std::string HttpRequest::GetBoundary(void) const {
@@ -175,7 +177,7 @@ void HttpRequest::read_and_parse(std::istringstream& requestStream) {
 void HttpRequest::fill_vars_from_headerContainer(void) {
 	HeaderContainer::iterator it = this->Headers.find("Host");
 	if (it != this->Headers.end())
-		this->_Host = it->second;
+		this->_serverName = it->second;
 	it = this->Headers.find("Content-Type");
 	if (it != this->Headers.end())
 		this->_contentType = it->second;
@@ -187,7 +189,7 @@ void HttpRequest::fill_vars_from_headerContainer(void) {
 		this->isChunked = true;
 }
 
-void HttpRequest::parser(std::string &request) {
+void HttpRequest::parser(std::string &request, std::pair<u_long, int> ipAndPort) {
 	std::istringstream requestStream(request);
 	std::getline(requestStream, this->_RequestLine, '\n');
 	this->_RequestLine.pop_back();
@@ -227,7 +229,7 @@ void HttpRequest::parser(std::string &request) {
 		if (!this->body.empty())
 			this->bodyExist = true;
 	}
-	setPortAndServerName();
+	// setPortAndServerName();
 	if (this->bodyExist)
 		this->_bodySize = this->body.size();
 	if (this->isChunked == 1)
@@ -237,16 +239,21 @@ void HttpRequest::parser(std::string &request) {
 	}
 	if (_method == "POST" && Headers["Transfer-Encoding"].empty() && Headers["Content-Length"].empty())
 		this->badRequest = true;
+	this->_Host = ipAndPort.first;
+	this->_port = ipAndPort.second;
 }
 
-void HttpRequest::setPortAndServerName(void) {
-	size_t pos = this->_Host.find(":");
-	if (pos == this->_Host.npos) {
-		throw BadRequestException();
-	}
-	this->_serverName = this->_Host.substr(0, pos);
-	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
-}
+// void HttpRequest::setPortAndServerName(void) {
+// 	size_t pos = this->_Host.find(":");
+// 	if (pos == this->_Host.npos) {
+// 		// throw BadRequestException();
+// 		this->_serverName = _Host;
+// 		return;
+// 	}
+// 	this->_serverName = this->_Host.substr(0, pos);
+// 	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
+// 	this->_Host = this->_Host.substr(0, pos);
+// }
 std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "####################################################" << std::endl;
 	os << "Request Line : " << obj.GetRequestLine() << std::endl;

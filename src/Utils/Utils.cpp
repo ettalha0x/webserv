@@ -26,16 +26,26 @@ std::string getFileContent(std::string fileName) {
     return content;
 }
 
-int getConfigIndexByPort(int port, const std::vector<t_server_config>& configs) {
-    for (int i = 0; i < (int)configs.size(); i++) {
-        for (size_t j = 0; j < configs[i].port.size(); j++) {
-            if (configs[i].port[j] == port) {
-                return i;
-            }
+int getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs)
+{
+    std::vector<int> newConfig;
+    for (size_t i = 0; i < configs.size(); i++)
+    {
+        // Check if host and port match
+        if (configs[i].host == request.GetHost() && std::find(configs[i].port.begin(), configs[i].port.end(), request.GetPort()) != configs[i].port.end())
+        {
+            newConfig.push_back(i);
         }
     }
-    return -1;
+    for (size_t i = 0; i < newConfig.size(); i++)
+    {
+        if (request.GetServerName() == configs[newConfig[i]].serverName)
+            return newConfig[i];
+    }
+
+    return newConfig[0];
 }
+
 
 std::string GetExtensionPrefix(std::string extension) {
     std::ifstream file("./src/Utils/contentTypes.txt");
