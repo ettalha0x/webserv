@@ -26,9 +26,20 @@ std::string getFileContent(std::string fileName) {
     return content;
 }
 
-int getMatchedConfig(Client client, const std::vector<t_server_config>& configs) {
-    (void)client;
-    (void)configs;
+int getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs)
+{
+    for (size_t i = 0; i < configs.size(); i++)
+    {
+        // Check if host and port match
+        if (configs[i].host == extractHost(request.GetHost()) && std::find(configs[i].port.begin(), configs[i].port.end(), request.GetPort()) != configs[i].port.end())
+        {
+            // Check if server name matches
+            if (configs[i].serverName == request.GetServerName())
+            {
+                return i;
+            }
+        }
+    }
     return 0;
 }
 

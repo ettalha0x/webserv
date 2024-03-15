@@ -102,7 +102,7 @@ bool WebServer::responder(int &fd) {
         else {
             // std::cout <<  RED << "error here\n" << RESET;
             // std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
-            int configIndex = getMatchedConfig(clients[fd], configs);
+            int configIndex = getMatchedConfig(clients[fd].getRequest(), configs);
             if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             }
@@ -131,7 +131,7 @@ bool WebServer::responder(int &fd) {
             close(clients[fd].getPollfd().fd);
             clients.erase(fd);
          } else {
-            Client tmp(fd, ipAndPort[fd].first, ipAndPort[fd].second);
+            Client tmp(fd);
             clients[fd] = tmp;
             clients[fd].resGenerated = false;
          }
@@ -155,7 +155,7 @@ void    WebServer::init_pollfd() {
         server_pollfd.events = POLLIN | POLLOUT;
         server_pollfd.revents = 0;
         server_sockets.push_back(server_pollfd);
-        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd, ipAndPort[server_pollfd.fd].first, ipAndPort[server_pollfd.fd].second)));
+        clients.insert(std::make_pair(server_pollfd.fd, Client(server_pollfd.fd)));
     }
 }
 
@@ -212,7 +212,7 @@ void WebServer::launch() {
                 if (isServerFd) {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0) {
-                        clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex].first, ipAndPort[serverIndex].second)));
+                        clients.insert(std::make_pair(new_client, Client(new_client)));
                         // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
                     }
                 } else {

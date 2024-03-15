@@ -17,7 +17,7 @@
 class Client;
 std::string getCurrentTimeInGMT();
 std::string getFileContent(std::string fileName);
-int getMatchedConfig(Client client, const std::vector<t_server_config>& configs);
+int         getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs);
 std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);

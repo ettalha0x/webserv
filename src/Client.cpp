@@ -3,14 +3,12 @@
 Client::Client() {
 }
 
-Client::Client(int fd, u_long ip, int port) {
+Client::Client(int fd) {
     stringReq = "";
     stringRes = "";
 	socket.fd = fd;
 	socket.events = POLLIN | POLLOUT;
 	socket.revents = 0;
-    this->ip = ip;
-    this->port = port;
 }
 
 pollfd& 		Client::getPollfd() {
@@ -33,14 +31,6 @@ HttpResponse&	Client::getResponse() {
 	return response;
 }
 
-u_long			Client::getIp() const  {
-    return ip;
-}
-
-int				Client::getPort() const {
-    return port;
-}
-
 Client& Client::operator=(const Client& rhs) {
     if (this != &rhs) { 
         this->socket = rhs.socket;
@@ -49,8 +39,6 @@ Client& Client::operator=(const Client& rhs) {
         this->stringRes = rhs.stringRes;
         this->response = rhs.response;
         this->resGenerated = rhs.resGenerated;
-        this->ip = rhs.ip;
-        this->port = rhs.port;
     }
     return *this;
 }
