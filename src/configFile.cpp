@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/13 13:45:50 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/16 18:00:04 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,6 @@ void checkForDuplicatedPorts(t_server_config configs, int value) {
 			throw DuplicatedPortException(); 
 	}
 }
-
-// void checkPortsConflicts(std::vector<t_server_config> &configs) {
-// 	for(size_t i = 0; i < configs.size() - 1; i++) {
-// 		for (size_t j = 0; j < configs[i].port.size(); j++) {
-// 			checkForDuplicatedPorts(configs[i+1], configs[i].port[j]);
-// 		}
-// 	}
-// }
-
-
 
 void checkPath(std::string path) {
 	struct stat buffer;
@@ -106,7 +96,6 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 	std::string key = line.substr(0, seperatorPos);
 	std::string value = line.substr(seperatorPos + 1, delimiterPos - (seperatorPos + 1));
 	if (key == "serverName") {
-		// check errors in value
 		tmp->serverName = value;
 	} else if (key == "host") {
 		tmp->host = extractHost(value);
@@ -131,7 +120,6 @@ void identifieANDfill(std::string line, t_server_config *tmp) {
 		checkPath(value);
 		tmp->Errors.insert(std::make_pair(403,value));
 	} else if (key == "ERROR404") {
-		// checkPath(value);
 		tmp->Errors.insert(std::make_pair(404,value));
 	} else if (key == "ERROR405") {
 		checkPath(value);
@@ -172,7 +160,6 @@ void identifieANDfilllocation(std::string line, location *tmp) {
 	} else if (key == "index") {
 		tmp->index = value;
 	} else if (key == "redirection") {
-		// checkPath(value);
 		tmp->redirection = value;
 	} else if (key == "upload_path") {
 		checkPath(value);
@@ -354,7 +341,6 @@ void printLocation(location loc, int number) {
 	for (size_t i = 0; i < loc.acceptedMethods.size(); i++)
 		std::cout << loc.acceptedMethods[i] << "\t";
 	std::cout << std::endl;
-	// std::cout << "\tlocation " << number << " maxBodySize : " << loc.maxBodySize << std::endl;
 	std::cout << "----------------------------------------------" << std::endl;
 } 
 
@@ -362,36 +348,11 @@ void printConfigs(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
 		std::cout << "serverName : " << configs[i].serverName << std::endl;
 		std::cout << "host : " << configs[i].host << std::endl;
-		// std::cout << "rootDir : " << configs[i].rootDir << std::endl;
 		for (size_t j = 0; j < configs[i].port.size(); j++)
 			std::cout << "port : " << configs[i].port[j] << std::endl;
-		// std::cout << "indexFile : " << configs[i].indexFile << std::endl;
-			
-		// if (configs[i].autoIndex)
-		// 	std::cout << "autoIndex : on" << std::endl;
-		// else
-		// 	std::cout << "autoIndex : off" << std::endl;
-
-		// std::cout << "acceptedMethods : ";	
-		// for (size_t j = 0; j < configs[i].acceptedMethods.size(); j++)
-		// 	std::cout << configs[i].acceptedMethods[j] << "\t";
-		// std::cout << std::endl;
-		
-		// std::cout << "cgiPath : " << configs[i].cgiPath << std::endl;
-		
-		// std::cout << "cgi_extentions : ";
-		// for (size_t j = 0; j < configs[i].cgi_extentions.size(); j++)
-		// 	std::cout << configs[i].cgi_extentions[j] << "\t";
-		// std::cout << std::endl;
-		
 		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
 		
 		int number = 1;
-		// std::cout << "accepted_extentions : ";
-		// for (size_t j = 0; j < configs[i].accepted_extentions.size(); j++)
-		// 	std::cout << configs[i].accepted_extentions[j] << "\t";
-		// std::cout << std::endl;
-		
 		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
 			printLocation(it->second, number);
 			number++;
@@ -440,17 +401,6 @@ void	setLocationsToDefault(t_server_config &config) {
 	for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); it++) {
 		if (it->second.root.empty())
 			it->second.root = "Sites-available/Server_1";
-		// if (it->second.cgi_path.empty())
-		// 	it->second.cgi_path = "cgi-bin";
-		// if (it->second.cgi_extentions.empty()) {
-		// 	it->second.cgi_extentions.push_back(".php");
-		// 	it->second.cgi_extentions.push_back(".py");	
-		// }
-		// if (it->second.acceptedMethods.empty()) {
-		// 	it->second.acceptedMethods.push_back("GET");
-		// 	it->second.acceptedMethods.push_back("POST");
-		// 	it->second.acceptedMethods.push_back("DELETE");
-		// }
 		if (it->second.index.empty())
 			it->second.index = "index.html";
 	}

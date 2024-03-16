@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/15 16:30:28 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/16 18:00:48 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,6 @@ class HttpRequest {
 		HttpRequest();
 		HttpRequest &operator=(const HttpRequest & obj);
 		~HttpRequest();
-		
-		void			setPortAndServerName(void);
 		
 		std::string 	GetRequestLine(void) const;
 		std::string 	GetPath(void) const;
