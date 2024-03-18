@@ -299,7 +299,7 @@ void HttpResponse::GetHundler(location Location) {
 	if (Location.alias.empty())
 		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
 	else 
-		FinalPath = config.locations["/"].root + aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
+		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath = FinalPath + Location.index;

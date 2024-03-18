@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/16 18:00:38 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/18 17:28:35 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
 	this->Query = obj.Query;
 	this->bodyExist = obj.bodyExist;
 	this->isChunked = obj.isChunked;
-	this->Headers = obj.Headers;
 	this->completed = obj.completed;
 	this->served = false;
 	this->badRequest = false;

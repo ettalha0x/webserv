@@ -72,7 +72,7 @@ void WebServer::handler(int &fd) {
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
         clients[fd].resGenerated = false;
         try {
-			std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
+			// std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq(), clients[fd].ipAndPort);
         } catch (const BadRequestException &e) {
             std::cout << RED << e.what() << RESET << std::endl;
@@ -141,7 +141,7 @@ void WebServer::responder(int &fd) {
             clients[fd].resGenerated = false;
          }
     }
-    std::cout << GREEN << "Responding..." << RESET << std::endl;
+    // std::cout << GREEN << "Responding..." << RESET << std::endl;
 }
 
 void				WebServer::getClientsPollfds() {
