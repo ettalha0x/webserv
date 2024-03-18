@@ -27,7 +27,7 @@ class WebServer {
 		std::map<int, Client>			clients;
 		int								accepter(int &serverIndex);
 		void							handler(int	&fd);
-		bool							responder(int &fd);
+		void							responder(int &fd);
 		char							buffer[BUFFER_SIZE];
 		std::string						ID;
 	public:

@@ -437,7 +437,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 		{
 			N = waitpid(pid, &status, WNOHANG);
 			time = std::time(nullptr);
-			if (time > currentTime + 5 && N == 0)
+			if (time > currentTime + 10 && N == 0)
 			{
 				deleteCharArray(envp);
 				kill(pid, SIGKILL);

@@ -96,7 +96,7 @@ void removeBlock(std::string &tmp) {
 		beforLast = tmp.substr(0, lastSlash).find_last_of("/");
 		if (beforLast == tmp.npos)
 			beforLast = 0;
-		tmp.erase(beforLast, lastSlash + 1);
+		tmp.erase(beforLast + 1, lastSlash + 1);
 	}
 }
 
@@ -204,7 +204,7 @@ void HttpResponse::PostHundler(location Location) {
 	struct stat st;
 	std::string extention;
 	bool _do = true;
-	if (Location.alias.empty())
+	if (Location.alias.empty()) 
 		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
 	else
 		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
@@ -298,8 +298,8 @@ void HttpResponse::GetHundler(location Location) {
 	std::string extention;
 	if (Location.alias.empty())
 		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
-	else
-		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
+	else 
+		FinalPath = config.locations["/"].root + aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
 			FinalPath = FinalPath + Location.index;
@@ -352,6 +352,7 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	path = request.GetPath();
+	std::cout << YELLOW << path << RESET << std::endl;
 	if (path.find_last_of('/') != path.size() - 1) {
 		if (request.GetMethod() == "DELETE")
 			setError(409,ERROR409);
