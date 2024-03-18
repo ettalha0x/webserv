@@ -6,8 +6,6 @@ BindingSocket::BindingSocket(int domain, int service, int protocol, int port, u_
 	binding = bind(sock, (struct sockaddr *)&address, sizeof(address));
 	if (binding < 0) {
 		perror("bind");
-		std::cout << "host : " << host << std::endl;
-		std::cout << "port: " << port << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }
