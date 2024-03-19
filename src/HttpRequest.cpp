@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/18 17:28:35 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/18 23:48:43 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,27 @@ HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
 	this->served = false;
 	this->badRequest = false;
 	return *this;
+}
+
+void	HttpRequest::clearData(void) {
+	this->_RequestLine.clear();
+	this->_path.clear();
+	this->_method.clear();
+	this->_HttpVersion.clear();
+	this->_boundary.clear();
+	this->_contentType.clear();
+	this->_requestedFile.clear();
+	this->_contentLength = 0;
+	this->_serverName.clear();
+	this->_bodySize = 0;
+	this->Headers.clear();
+	this->body.clear();
+	this->Query.clear();
+	this->bodyExist = false;
+	this->isChunked = false;
+	this->completed = false;
+	this->served = false;
+	this->badRequest = false;
 }
 
 std::string HttpRequest::GetRequestLine(void) const {

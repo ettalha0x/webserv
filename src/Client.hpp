@@ -23,6 +23,7 @@ class Client
 		std::string&	getStringRes();
 		HttpResponse&	getResponse();
 		~Client();
+		void			clearData(void);
 
 		Client &		operator=( const Client& rhs );
 

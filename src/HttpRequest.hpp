@@ -6,7 +6,7 @@
 /*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/16 18:00:48 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/18 23:44:20 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ class HttpRequest {
 		void 			fill_vars_from_headerContainer(void);
 		void 			ckeckForQueryAndRequestedFile(void);
 		void 			parser(std::string &request, std::pair<u_long, int> ipAndPort);
+		void			clearData(void);
 };
 
 std::ostream& 	operator<<(std::ostream& os, const HttpRequest& obj);
