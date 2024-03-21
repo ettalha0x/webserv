@@ -51,8 +51,8 @@ void	WebServer::setNonBlocking(int sock) {
 }
 
 void WebServer::handler(int &fd) {
-    if (!clients[fd].getStringRes().empty())
-        return;
+    // if (!clients[fd].getStringRes().empty())
+    //     return;
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
@@ -61,12 +61,12 @@ void WebServer::handler(int &fd) {
 
     if (bytesReceived <= 0) {
         // delete client
-        if (bytesReceived < 0) {
+        // if (bytesReceived < 0) {
             close(clients[fd].getPollfd().fd);
             std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
             clients[fd].getStringReq().clear();
             clients.erase(fd);
-        }
+        // }
         return;
     }
 
@@ -138,20 +138,21 @@ void WebServer::responder(int &fd) {
         clients[fd].getStringRes().erase(0, (size_t)bytesSent);
     }
     if (clients[fd].getStringRes().empty()) {
+
     //    clients[fd].getStringRes().clear();
        clients[fd].getRequest().served = true;
-       if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
-         {
+    //    if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
+    //      {
             close(clients[fd].getPollfd().fd);
             std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
+            clients[fd].clearData();
             clients.erase(fd);
             std::cout << RED << "close connection" << RESET << std::endl;
-         } else {
+        //  } else {
             // Client tmp(fd, clients[fd].ipAndPort);
             // clients[fd] = tmp;
-            std::cout << RED << "clear data" << RESET << std::endl;
-            clients[fd].clearData();
-         }
+            // std::cout << RED << "clear data" << RESET << std::endl;
+        //  }
     }
     // std::cout << GREEN << "Responding..." << RESET << std::endl;
 }
@@ -243,6 +244,7 @@ void WebServer::launch() {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0) {
                         clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex])));
+                        std::cout << RED << clients.size() << RESET << std::endl;
                         // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
                         std::cout << "server index: " << serverIndex << std::endl;
                         std::cout << "new client inserted: " << new_client << std::endl;
