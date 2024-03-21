@@ -235,7 +235,7 @@ void HttpResponse::PostHundler(location Location) {
 				setError(403,ERROR403);
 		} else if (S_ISREG(st.st_mode)) {
 			extention = getCgiExtension(FinalPath);
-				std::cout << extention << std::endl;
+				// std::cout << extention << std::endl;
 			if (extention == ".php" || extention == ".py") {
 				_do = false;
 				// runCGI(extention, Location);
@@ -279,7 +279,7 @@ void HttpResponse::DeleteHundler(location Location) {
 			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
-					std::cout << "hello" << std::endl;
+					// std::cout << "hello" << std::endl;
 				// runCGI(extention, Location);
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
@@ -293,7 +293,7 @@ void HttpResponse::DeleteHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				// runCGI(extention, Location);
-				std::cout << "hello" << std::endl;
+				// std::cout << "hello" << std::endl;
 			}
 			else {
 				if (std::remove(FinalPath.c_str()) == 0)
@@ -319,7 +319,7 @@ void HttpResponse::GetHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					// runCGI(extention, Location);
-					std::cout << "hello" << std::endl;
+					// std::cout << "hello" << std::endl;
 				} else {
 					setStatusCode(200);
 					addHeader("Content-Type", GetFileExtension(FinalPath));
@@ -328,7 +328,7 @@ void HttpResponse::GetHundler(location Location) {
 			} else if (Location.autoIndex) {
 				setStatusCode(200);
 				addHeader("Content-Type", "text/html");
-				std::cout << "auto indexing" << std::endl;
+				// std::cout << "auto indexing" << std::endl;
 				body = list_dir(FinalPath.substr(0, FinalPath.find_last_of('/')));
 			} else
 				setError(403,ERROR403);
@@ -336,7 +336,7 @@ void HttpResponse::GetHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				// runCGI(extention, Location);
-				std::cout << "hello" << std::endl;
+				// std::cout << "hello" << std::endl;
 			}
 			else {
 				setStatusCode(200);
