@@ -5,7 +5,7 @@ Client::Client() {
 }
 
 Client::Client(int fd, std::pair<u_long, int> ipAndPort) : resGenerated(false) {
-    std::cout << RED << "client constructor" << RESET << std::endl;
+    // std::cout << RED << "client constructor" << RESET << std::endl;
     stringReq = "";
     stringRes = "";
 	socket.fd = fd;
