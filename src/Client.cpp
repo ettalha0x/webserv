@@ -1,9 +1,11 @@
 #include "Client.hpp"
 
 Client::Client() {
+    std::cout << RED << "default" << RESET << std::endl;
 }
 
-Client::Client(int fd, std::pair<u_long, int> ipAndPort) {
+Client::Client(int fd, std::pair<u_long, int> ipAndPort) : resGenerated(false) {
+    // std::cout << RED << "client constructor" << RESET << std::endl;
     stringReq = "";
     stringRes = "";
 	socket.fd = fd;
@@ -43,6 +45,14 @@ Client& Client::operator=(const Client& rhs) {
         this->ipAndPort = rhs.ipAndPort;
     }
     return *this;
+}
+
+void Client::clearData(void) {
+    stringReq.clear();
+    stringRes.clear();
+    resGenerated = false;
+    request.clearData();
+    response.clearData();
 }
 
 Client::~Client() {

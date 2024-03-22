@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:07:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/15 16:36:57 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/18 23:48:43 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,31 @@ HttpRequest &HttpRequest::operator=(const HttpRequest & obj) {
 	this->Query = obj.Query;
 	this->bodyExist = obj.bodyExist;
 	this->isChunked = obj.isChunked;
-	this->Headers = obj.Headers;
 	this->completed = obj.completed;
 	this->served = false;
 	this->badRequest = false;
 	return *this;
+}
+
+void	HttpRequest::clearData(void) {
+	this->_RequestLine.clear();
+	this->_path.clear();
+	this->_method.clear();
+	this->_HttpVersion.clear();
+	this->_boundary.clear();
+	this->_contentType.clear();
+	this->_requestedFile.clear();
+	this->_contentLength = 0;
+	this->_serverName.clear();
+	this->_bodySize = 0;
+	this->Headers.clear();
+	this->body.clear();
+	this->Query.clear();
+	this->bodyExist = false;
+	this->isChunked = false;
+	this->completed = false;
+	this->served = false;
+	this->badRequest = false;
 }
 
 std::string HttpRequest::GetRequestLine(void) const {
@@ -107,7 +127,6 @@ std::string	remove_chanks_body(std::string body)
 			break ;
 		number = body.substr(0, i);
 		decimal_num = std::strtol(number.c_str(), &endPtr, 16);
-		// std::cout << "{ " << number << " }" << std::endl;
 		if (decimal_num == 0)
 			break ;
 		body = body.substr(i+1, body.length());
@@ -120,7 +139,6 @@ std::string	remove_chanks_body(std::string body)
 		}
 		body = body.substr(j+2 , body.length());
 	}
-	// std::cout  << "{" << new_body << "}" << std::endl;
 	return (new_body);
 }
 
@@ -229,7 +247,6 @@ void HttpRequest::parser(std::string &request, std::pair<u_long, int> ipAndPort)
 		if (!this->body.empty())
 			this->bodyExist = true;
 	}
-	// setPortAndServerName();
 	if (this->bodyExist)
 		this->_bodySize = this->body.size();
 	if (this->isChunked == 1)
@@ -243,17 +260,6 @@ void HttpRequest::parser(std::string &request, std::pair<u_long, int> ipAndPort)
 	this->_port = ipAndPort.second;
 }
 
-// void HttpRequest::setPortAndServerName(void) {
-// 	size_t pos = this->_Host.find(":");
-// 	if (pos == this->_Host.npos) {
-// 		// throw BadRequestException();
-// 		this->_serverName = _Host;
-// 		return;
-// 	}
-// 	this->_serverName = this->_Host.substr(0, pos);
-// 	this->_port = std::atoi(this->_Host.substr(pos + 1, this->_Host.length() - (pos + 1)).c_str());
-// 	this->_Host = this->_Host.substr(0, pos);
-// }
 std::ostream& operator<<(std::ostream& os, const HttpRequest& obj) {
 	os << "####################################################" << std::endl;
 	os << "Request Line : " << obj.GetRequestLine() << std::endl;

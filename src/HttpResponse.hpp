@@ -31,7 +31,6 @@ class HttpResponse {
 		void addHeader(const std::string& key, const std::string& value);
 		// Function to get the constructed response header
 		std::string getHeaderString() const;
-		// std::string getLocationRoute(std::string &path);
 		location	getMatchedLocation(std::string &locationRoute);
 
 		// Function to get the body
@@ -54,6 +53,7 @@ class HttpResponse {
 		size_t			GetContentLength();
 		std::string		getHeader();
 		std::string		getBody();
+		void			clearData();
 
 		~HttpResponse();
 };

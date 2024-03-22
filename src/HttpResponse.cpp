@@ -32,6 +32,16 @@ int	HttpResponse::getStatusCode() {
 	return statusCode;
 }
 
+void HttpResponse::clearData() {
+	request.clearData();
+	statusMessage.clear();
+	headerString.clear();
+	body.clear();
+	FinalPath.clear();
+	headers.clear();
+	ID.clear();
+}
+
 std::string	HttpResponse::getStatusMessage(int	statusCode) {
 	switch (statusCode) {
 		case 200:
@@ -74,11 +84,6 @@ std::string HttpResponse::getHeaderString() const {
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		headerString += it->first + ": " + it->second + "\r\n";
 	}
-	// HeaderContainer tmp = request.GetHeaders();
-	// if (tmp.find("Referer") == tmp.end())
-	// {
-	// 	headerString += "Set-cookie: sessionId=" + this->ID + "; Max-Age=120 \r\n";
-	// }
 	return headerString + "\r\n";
 }
 
@@ -88,7 +93,6 @@ void	HttpResponse::constructHeader(void) {
     addHeader("Server", "Wind City Warrior's Web Server");
     addHeader("Date", getCurrentTimeInGMT());
 	headerString = getHeaderString();
-	// std::cout << "headerString ==>>>   {" << headerString<< "}";
 }
 
 void removeBlock(std::string &tmp) {
@@ -102,7 +106,7 @@ void removeBlock(std::string &tmp) {
 		beforLast = tmp.substr(0, lastSlash).find_last_of("/");
 		if (beforLast == tmp.npos)
 			beforLast = 0;
-		tmp.erase(beforLast, lastSlash + 1);
+		tmp.erase(beforLast + 1, lastSlash + 1);
 	}
 }
 
@@ -118,7 +122,6 @@ location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
 		removeBlock(tmp);
 	}
 	return config.locations.begin()->second;
-	// throw LocationNotFoundException();
 }
 
 void HttpResponse::check_method(location Location) {
@@ -159,7 +162,6 @@ void HttpResponse::callHundlerBymethod(location Location) {
 }
 
 void HttpResponse::runCGI(std::string extention, location Location) {
-		// std::cout << "RUN CGI 1>>>>>>\n";
 	struct stat st;
 	if (Location.cgi_path.empty() || !extentionSuported(extention, Location))
 	{
@@ -171,21 +173,8 @@ void HttpResponse::runCGI(std::string extention, location Location) {
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
 		std::cout << "RUN CGI >>>>>>\n";
 		cgi CGI(request, FinalPath, Location.cgi_path);
-		// body = CGI.get_cgi_res();
 		resp = CGI.get_cgi_res();
 		std::cout << "CGI finish  >>>>>>\n";
-		// std::map<std::string , std::string>::iterator ite = resp.first.begin();
-		// std::cout << YELLOW << "first == {" << std::endl;
-		// while (ite != resp.first.end())
-		// {
-		// 	std::cout << "key = " << ite->first << " value == " << "{" << ite->second << "}" <<  std::endl;
-		// 	ite++;
-		// }
-		// std::cout << "}" << RESET << std::endl;
-		
-		// std::cout << YELLOW << "second.first == {" <<  resp.second.first << "}" << RESET << std::endl;
-		// std::cout << YELLOW << "second.second == {" <<  resp.second.second << "}" << RESET << std::endl;
-		// std::cout << YELLOW << body << RESET << std::endl;
 		if (resp.second.second == 500)
 			setError(resp.second.second, ERROR500);
 		if (resp.second.second == 504)
@@ -222,46 +211,43 @@ std::string aliasHundler(location Location, std::string requestPath) {
 
 void HttpResponse::PostHundler(location Location) {
 
-	// else {
-		struct stat st;
-		std::string extention;
-		bool _do = true;
-		if (Location.alias.empty())
-			FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
-		else
-			FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
-		if (stat(FinalPath.c_str(), &st) == 0) {
-			if (S_ISDIR(st.st_mode)) {
-				FinalPath += Location.index;
-				if (stat(FinalPath.c_str(),&st) == 0) {
-					extention = getCgiExtension(FinalPath);
-					if (extention == ".php" || extention == ".py") {
-						_do = false;
-					runCGI(extention, Location);
-					// check of errors in cgi
-					} else {
-						setStatusCode(200);
-						addHeader("Content-Type", "text/html");
-						body = getFileContent(FinalPath);
-					}
-				} else
-					setError(403,ERROR403);
-			} else if (S_ISREG(st.st_mode)) {
+	struct stat st;
+	std::string extention;
+	bool _do = true;
+	if (Location.alias.empty()) 
+		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
+	else
+		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
+	if (stat(FinalPath.c_str(), &st) == 0) {
+		if (S_ISDIR(st.st_mode)) {
+			FinalPath += Location.index;
+			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = getCgiExtension(FinalPath);
-					std::cout << extention << std::endl;
 				if (extention == ".php" || extention == ".py") {
 					_do = false;
-					runCGI(extention, Location);
-					// check of errors in cgi
-				}
-				else {
+				runCGI(extention, Location);
+				} else {
 					setStatusCode(200);
-					addHeader("Content-Type", GetFileExtension(FinalPath));
+					addHeader("Content-Type", "text/html");
 					body = getFileContent(FinalPath);
 				}
+			} else
+				setError(403,ERROR403);
+		} else if (S_ISREG(st.st_mode)) {
+			extention = getCgiExtension(FinalPath);
+				// std::cout << extention << std::endl;
+			if (extention == ".php" || extention == ".py") {
+				_do = false;
+				runCGI(extention, Location);
 			}
-		} else
-			setError(404,ERROR404);
+			else {
+				setStatusCode(200);
+				addHeader("Content-Type", GetFileExtension(FinalPath));
+				body = getFileContent(FinalPath);
+			}
+		}
+	} else
+		setError(404,ERROR404);
 
 	if (!Location.upload_path.empty() && _do) {
 		if (!request.GetRequestedFile().empty()) {
@@ -278,7 +264,6 @@ void HttpResponse::PostHundler(location Location) {
 		}
 		else
 			setError(500,ERROR500);
-		// check response status code
 	}
 }
 void HttpResponse::DeleteHundler(location Location) {
@@ -294,6 +279,7 @@ void HttpResponse::DeleteHundler(location Location) {
 			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
+					// std::cout << "hello" << std::endl;
 				runCGI(extention, Location);
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
@@ -307,6 +293,7 @@ void HttpResponse::DeleteHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
+				// std::cout << "hello" << std::endl;
 			}
 			else {
 				if (std::remove(FinalPath.c_str()) == 0)
@@ -323,7 +310,7 @@ void HttpResponse::GetHundler(location Location) {
 	std::string extention;
 	if (Location.alias.empty())
 		FinalPath = Location.root + request.GetPath() + request.GetRequestedFile();
-	else
+	else 
 		FinalPath = aliasHundler(Location, request.GetPath()) + request.GetRequestedFile();
 	if (stat(FinalPath.c_str(), &st) == 0) {
 		if (S_ISDIR(st.st_mode)) {
@@ -332,7 +319,7 @@ void HttpResponse::GetHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
-				// check of errors in cgi
+					// std::cout << "hello" << std::endl;
 				} else {
 					setStatusCode(200);
 					addHeader("Content-Type", GetFileExtension(FinalPath));
@@ -341,7 +328,7 @@ void HttpResponse::GetHundler(location Location) {
 			} else if (Location.autoIndex) {
 				setStatusCode(200);
 				addHeader("Content-Type", "text/html");
-				std::cout << "auto indexing" << std::endl;
+				// std::cout << "auto indexing" << std::endl;
 				body = list_dir(FinalPath.substr(0, FinalPath.find_last_of('/')));
 			} else
 				setError(403,ERROR403);
@@ -349,7 +336,7 @@ void HttpResponse::GetHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				// check of errors in cgi
+				// std::cout << "hello" << std::endl;
 			}
 			else {
 				setStatusCode(200);
@@ -365,7 +352,6 @@ void	HttpResponse::constructBody() {
 	std::string path;
 	std::string finalPath;
 	std::string	uploadPath;
-	// std::cout << GREEN << "#####################" << RESET << std::endl;
 	if ((!(request.GetHeaders()["Transfer-Encoding"].empty()) && request.GetHeaders()["Transfer-Encoding"] != "chunked") || request.GetHttpVersion() != "HTTP/1.1") {
 		setError(501, ERROR501);
 		return;
@@ -380,7 +366,7 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	path = request.GetPath();
-	// std::cout << RED << path << RESET << std::endl;
+	// std::cout << YELLOW << path << RESET << std::endl;
 	if (path.find_last_of('/') != path.size() - 1) {
 		if (request.GetMethod() == "DELETE")
 			setError(409,ERROR409);
@@ -390,7 +376,6 @@ void	HttpResponse::constructBody() {
 		}
 		return;
 	}
-	// std::cout << YELLOW << "Path: " << path << RESET << std::endl;
 	location Location;
 	try
 	{
@@ -401,10 +386,7 @@ void	HttpResponse::constructBody() {
 			return;
 		}
 		check_method(Location);
-
-		// std::cout << "here" << std::endl;
 		callHundlerBymethod(Location);
-		// std::cout << "here2222" << std::endl;
 	}
 	catch(const LocationNotFoundException& e)
 	{

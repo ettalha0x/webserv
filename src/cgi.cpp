@@ -294,7 +294,8 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 		std::string body;
 
 		header = res_cgi.substr(0, i);
-		body = copy(res_cgi, header.length()+4, res_cgi.length());
+		// body = copy(res_cgi, header.length()+4, res_cgi.length()-1);
+		body = res_cgi.substr(header.length()+4, res_cgi.length() - header.length() -4);
 		header_map = fill_container_map(header);
 		size_t j = header.find("Content-Length:");
 		double	lent=0;
@@ -312,7 +313,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 			resp.second.first = body.substr(0, lent);
 		else
 		{
-			resp.second.first = body.substr(0, body.length() - 2);
+			resp.second.first = body;
 			std::map<std::string , std::string>::iterator it;
 			it = header_map.find("Content-Length:");
 			if (it != header_map.end())
@@ -437,7 +438,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
 		{
 			N = waitpid(pid, &status, WNOHANG);
 			time = std::time(nullptr);
-			if (time > currentTime + 5 && N == 0)
+			if (time > currentTime + 15 && N == 0)
 			{
 				deleteCharArray(envp);
 				kill(pid, SIGKILL);
