@@ -16,7 +16,7 @@ WebServer::WebServer(std::vector<t_server_config> &configs) : configs(configs) {
             if (std::find(ipAndPort.begin(), ipAndPort.end(), pair) != ipAndPort.end()) 
                 continue;
             ipAndPort.push_back(pair);
-            server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, pair.second, pair.first, 100));
+            server_listening_sockets.push_back(ListeningSocket(AF_INET, SOCK_STREAM, 0, pair.second, pair.first, SOMAXCONN));
         }
 	}
     launch();
@@ -128,11 +128,11 @@ void WebServer::responder(int &fd) {
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
     clients[fd].getPollfd().events |= POLLIN;
     if (bytesSent <= 0) {
-        // close(clients[fd].getPollfd().fd);
+        close(clients[fd].getPollfd().fd);
         // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
         clients[fd].clearData();
         // std::cout << RED << "send error" << RESET << std::endl;
-        // clients.erase(fd);
+        clients.erase(fd);
         return;
     } else if (bytesSent > 0){
         clients[fd].getStringRes().erase(0, (size_t)bytesSent);
