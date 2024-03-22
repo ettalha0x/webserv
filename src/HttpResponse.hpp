@@ -43,7 +43,7 @@ class HttpResponse {
 		void	PostHundler(location Location);
 		void	GetHundler(location Location);
 		void	DeleteHundler(location Location);
-		// void	runCGI(std::string extention, location Location);
+		void	runCGI(std::string extention, location Location);
 
 		
 	public:

@@ -218,7 +218,7 @@ void WebServer::launch() {
     while (true) {
         getClientsPollfds();
 		check_delete_session();
-        int num_events = poll(client_sockets.data(), client_sockets.size(), -1);
+        int num_events = poll(client_sockets.data(), client_sockets.size(), 0);
         if (num_events == 0) {
             continue;
         }

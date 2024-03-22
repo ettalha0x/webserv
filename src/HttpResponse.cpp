@@ -161,46 +161,46 @@ void HttpResponse::callHundlerBymethod(location Location) {
 		GetHundler(Location);
 }
 
-// void HttpResponse::runCGI(std::string extention, location Location) {
-// 	struct stat st;
-// 	if (Location.cgi_path.empty() || !extentionSuported(extention, Location))
-// 	{
-// 		setError(403, ERROR403);
-// 		return;
-// 	}
-// 	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
-// 	{
-// 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
-// 		std::cout << "RUN CGI >>>>>>\n";
-// 		cgi CGI(request, FinalPath, Location.cgi_path);
-// 		resp = CGI.get_cgi_res();
-// 		std::cout << "CGI finish  >>>>>>\n";
-// 		if (resp.second.second == 500)
-// 			setError(resp.second.second, ERROR500);
-// 		if (resp.second.second == 504)
-// 			setError(resp.second.second, ERROR504);
-// 		if (resp.second.second == 200) {
-// 			setStatusCode(200);
-// 			if (!resp.first["Content-Type:"].empty()) {
-// 				addHeader("Content-Type",resp.first["Content-Type:"]);
-// 			}
-// 			if (!resp.first["Content-Length:"].empty())
-// 				addHeader("Content-Length",resp.first["Content-Length:"]);
-// 			if (!resp.first["Set-Cookie:"].empty())
-// 			{
-// 				addHeader("Set-Cookie",resp.first["Set-Cookie:"]);
-// 				std::cout << "cookie in resp\n";
-// 			}
-// 			if (!resp.first["Location:"].empty())
-// 			{
-// 				std::cout << "location in resp\n";
-// 				addHeader("Location",resp.first["Location:"]);
-// 				setStatusCode(301);
-// 			}
-// 			body = resp.second.first;
-// 		}
-// 	}
-// }
+void HttpResponse::runCGI(std::string extention, location Location) {
+	struct stat st;
+	if (Location.cgi_path.empty() || !extentionSuported(extention, Location))
+	{
+		setError(403, ERROR403);
+		return;
+	}
+	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
+	{
+		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
+		std::cout << "RUN CGI >>>>>>\n";
+		cgi CGI(request, FinalPath, Location.cgi_path);
+		resp = CGI.get_cgi_res();
+		std::cout << "CGI finish  >>>>>>\n";
+		if (resp.second.second == 500)
+			setError(resp.second.second, ERROR500);
+		if (resp.second.second == 504)
+			setError(resp.second.second, ERROR504);
+		if (resp.second.second == 200) {
+			setStatusCode(200);
+			if (!resp.first["Content-Type:"].empty()) {
+				addHeader("Content-Type",resp.first["Content-Type:"]);
+			}
+			if (!resp.first["Content-Length:"].empty())
+				addHeader("Content-Length",resp.first["Content-Length:"]);
+			if (!resp.first["Set-Cookie:"].empty())
+			{
+				addHeader("Set-Cookie",resp.first["Set-Cookie:"]);
+				std::cout << "cookie in resp\n";
+			}
+			if (!resp.first["Location:"].empty())
+			{
+				std::cout << "location in resp\n";
+				addHeader("Location",resp.first["Location:"]);
+				setStatusCode(301);
+			}
+			body = resp.second.first;
+		}
+	}
+}
 
 std::string aliasHundler(location Location, std::string requestPath) {
 	if (requestPath == "/")
@@ -225,7 +225,7 @@ void HttpResponse::PostHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					_do = false;
-				// runCGI(extention, Location);
+				runCGI(extention, Location);
 				} else {
 					setStatusCode(200);
 					addHeader("Content-Type", "text/html");
@@ -238,7 +238,7 @@ void HttpResponse::PostHundler(location Location) {
 				std::cout << extention << std::endl;
 			if (extention == ".php" || extention == ".py") {
 				_do = false;
-				// runCGI(extention, Location);
+				runCGI(extention, Location);
 			}
 			else {
 				setStatusCode(200);
@@ -280,7 +280,7 @@ void HttpResponse::DeleteHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					std::cout << "hello" << std::endl;
-				// runCGI(extention, Location);
+				runCGI(extention, Location);
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
 						setStatusCode(204);
@@ -292,7 +292,7 @@ void HttpResponse::DeleteHundler(location Location) {
 		} else if (S_ISREG(st.st_mode)) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
-				// runCGI(extention, Location);
+				runCGI(extention, Location);
 				std::cout << "hello" << std::endl;
 			}
 			else {
@@ -318,7 +318,7 @@ void HttpResponse::GetHundler(location Location) {
 			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
-					// runCGI(extention, Location);
+					runCGI(extention, Location);
 					std::cout << "hello" << std::endl;
 				} else {
 					setStatusCode(200);
@@ -335,7 +335,7 @@ void HttpResponse::GetHundler(location Location) {
 		} else if (S_ISREG(st.st_mode)) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
-				// runCGI(extention, Location);
+				runCGI(extention, Location);
 				std::cout << "hello" << std::endl;
 			}
 			else {
