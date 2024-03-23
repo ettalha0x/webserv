@@ -40,33 +40,24 @@ void	WebServer::setNonBlocking(int &sock) {
 	int flags = fcntl(sock, F_GETFL, 0);
 	if (flags < 0) {
 		perror("get flags error");
-        // std::cout << YELLOW << sock << RESET << std::endl;
         close(sock);
     }
 	if (fcntl(sock, F_SETFL, flags | O_NONBLOCK | O_CLOEXEC)) {
 		perror("set to non-blocking error");
-        // std::cout << YELLOW << sock << RESET << std::endl;
         close(sock);
     }
 }
 
 void WebServer::handler(int &fd) {
-    // if (!clients[fd].getStringRes().empty())
-    //     return;
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
-	// std::cout << "still receiving" << std::endl;
     clients[fd].getPollfd().events |= POLLOUT;
 
     if (bytesReceived <= 0) {
-        // delete client
-        // if (bytesReceived < 0) {
             close(clients[fd].getPollfd().fd);
-            // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
             clients[fd].getStringReq().clear();
             clients.erase(fd);
-        // }
         return;
     }
 
@@ -75,33 +66,18 @@ void WebServer::handler(int &fd) {
     }
 
     if (bytesReceived > 0 && requestChecker(clients[fd].getStringReq())) {
-        // clients[fd].resGenerated = false;
         try {
-			// std::cout << RED << clients[fd].getStringReq() << RESET << std::endl;
             clients[fd].getRequest().parser(clients[fd].getStringReq(), clients[fd].ipAndPort);
         } catch (const BadRequestException &e) {
-            std::cout << RED << e.what() << RESET << std::endl;
             clients[fd].getRequest().badRequest = true;
         }
         clients[fd].getRequest().completed = true;
-        // if (!clients[fd].getRequest().badRequest) {
-		//     HeaderContainer tmp = clients[fd].getRequest().GetHeaders();
-		//     // if (tmp.find("Referer") == tmp.end())
-		//     // {
-		//     // 	session ss;
-		//     // 	this->ID = ss.create_session(clients[fd].getRequest());
-		//     // }
-		//     // else {
-		//     // 	this->ID = tmp["cookie"];
-		//     // }
-        // }
         clients[fd].getStringReq().clear();
     }
 }
 
 bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){
-        // std::cout << GREEN << "HEEEREEE " << clients.size() << RESET << std::endl;
         if (clients[fd].getRequest().badRequest) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
@@ -109,17 +85,13 @@ bool WebServer::responder(int &fd) {
             clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
         }
         else {
-            // std::cout <<  RED << "error here\n" << RESET;
-            // std::cout << RED << "host: " << clients[fd].getRequest().GetHost() << "| port: " << clients[fd].getRequest().GetPort() << "| servername: " << clients[fd].getRequest().GetServerName() << RESET << std::endl;
             int configIndex = getMatchedConfig(clients[fd].getRequest(), configs);
             if (configIndex == -1) {
                 clients[fd].getStringRes() = "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 166\r\n\r\n" + std::string(ERROR400) + "\r\n\r\n";
             }
             else {
                 HttpResponse newResponse(configs[configIndex], clients[fd].getRequest(), this->ID);
-				// std::cout << YELLOW << "HERE RESPONDER" << RESET << std::endl;
                 clients[fd].getStringRes() = newResponse.getHeader() + newResponse.getBody();
-                // std::cout << YELLOW << clients[fd].getStringRes() << RESET << std::endl;
                  
             }
         }
@@ -129,9 +101,7 @@ bool WebServer::responder(int &fd) {
     clients[fd].getPollfd().events |= POLLIN;
     if (bytesSent <= 0) {
         close(clients[fd].getPollfd().fd);
-        // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
         clients[fd].clearData();
-        // std::cout << RED << "send error" << RESET << std::endl;
         clients.erase(fd);
         return true;
     } else if (bytesSent > 0){
@@ -139,24 +109,13 @@ bool WebServer::responder(int &fd) {
     }
     if (clients[fd].getStringRes().empty()) {
 
-    //    clients[fd].getStringRes().clear();
        clients[fd].getRequest().served = true;
-    //    if (clients[fd].getRequest().GetHeaders().find("Connection") != clients[fd].getRequest().GetHeaders().end() && clients[fd].getRequest().GetHeaders()["Connection"] == "close")
-    //      {
             close(clients[fd].getPollfd().fd);
-            // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
             clients[fd].clearData();
             clients.erase(fd);
             return true;
-            // std::cout << RED << "close connection" << RESET << std::endl;
-        //  } else {
-            // Client tmp(fd, clients[fd].ipAndPort);
-            // clients[fd] = tmp;
-            // std::cout << RED << "clear data" << RESET << std::endl;
-        //  }
     }
     return false;
-    // std::cout << GREEN << "Responding..." << RESET << std::endl;
 }
 
 void				WebServer::getClientsPollfds() {
@@ -189,11 +148,10 @@ void    WebServer::init_pollfd() {
 
 void	WebServer::check_delete_session()
 {
-	// std::cout << "size ===  " << cookie_vector_expe.size() << std::endl;
 	if (cookie_vector_expe.size() > 0)
 	{
 		std::vector<std::pair<std::string, long> >::iterator it = cookie_vector_expe.begin();
-		std::string path = "Sites-available/Server_1/session/";
+		std::string path = "session/";
 		std::string file_name;
 		int i = 0;
 		while (it != cookie_vector_expe.end())
@@ -202,7 +160,6 @@ void	WebServer::check_delete_session()
 			{
 				file_name = path + it->first;
 				cookie_vector_expe.erase(cookie_vector_expe.begin() + i);
-				// std::cout << file_name << std::endl;
 				std::remove(file_name.c_str());
 				it = cookie_vector_expe.begin() + i;
 				continue ;
@@ -234,10 +191,8 @@ void WebServer::launch() {
                 int serverIndex = -1;
                 for (int j = 0; j < (int)server_sockets.size(); j++) {
                     if (client_sockets[i].fd == server_sockets[j].fd) {
-                        // std::cout << client_sockets[i].fd << " == " << server_sockets[j].fd << std::endl;
                         isServerFd = true;
                         serverIndex = j;
-                        // server_sockets.erase(server_sockets.begin() + j);
                         break;
                     }
                 }
@@ -246,10 +201,6 @@ void WebServer::launch() {
                     int new_client = accepter(serverIndex);
                     if (new_client > 0) {
                         clients.insert(std::make_pair(new_client, Client(new_client, ipAndPort[serverIndex])));
-                        // std::cout << RED << clients.size() << RESET << std::endl;
-                        // std::cout << YELLOW << "fd: " << serverIndex << "| ip: "<< ipAndPort[serverIndex].first << "| port: " << ipAndPort[serverIndex].second  << RESET << std::endl;
-                        // std::cout << "server index: " << serverIndex << std::endl;
-                        // std::cout << "new client inserted: " << new_client << std::endl;
                     }
                 } else {
                     handler(client_sockets[i].fd);

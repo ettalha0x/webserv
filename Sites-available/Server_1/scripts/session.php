@@ -9,7 +9,7 @@
 	
 	if ($username === "mehdi" && $password === "sekouni")
 	{
-		session_save_path("../session");
+		session_save_path("../../../session");
 		session_start();
 		$session_id = session_id();
 		$_SESSION["username"] = $username;

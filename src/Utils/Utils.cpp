@@ -31,7 +31,6 @@ int getMatchedConfig(HttpRequest &request, const std::vector<t_server_config> &c
     std::vector<int> newConfig;
     for (size_t i = 0; i < configs.size(); i++)
     {
-        // Check if host and port match
         if (configs[i].host == request.GetHost() && std::find(configs[i].port.begin(), configs[i].port.end(), request.GetPort()) != configs[i].port.end())
         {
             newConfig.push_back(i);

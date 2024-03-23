@@ -22,6 +22,7 @@ RM = rm -rf
 
 $(NAME): $(OBJS)
 		c++ ${CPPFLAGS} $^ -o $@
+		mkdir session || true
 
 all : $(NAME)
 

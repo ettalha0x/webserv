@@ -171,10 +171,8 @@ void HttpResponse::runCGI(std::string &extention, location &Location) {
 	if ((extention == ".php" && !stat((Location.cgi_path + "/php-cgi").c_str(), &st)) || (extention == ".py" && !stat((Location.cgi_path + "/python3").c_str(), &st)))
 	{
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
-		std::cout << "RUN CGI >>>>>>\n";
 		cgi CGI(request, FinalPath, Location.cgi_path);
 		resp = CGI.get_cgi_res();
-		std::cout << "CGI finish  >>>>>>\n";
 		if (resp.second.second == 500)
 			setError(resp.second.second, ERROR500);
 		if (resp.second.second == 504)
@@ -189,16 +187,18 @@ void HttpResponse::runCGI(std::string &extention, location &Location) {
 			if (!resp.first["Set-Cookie:"].empty())
 			{
 				addHeader("Set-Cookie",resp.first["Set-Cookie:"]);
-				std::cout << "cookie in resp\n";
 			}
 			if (!resp.first["Location:"].empty())
 			{
-				std::cout << "location in resp\n";
 				addHeader("Location",resp.first["Location:"]);
 				setStatusCode(301);
 			}
 			body = resp.second.first;
 		}
+	}
+	else {
+		setError(500, ERROR500);
+		return;
 	}
 }
 
@@ -235,7 +235,6 @@ void HttpResponse::PostHundler(location &Location) {
 				setError(403,ERROR403);
 		} else if (S_ISREG(st.st_mode)) {
 			extention = getCgiExtension(FinalPath);
-				// std::cout << extention << std::endl;
 			if (extention == ".php" || extention == ".py") {
 				_do = false;
 				runCGI(extention, Location);
@@ -325,7 +324,6 @@ void HttpResponse::GetHundler(location &Location) {
 			} else if (Location.autoIndex) {
 				setStatusCode(200);
 				addHeader("Content-Type", "text/html");
-				// std::cout << "auto indexing" << std::endl;
 				body = list_dir(FinalPath.substr(0, FinalPath.find_last_of('/')));
 			} else
 				setError(403,ERROR403);
@@ -362,7 +360,6 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	path = request.GetPath();
-	// std::cout << YELLOW << path << RESET << std::endl;
 	if (path.find_last_of('/') != path.size() - 1) {
 		if (request.GetMethod() == "DELETE")
 			setError(409,ERROR409);
@@ -386,7 +383,6 @@ void	HttpResponse::constructBody() {
 	}
 	catch(const LocationNotFoundException& e)
 	{
-		std::cout << e.what() << std::endl;
 		if (path == "Error-pages") {
 			setStatusCode(404);
 			addHeader("Content-Type", "text/html");
@@ -396,7 +392,6 @@ void	HttpResponse::constructBody() {
 		return;
 	}
 	catch (const NotAllowedException& e) {
-		std::cout << e.what() << std::endl;
 		setError(405,ERROR405);
 		return;
 	}
