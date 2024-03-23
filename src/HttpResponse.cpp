@@ -375,6 +375,7 @@ void	HttpResponse::constructBody() {
 		Location = getMatchedLocation(path);
 		if (!Location.redirection.empty()) {
 			setStatusCode(301);
+			// std::cout << "here" << std::endl;
 			addHeader("location", Location.redirection);
 			return;
 		}

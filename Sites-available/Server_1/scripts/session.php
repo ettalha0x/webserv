@@ -13,7 +13,7 @@
 		session_start();
 		$session_id = session_id();
 		$_SESSION["username"] = $username;
-		setcookie("PHPSESSID" , $session_id, time() + (20), "/");
+		setcookie("PHPSESSID" , $session_id, time() + (60));
 		// setcookie("PHPSESSID" , $session_id, time() + (120), "/mehdi");
 	}
 	else

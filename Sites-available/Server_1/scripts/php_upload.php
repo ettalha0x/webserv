@@ -17,7 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		// Specify absolute upload directory
             $filename = basename($file["name"]);
             $target_path = $upload_dir . '/' . $filename;
-			echo "dir {" . $upload_dir . "} dir!";
 		
 			
             // Move uploaded file to the specified directory

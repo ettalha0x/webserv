@@ -52,7 +52,6 @@ void WebServer::handler(int &fd) {
     bzero(buffer, BUFFER_SIZE);
     int bytesReceived = 0;
     bytesReceived =  recv(fd, buffer, BUFFER_SIZE, MSG_RCVMORE);
-    clients[fd].getPollfd().events |= POLLOUT;
 
     if (bytesReceived <= 0) {
             close(clients[fd].getPollfd().fd);
@@ -98,7 +97,6 @@ bool WebServer::responder(int &fd) {
         clients[fd].resGenerated = true;
     }
     size_t bytesSent = send(fd, clients[fd].getStringRes().c_str(), clients[fd].getStringRes().length(), 0);
-    clients[fd].getPollfd().events |= POLLIN;
     if (bytesSent <= 0) {
         close(clients[fd].getPollfd().fd);
         clients[fd].clearData();
