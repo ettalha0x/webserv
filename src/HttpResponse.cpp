@@ -333,7 +333,6 @@ void HttpResponse::GetHundler(location &Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				std::cout << "hello" << std::endl;
 			}
 			else {
 				setStatusCode(200);
