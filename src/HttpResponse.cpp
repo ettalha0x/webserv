@@ -124,7 +124,7 @@ location	HttpResponse::getMatchedLocation(std::string &locationRoute) {
 	return config.locations.begin()->second;
 }
 
-void HttpResponse::check_method(location Location) {
+void HttpResponse::check_method(location &Location) {
 	for (size_t i = 0; i < Location.acceptedMethods.size(); i++) {
 		if (request.GetMethod() == Location.acceptedMethods[i])
 			return;
@@ -144,7 +144,7 @@ void HttpResponse::setError(int errorNum, std::string error) {
 	}
 }
 
-bool HttpResponse::extentionSuported(std::string exe, location Location) {
+bool HttpResponse::extentionSuported(std::string &exe, location &Location) {
 	for(size_t i = 0; i < Location.cgi_extentions.size(); i++) {
 		if (exe == Location.cgi_extentions[i])
 			return true;
@@ -152,7 +152,7 @@ bool HttpResponse::extentionSuported(std::string exe, location Location) {
 	return false;
 }
 
-void HttpResponse::callHundlerBymethod(location Location) {
+void HttpResponse::callHundlerBymethod(location &Location) {
 	if (request.GetMethod() == "POST")
 		PostHundler(Location);
 	else if (request.GetMethod() == "DELETE")
@@ -161,7 +161,7 @@ void HttpResponse::callHundlerBymethod(location Location) {
 		GetHundler(Location);
 }
 
-void HttpResponse::runCGI(std::string extention, location Location) {
+void HttpResponse::runCGI(std::string &extention, location &Location) {
 	struct stat st;
 	if (Location.cgi_path.empty() || !extentionSuported(extention, Location))
 	{
@@ -209,7 +209,7 @@ std::string aliasHundler(location Location, std::string requestPath) {
 	return Location.alias + requestPath;
 }
 
-void HttpResponse::PostHundler(location Location) {
+void HttpResponse::PostHundler(location &Location) {
 
 	struct stat st;
 	std::string extention;
@@ -266,7 +266,7 @@ void HttpResponse::PostHundler(location Location) {
 			setError(500,ERROR500);
 	}
 }
-void HttpResponse::DeleteHundler(location Location) {
+void HttpResponse::DeleteHundler(location &Location) {
 	struct stat st;
 	std::string extention;
 	if (Location.alias.empty())
@@ -279,7 +279,6 @@ void HttpResponse::DeleteHundler(location Location) {
 			if (stat(FinalPath.c_str(),&st) == 0) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
-					std::cout << "hello" << std::endl;
 				runCGI(extention, Location);
 				} else {
 					if (std::remove(FinalPath.c_str()) == 0)
@@ -293,7 +292,6 @@ void HttpResponse::DeleteHundler(location Location) {
 			extention = getCgiExtension(FinalPath);
 			if (extention == ".php" || extention == ".py") {
 				runCGI(extention, Location);
-				std::cout << "hello" << std::endl;
 			}
 			else {
 				if (std::remove(FinalPath.c_str()) == 0)
@@ -305,7 +303,7 @@ void HttpResponse::DeleteHundler(location Location) {
 	} else
 		setError(404,ERROR404);
 }
-void HttpResponse::GetHundler(location Location) {
+void HttpResponse::GetHundler(location &Location) {
 	struct stat st;
 	std::string extention;
 	if (Location.alias.empty())
@@ -319,7 +317,6 @@ void HttpResponse::GetHundler(location Location) {
 				extention = getCgiExtension(FinalPath);
 				if (extention == ".php" || extention == ".py") {
 					runCGI(extention, Location);
-					std::cout << "hello" << std::endl;
 				} else {
 					setStatusCode(200);
 					addHeader("Content-Type", GetFileExtension(FinalPath));
@@ -406,7 +403,7 @@ void	HttpResponse::constructBody() {
 	}
 }
 
-std::string HttpResponse::GetFileExtension(std::string path){
+std::string HttpResponse::GetFileExtension(std::string &path){
 	size_t pos = path.find_last_of(".");
 	if (pos != path.npos)
 		return GetExtensionPrefix(path.substr(pos + 1, path.length() - (pos + 1)));

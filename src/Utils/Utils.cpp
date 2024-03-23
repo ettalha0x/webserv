@@ -15,7 +15,7 @@ std::string getCurrentTimeInGMT() {
 }
 
 
-std::string getFileContent(std::string fileName) {
+std::string getFileContent(std::string &fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
@@ -26,7 +26,7 @@ std::string getFileContent(std::string fileName) {
     return content;
 }
 
-int getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs)
+int getMatchedConfig(HttpRequest &request, const std::vector<t_server_config> &configs)
 {
     std::vector<int> newConfig;
     for (size_t i = 0; i < configs.size(); i++)
@@ -102,7 +102,7 @@ bool    alreadyExist(const std::vector<pollfd>& vector, int element) {
   return false;
 }
 
-std::string getCgiExtension(std::string filename) {
+std::string getCgiExtension(std::string &filename) {
     size_t i = filename.find_last_of(".");
     if (i < filename.length())
     {

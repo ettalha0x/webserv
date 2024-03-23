@@ -27,7 +27,7 @@ class WebServer {
 		std::map<int, Client>			clients;
 		int								accepter(int &serverIndex);
 		void							handler(int	&fd);
-		void							responder(int &fd);
+		bool							responder(int &fd);
 		char							buffer[BUFFER_SIZE];
 		std::string						ID;
 	public:
@@ -36,7 +36,7 @@ class WebServer {
 		std::vector<ListeningSocket> 	get_server_sock();
 		void							check_delete_session();
 		void							getClientsPollfds();
-		void							setNonBlocking(int sock);
+		void							setNonBlocking(int &sock);
 		void							init_pollfd();
 		void							launch();
 		~WebServer();

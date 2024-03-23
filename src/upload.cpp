@@ -2,10 +2,12 @@
 
 bool fileExists(const char* filename) {
     std::ifstream file(filename);
-    return file.good();
+	bool var = file.good();
+	file.close();
+    return var;
 }
 
-int	create_upload_file(std::string body, std::string path)
+int	create_upload_file(std::string &body, std::string &path)
 {
 	std::string filename;
 	size_t i = body.find("filename=");
@@ -41,7 +43,7 @@ int	create_upload_file(std::string body, std::string path)
 
 
 
-int		check_upload(std::string body, std::string path)
+int		check_upload(std::string &body, std::string &path)
 {
 	// std::cout << "body ==>>{" << body << "}" << std::endl;
 	size_t i = body.find("Content-Type");
@@ -55,7 +57,7 @@ int		check_upload(std::string body, std::string path)
 }
 
 
-std::vector<std::string>	parse_body(HttpRequest request)
+std::vector<std::string>	parse_body(HttpRequest &request)
 {
 	std::string body = request.GetBody();
 	// std::cout << YELLOW << "body=={" << body << "}" << RESET << std::endl;
@@ -87,7 +89,7 @@ std::vector<std::string>	parse_body(HttpRequest request)
 	return (vec_body);
 }
 
-int		upload(HttpRequest request, std::string path)
+int		upload(HttpRequest &request, std::string &path)
 {
 	std::string body = request.GetBody();
 	std::vector<std::string> vec_body = parse_body(request);

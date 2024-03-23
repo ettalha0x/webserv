@@ -16,12 +16,12 @@
 
 class Client;
 std::string getCurrentTimeInGMT();
-std::string getFileContent(std::string fileName);
-int         getMatchedConfig(HttpRequest request, const std::vector<t_server_config> configs);
+std::string getFileContent(std::string &fileName);
+int         getMatchedConfig(HttpRequest &request, const std::vector<t_server_config> &configs);
 std::string GetExtensionPrefix(std::string extension);
 std::string list_dir(std::string dir_name);
 bool        alreadyExist(const std::vector<pollfd>& vector, int element);
-std::string getCgiExtension(std::string filename);
+std::string getCgiExtension(std::string &filename);
 bool        checkAllowedChars(std::string uri);
 
 template<typename T>

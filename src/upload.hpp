@@ -7,8 +7,8 @@
 #include "cgi.hpp"
 
 
-int	upload(HttpRequest request, std::string path);
-int		check_upload(std::string Body);
+int	upload(HttpRequest &request, std::string &path);
+int		check_upload(std::string &Body);
 
 
 #endif

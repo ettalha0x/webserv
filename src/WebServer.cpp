@@ -36,7 +36,7 @@ int WebServer::accepter(int    &serverIndex) {
     return new_client_socket;
 }
 
-void	WebServer::setNonBlocking(int sock) {
+void	WebServer::setNonBlocking(int &sock) {
 	int flags = fcntl(sock, F_GETFL, 0);
 	if (flags < 0) {
 		perror("get flags error");
@@ -61,12 +61,12 @@ void WebServer::handler(int &fd) {
 
     if (bytesReceived <= 0) {
         // delete client
-        if (bytesReceived < 0) {
+        // if (bytesReceived < 0) {
             close(clients[fd].getPollfd().fd);
             // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
             clients[fd].getStringReq().clear();
             clients.erase(fd);
-        }
+        // }
         return;
     }
 
@@ -99,7 +99,7 @@ void WebServer::handler(int &fd) {
     }
 }
 
-void WebServer::responder(int &fd) {
+bool WebServer::responder(int &fd) {
     if (!clients[fd].resGenerated ){
         // std::cout << GREEN << "HEEEREEE " << clients.size() << RESET << std::endl;
         if (clients[fd].getRequest().badRequest) {
@@ -133,7 +133,7 @@ void WebServer::responder(int &fd) {
         clients[fd].clearData();
         // std::cout << RED << "send error" << RESET << std::endl;
         clients.erase(fd);
-        return;
+        return true;
     } else if (bytesSent > 0){
         clients[fd].getStringRes().erase(0, (size_t)bytesSent);
     }
@@ -147,6 +147,7 @@ void WebServer::responder(int &fd) {
             // std::cout << YELLOW << clients[fd].getPollfd().fd << RESET << std::endl;
             clients[fd].clearData();
             clients.erase(fd);
+            return true;
             // std::cout << RED << "close connection" << RESET << std::endl;
         //  } else {
             // Client tmp(fd, clients[fd].ipAndPort);
@@ -154,6 +155,7 @@ void WebServer::responder(int &fd) {
             // std::cout << RED << "clear data" << RESET << std::endl;
         //  }
     }
+    return false;
     // std::cout << GREEN << "Responding..." << RESET << std::endl;
 }
 
@@ -255,7 +257,8 @@ void WebServer::launch() {
             }
             if (client_sockets[i].revents & POLLOUT) {
                 if (clients[client_sockets[i].fd].getRequest().completed && !clients[client_sockets[i].fd].getRequest().served){
-                    responder(client_sockets[i].fd);
+                    if (responder(client_sockets[i].fd))
+                        client_sockets.erase(client_sockets.begin() + i);
                 }
             }
         }

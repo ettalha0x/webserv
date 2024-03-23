@@ -23,7 +23,7 @@ std::string int_to_string(int value)
     return str.str();
 }
 
-std::string copy(std::string input, size_t i, size_t j)
+std::string copy(std::string &input, size_t i, size_t j)
 {
     if (i >= input.length() || j > input.length() || i > j)
         return "";
@@ -34,7 +34,7 @@ std::string copy(std::string input, size_t i, size_t j)
 }
 
 
-std::string content_name_value(std::string tmp)
+std::string content_name_value(std::string &tmp)
 {
 	std::string content;
 	size_t  i = tmp.find("\"");
@@ -46,7 +46,7 @@ std::string content_name_value(std::string tmp)
 	return (content);
 }
 
-cgi::cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath) :finalPath(finalPath), cgiPath(cgiPath)
+cgi::cgi(HttpRequest &new_request, std::string &finalPath, std::string &cgiPath) :finalPath(finalPath), cgiPath(cgiPath)
 {
 	std::vector<std::pair<std::string, std::string > > b = new_request.GetQuerty() ;
 	std::vector<std::pair<std::string, std::string > >::iterator it_Querty = b.begin();
@@ -105,7 +105,7 @@ char **cgi::convert_to_char_double()
 	return envp;
 }
 
-std::pair<std::string , std::string> func(std::string header, std::string key)
+std::pair<std::string , std::string> func(std::string &header, std::string key)
 {
 	std::pair<std::string , std::string> key_value;
 	size_t i = header.find(key);
@@ -139,7 +139,7 @@ std::pair<std::string , std::string> func(std::string header, std::string key)
 	return (key_value);
 }
 
-std::pair< std::string, std::string> key_value_cookie(std::string tmp)
+std::pair< std::string, std::string> key_value_cookie(std::string &tmp)
 {
 	std::pair< std::string, std::string> key_value;
 	size_t i = tmp.find("=");
@@ -151,7 +151,7 @@ std::pair< std::string, std::string> key_value_cookie(std::string tmp)
 	return (key_value);
 }
 
-vector_cookies  parse_set_cookie(std::string value)
+vector_cookies  parse_set_cookie(std::string &value)
 {
 	std::vector<std::pair< std::string, std::string> > vector_pair;
 	std::pair< std::string, std::string> key_value;
@@ -176,7 +176,7 @@ vector_cookies  parse_set_cookie(std::string value)
 }
 
 
-vector_cookies check_attributes_set_cookies(vector_cookies vector_pair, vector_cookies tmp)
+vector_cookies check_attributes_set_cookies(vector_cookies &vector_pair, vector_cookies &tmp)
 {
 	if (vector_pair.size())
 	{
@@ -208,7 +208,7 @@ vector_cookies check_attributes_set_cookies(vector_cookies vector_pair, vector_c
 	return (vector_pair);
 }
 
-std::string vector_cookies_to_string(vector_cookies vec)
+std::string vector_cookies_to_string(vector_cookies &vec)
 {
 	std::string cookie;
 	std::vector<std::pair< std::string, std::string> >::iterator ite ;
@@ -225,7 +225,7 @@ std::string vector_cookies_to_string(vector_cookies vec)
 }
 
 
-std::map<std::string , std::string> fill_container_map(std::string header)
+std::map<std::string , std::string> fill_container_map(std::string &header)
 {
 	std::map<std::string , std::string> header_map;
 	std::pair<std::string , std::string> key_value;
@@ -282,7 +282,7 @@ std::map<std::string , std::string> fill_container_map(std::string header)
 	return (header_map);
 }
 
-std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::check_resp_cgi(std::string res_cgi, int exitStatus)
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::check_resp_cgi(std::string &res_cgi, int exitStatus)
 {
 	std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > resp;
 	std::map<std::string , std::string> header_map;
@@ -354,7 +354,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > r
 }
 
 
-std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::execute(std::string req_method, HttpRequest new_request)
+std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > cgi::execute(std::string &req_method, HttpRequest &new_request)
 {
 	int fd[2];
 	int _fd[2];
@@ -458,6 +458,7 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
+	std::cout << "{ " << result << "}" << std::endl;
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
 	return (resp);

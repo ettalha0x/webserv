@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esekouni <esekouni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 18:29:15 by esekouni          #+#    #+#             */
-/*   Updated: 2024/03/15 20:58:33 by esekouni         ###   ########.fr       */
+/*   Updated: 2024/03/23 01:25:17 by aouchaad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,11 @@ class cgi
 		std::string 	cgiPath;
 		std::vector<std::pair<std::string, std::string> > cookies_experation;
 	public:
-		cgi(HttpRequest new_request, std::string finalPath, std::string cgiPath);
+		cgi(HttpRequest &new_request, std::string &finalPath, std::string &cgiPath);
 		char **convert_to_char_double();
-		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > execute(std::string req_method, HttpRequest new_request);
+		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > execute(std::string &req_method, HttpRequest &new_request);
 		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > get_cgi_res();
-		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > check_resp_cgi(std::string res_body, int exitStatus);
+		std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > check_resp_cgi(std::string &res_body, int exitStatus);
 };
 
 
