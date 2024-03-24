@@ -459,7 +459,6 @@ std::pair<std::map<std::string , std::string> , std::pair<std::string , int> > c
         close(fd[1]);
         close(_fd[0]);
 	}
-	std::cout << result << std::endl;
 	deleteCharArray(envp);
 	resp = check_resp_cgi(result, exitStatus);
 	return (resp);

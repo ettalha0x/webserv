@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   configFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:22 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/16 18:00:04 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/23 22:48:59 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -346,15 +346,15 @@ void printLocation(location loc, int number) {
 
 void printConfigs(std::vector<t_server_config> &configs) {
 	for (size_t i = 0; i < configs.size(); i++) {
-		std::cout << "serverName : " << configs[i].serverName << std::endl;
-		std::cout << "host : " << configs[i].host << std::endl;
+		// std::cout << "serverName : " << configs[i].serverName << std::endl;
 		for (size_t j = 0; j < configs[i].port.size(); j++)
-			std::cout << "port : " << configs[i].port[j] << std::endl;
-		std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
+		std::cout << "server is listening on : " << configs[i].serverName << ":" << configs[i].port[j] << std::endl;
+			// std::cout << "port : " << configs[i].port[j] << std::endl;
+		// std::cout << "maxBodySize : " << configs[i].maxBodySize << std::endl;
 		
 		int number = 1;
 		for (std::map<std::string, location>:: iterator it = configs[i].locations.begin(); it != configs[i].locations.end(); it++) {
-			printLocation(it->second, number);
+			// printLocation(it->second, number);
 			number++;
 		}
 		std::cout << "**********************************************" << std::endl;
@@ -385,22 +385,17 @@ void setDefaultLocation(int i, std::vector<t_server_config> &configs) {
 	location tmp;
 
 	tmp.uri = "/";
-	tmp.root = "Sites-available/Server_1";
-	tmp.cgi_path = "cgi-bin";
-	tmp.cgi_extentions.push_back(".php");
-	tmp.cgi_extentions.push_back(".py");
+	tmp.root = "./";
+	tmp.acceptedMethods.push_back("GET");
 	tmp.index = "index.html";
 	tmp.autoIndex = false;
-	tmp.acceptedMethods.push_back("GET");
-	tmp.acceptedMethods.push_back("POST");
-	tmp.acceptedMethods.push_back("DELETE");
 	configs[i].locations.insert(std::make_pair("/", tmp));
 }
 
 void	setLocationsToDefault(t_server_config &config) {
 	for (std::map<std::string, location>::iterator it = config.locations.begin(); it != config.locations.end(); it++) {
 		if (it->second.root.empty())
-			it->second.root = "Sites-available/Server_1";
+			it->second.root = "./";
 		if (it->second.index.empty())
 			it->second.index = "index.html";
 	}
@@ -412,7 +407,7 @@ void setToDefault(std::vector<t_server_config> &configs) {
 		if (configs[i].port.empty())
 			configs[i].port.push_back(unusedPort(configs));
 		if (configs[i].serverName.empty())
-			configs[i].serverName = "localhost";
+			configs[i].serverName = "127.0.0.1";
 		if (configs[i].host == 0)
 			configs[i].host = 16777343;
 		if (configs[i].maxBodySize == 0)

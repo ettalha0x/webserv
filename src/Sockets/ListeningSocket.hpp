@@ -10,6 +10,6 @@ class ListeningSocket: public BindingSocket {
 		int listening;
 	public:
 
-		ListeningSocket(int domain, int service, int protocol, int port, u_long host, int backlog);
+		ListeningSocket(int domain, int type, int protocol, int port, u_long host, int backlog);
 		virtual ~ListeningSocket();
 };

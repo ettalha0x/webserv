@@ -10,7 +10,7 @@ class BindingSocket: public Socket {
 
 	public:
 
-		BindingSocket(int domain, int service, int protocol, int port, u_long host);
+		BindingSocket(int domain, int type, int protocol, int port, u_long host);
 		~BindingSocket();
 
 };

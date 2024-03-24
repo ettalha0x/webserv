@@ -17,7 +17,7 @@ class Socket
 
 	public:
 
-		Socket(int domain, int service, int protocol, int port, u_long host);
+		Socket(int domain, int type, int protocol, int port, u_long host);
 	
 		void	setNonBlocking(int sock);
 

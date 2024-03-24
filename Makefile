@@ -6,21 +6,32 @@ SRCS = 	src/main.cpp \
         src/Sockets/ListeningSocket.cpp \
 		src/HttpRequest.cpp \
 		src/HttpResponse.cpp \
-		src/HttpRequest.cpp \
 		src/WebServer.cpp \
 		src/Client.cpp \
 		src/configFile.cpp \
 		src/cgi.cpp \
 		src/upload.cpp 
 
+INCLUDS = src/Utils/Utils.hpp \
+		src/Sockets/Socket.hpp \
+        src/Sockets/BindingSocket.hpp \
+        src/Sockets/ListeningSocket.hpp \
+		src/HttpRequest.hpp \
+		src/HttpResponse.hpp \
+		src/WebServer.hpp \
+		src/Client.hpp \
+		src/configFile.hpp \
+		src/cgi.hpp \
+		src/upload.hpp 
+
 OBJS = $(SRCS:.cpp=.o)
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98  #-fsanitize=address
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -rf
 
-%.o:%.cpp Webserv.hpp
+%.o:%.cpp $(INCLUDS)
 		c++ $(CPPFLAGS) -c $< -o $@
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) 
 		c++ ${CPPFLAGS} $^ -o $@
 		mkdir session || true
 

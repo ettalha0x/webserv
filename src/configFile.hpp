@@ -6,7 +6,7 @@
 /*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/20 15:21:02 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/13 13:45:32 by nettalha         ###   ########.fr       */
+/*   Updated: 2024/03/23 22:54:41 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_config
 	std::map<std::string, location> locations;
 	std::map<int, std::string> 		Errors;
 } t_server_config;
+
 
 
 class SyntaxErrorException : public std::exception {

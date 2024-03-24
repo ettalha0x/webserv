@@ -182,6 +182,11 @@ void HttpResponse::runCGI(std::string &extention, location &Location) {
 			if (!resp.first["Content-Type:"].empty()) {
 				addHeader("Content-Type",resp.first["Content-Type:"]);
 			}
+			else
+			{
+				setError(resp.second.second, ERROR500);
+				return ;
+			}
 			if (!resp.first["Content-Length:"].empty())
 				addHeader("Content-Length",resp.first["Content-Length:"]);
 			if (!resp.first["Set-Cookie:"].empty())
@@ -375,7 +380,6 @@ void	HttpResponse::constructBody() {
 		Location = getMatchedLocation(path);
 		if (!Location.redirection.empty()) {
 			setStatusCode(301);
-			// std::cout << "here" << std::endl;
 			addHeader("location", Location.redirection);
 			return;
 		}

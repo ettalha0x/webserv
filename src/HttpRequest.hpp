@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aouchaad <aouchaad@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: nettalha <nettalha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 22:06:58 by aouchaad          #+#    #+#             */
-/*   Updated: 2024/03/18 23:44:20 by aouchaad         ###   ########.fr       */
+/*   Updated: 2024/03/23 23:04:52 by nettalha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-
-#define GREEN "\033[1;32m"
-#define RED "\033[1;31m"
-#define YELLOW "\033[1;33m"
-#define RESET "\033[0m"
 
 typedef std::map<std::string, std::string> HeaderContainer;
 typedef std::vector<std::pair<std::string, std::string> > QueryContainer;
